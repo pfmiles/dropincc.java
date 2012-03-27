@@ -16,19 +16,27 @@ public class AndSubRule implements Element {
 
 	private List<Alternative> alts = new ArrayList<Alternative>();
 
-	public AndSubRule(Element ele) {
+	public AndSubRule(Element... ele) {
 		if (ele == null)
 			throw new DropinccException(
 					"Could not construct empty alternative.");
-		this.alts.add(new Alternative(new Element[] { ele }));
+		this.alts.add(new Alternative(ele));
 	}
 
 	public AndSubRule and(Element ele) {
 		if (ele == null)
 			throw new DropinccException(
 					"Could not construct empty alternative.");
-		this.alts.add(new Alternative(new Element[] { ele }));
+		this.alts.get(1).getElements().add(ele);
 		return this;
+	}
+
+	public OrSubRule or(Element ele) {
+		return new OrSubRule(this, ele);
+	}
+
+	public List<Alternative> getAlts() {
+		return alts;
 	}
 
 }

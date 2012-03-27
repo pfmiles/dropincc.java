@@ -23,11 +23,12 @@ public class OrSubRule implements Element {
 
 	private List<Alternative> alts = new ArrayList<Alternative>();
 
-	public OrSubRule(Element ele) {
+	public OrSubRule(Element... ele) {
 		if (ele == null)
 			throw new DropinccException(
 					"Could not construct empty alternative.");
-		this.alts.add(new Alternative(new Element[] { ele }));
+		for (Element e : ele)
+			this.alts.add(new Alternative(new Element[] { e }));
 	}
 
 	public OrSubRule or(Element ele) {
@@ -36,6 +37,14 @@ public class OrSubRule implements Element {
 					"Could not construct empty alternative.");
 		this.alts.add(new Alternative(new Element[] { ele }));
 		return this;
+	}
+
+	public List<Alternative> getAlts() {
+		return alts;
+	}
+
+	public AndSubRule and(Element ele) {
+		return new AndSubRule(this, ele);
 	}
 
 }

@@ -28,8 +28,8 @@ public class LangTest extends TestCase {
 		Token LEFTPAREN = calculator.addToken("\\(");
 		Token RIGHTPAREN = calculator.addToken("\\)");
 		// 2.define grammar rules and corresponding actions
-		Grule expr = new Grule();
-		Grule term = new Grule();
+		Grule expr = calculator.newGrule();
+		Grule term = calculator.newGrule();
 		Element mulTail = calculator.addGrammarRule(MUL.or(DIV), term).action(
 				new Action() {
 					public Object act(Object... params) {
@@ -83,6 +83,7 @@ public class LangTest extends TestCase {
 		// 1.compile it!
 		calculator.compile();
 		// 0.FIRE!!!
-		System.out.println(calculator.exe("1+2+3+(4+5*6*7*(64/8/2/(2/1)/1)*8+9)+10"));
+		System.out.println(calculator
+				.exe("1+2+3+(4+5*6*7*(64/8/2/(2/1)/1)*8+9)+10"));
 	}
 }

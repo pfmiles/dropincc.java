@@ -17,6 +17,7 @@ import java.util.List;
 import com.github.pfmiles.dropincc.impl.Alternative;
 import com.github.pfmiles.dropincc.impl.CompiledLang;
 import com.github.pfmiles.dropincc.impl.ConstructingGrule;
+import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
  * Represents a constructing language of your own... It could add lexer &
@@ -63,6 +64,7 @@ public class Lang implements Serializable {
 			throw new DropinccException(
 					"Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
 		Grule g = new Grule();
+		eles = Util.filterConstructingGrules(eles);
 		g.getAlts().add(new Alternative(eles));
 		this.grules.add(g);
 		return new ConstructingGrule(g);
@@ -72,13 +74,9 @@ public class Lang implements Serializable {
 	 * compile the rules to an more efficient form and ready for parsing.
 	 */
 	public void compile() {
-		CompiledLang cl = new CompiledLang();
-		// 1.resolving the parser ast and token rules
-		cl.checkAndCompileTokenRules(this.tokens);
-		// 2.check & compile token rules
-		// 3.check & simplify & compute grammar rules
-		// 4.parser code gen
-		// 5.compile and maintain the code in a separate classloader
+		CompiledLang cl = new CompiledLang(this.tokens, this.grules);
+		cl.compile();
+		this.clang = cl;
 	}
 
 	/**
@@ -117,5 +115,18 @@ public class Lang implements Serializable {
 	public Object exe(String code) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/**
+	 * Create a new Grule. The new grule is intended for later reference in
+	 * other grule constructs. If not so, you should add a grammar rule to your
+	 * language via 'Lang.addGrammarRule' method.
+	 * 
+	 * @return
+	 */
+	public Grule newGrule() {
+		Grule g = new Grule();
+		this.grules.add(g);
+		return g;
 	}
 }

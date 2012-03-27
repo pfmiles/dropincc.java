@@ -30,12 +30,13 @@ public class Token implements Element {
 
 	private String regexp;
 
-	/**
-	 * Construct a token described in regex
+	/*
+	 * Construct a token described in regex, package access privilege makes it
+	 * could only be created via methods in Lang.java.
 	 * 
 	 * @param regexp
 	 */
-	public Token(String regexp) {
+	Token(String regexp) {
 		this.regexp = regexp;
 	}
 
@@ -62,14 +63,42 @@ public class Token implements Element {
 	 * @return
 	 */
 	public OrSubRule or(Element ele) {
-		return new OrSubRule(ele);
+		return new OrSubRule(this, ele);
 	}
 
 	public AndSubRule and(Element ele) {
-		return new AndSubRule(ele);
+		return new AndSubRule(this, ele);
 	}
 
 	public String getRegexp() {
 		return regexp;
 	}
+
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((regexp == null) ? 0 : regexp.hashCode());
+		return result;
+	}
+
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Token other = (Token) obj;
+		if (regexp == null) {
+			if (other.regexp != null)
+				return false;
+		} else if (!regexp.equals(other.regexp))
+			return false;
+		return true;
+	}
+
+	public String toString() {
+		return this.regexp;
+	}
+
 }

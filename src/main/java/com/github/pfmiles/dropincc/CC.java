@@ -20,7 +20,7 @@ package com.github.pfmiles.dropincc;
  */
 public class CC {
 	/**
-	 * end of parsing file(or character stream)
+	 * end of parsing file(or character stream) token
 	 */
 	public static final Element EOF = new Element() {
 		private static final long serialVersionUID = 9194950534504326943L;

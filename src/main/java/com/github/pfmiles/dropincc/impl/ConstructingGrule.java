@@ -6,6 +6,7 @@ import com.github.pfmiles.dropincc.Action;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
+import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
  * 
@@ -39,6 +40,7 @@ public class ConstructingGrule implements Element {
 		if (eles == null || eles.length == 0)
 			throw new DropinccException(
 					"Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
+		eles = Util.filterConstructingGrules(eles);
 		this.grule.getAlts().add(new Alternative(eles));
 		return this;
 	}
@@ -60,4 +62,5 @@ public class ConstructingGrule implements Element {
 		alt.setAction(action);
 		return this;
 	}
+
 }

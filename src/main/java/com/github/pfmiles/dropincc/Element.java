@@ -15,11 +15,12 @@ import java.io.Serializable;
 /**
  * 
  * A reusable grammar element which can be used in latter grammar rules'
- * constructions.
+ * constructions. This interface should not contain any method, in order to
+ * comply the suggested pattern in designing a 'fluent interface' API.
  * 
  * @author pf-miles
  * 
  */
 public interface Element extends Serializable {
-	
+
 }

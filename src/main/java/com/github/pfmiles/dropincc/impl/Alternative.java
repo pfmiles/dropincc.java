@@ -37,4 +37,8 @@ public class Alternative {
 		this.action = action;
 	}
 
+	public List<Element> getElements() {
+		return elements;
+	}
+
 }
