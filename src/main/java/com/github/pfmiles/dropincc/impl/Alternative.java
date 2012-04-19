@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.github.pfmiles.dropincc.impl;
 
 import java.util.ArrayList;
@@ -18,27 +15,36 @@ import com.github.pfmiles.dropincc.Element;
  */
 public class Alternative {
 
-	private List<Element> elements = new ArrayList<Element>();
-	private Action action = null;
+    private List<Element> elements = new ArrayList<Element>();
+    private Action action = null;
 
-	public Alternative(Element[] eles) {
-		if (eles == null || eles.length == 0)
-			throw new DropinccException(
-					"Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
-		for (Element e : eles)
-			this.elements.add(e);
-	}
+    public Alternative(Element[] eles) {
+        if (eles == null || eles.length == 0)
+            throw new DropinccException(
+                    "Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
+        for (Element e : eles)
+            this.elements.add(e);
+    }
 
-	public Action getAction() {
-		return action;
-	}
+    public Action getAction() {
+        return action;
+    }
 
-	public void setAction(Action action) {
-		this.action = action;
-	}
+    public void setAction(Action action) {
+        this.action = action;
+    }
 
-	public List<Element> getElements() {
-		return elements;
-	}
+    public List<Element> getElements() {
+        return elements;
+    }
 
+    // same hashCode method as Object.class needed
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    // same equals method as Object.class needed
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

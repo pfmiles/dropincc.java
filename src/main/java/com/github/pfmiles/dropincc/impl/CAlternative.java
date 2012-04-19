@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.github.pfmiles.dropincc.impl;
 
 import java.util.ArrayList;
@@ -17,27 +14,39 @@ import com.github.pfmiles.dropincc.Action;
  */
 public class CAlternative {
 
-	private List<EleType> matchSequence = new ArrayList<EleType>();
-	private Action action = null;
+    private List<EleType> matchSequence = new ArrayList<EleType>();
+    private Action action = null;
 
-	public CAlternative(List<EleType> ms, Action action) {
-		this.matchSequence = ms;
-		this.action = action;
-	}
+    // TODO LL look aheads
 
-	public List<EleType> getMatchSequence() {
-		return matchSequence;
-	}
+    public CAlternative(List<EleType> ms, Action action) {
+        this.matchSequence = ms;
+        this.action = action;
+    }
 
-	public void setMatchSequence(List<EleType> matchSequence) {
-		this.matchSequence = matchSequence;
-	}
+    public List<EleType> getMatchSequence() {
+        return matchSequence;
+    }
 
-	public Action getAction() {
-		return action;
-	}
+    public void setMatchSequence(List<EleType> matchSequence) {
+        this.matchSequence = matchSequence;
+    }
 
-	public void setAction(Action action) {
-		this.action = action;
-	}
+    public Action getAction() {
+        return action;
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
+    }
+
+    // same hashCode method as Object.class needed
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    // same equals method as Object.class needed
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

@@ -17,73 +17,90 @@ import junit.framework.TestCase;
  * 
  */
 public class LangTest extends TestCase {
-	public void testCalculator() {
-		// 3.define lexical rules
-		Lang calculator = new Lang();
-		Token DIGIT = calculator.addToken("\\d+");
-		Token ADD = calculator.addToken("\\+");
-		Token SUB = calculator.addToken("\\-");
-		Token MUL = calculator.addToken("\\*");
-		Token DIV = calculator.addToken("/");
-		Token LEFTPAREN = calculator.addToken("\\(");
-		Token RIGHTPAREN = calculator.addToken("\\)");
-		// 2.define grammar rules and corresponding actions
-		Grule expr = calculator.newGrule();
-		Grule term = calculator.newGrule();
-		Element mulTail = calculator.addGrammarRule(MUL.or(DIV), term).action(
-				new Action() {
-					public Object act(Object... params) {
-						return params;
-					}
-				});
-		term.fillGrammarRule(DIGIT, mulTail).action(new Action() {
-			public Object act(Object... params) {
-				int factor = Integer.parseInt((String) params[0]);
-				Object[] mulTailReturn = (Object[]) params[1];
-				String op = (String) mulTailReturn[0];
-				int factor2 = (Integer) mulTailReturn[1];
-				if ("*".equals(op)) {
-					return factor * factor2;
-				} else if ("/".equals(op)) {
-					return factor / factor2;
-				} else {
-					throw new RuntimeException("Unsupported operator: " + op);
-				}
-			}
-		}).alt(LEFTPAREN, expr, RIGHTPAREN).action(new Action() {
-			public Object act(Object... params) {
-				return params[1];
-			}
-		}).alt(DIGIT).action(new Action() {
-			public Object act(Object... params) {
-				return Integer.parseInt((String) params[0]);
-			}
-		});
-		Element addendTail = calculator.addGrammarRule(ADD.or(SUB), term)
-				.action(new Action() {
-					public Object act(Object... params) {
-						return params;
-					}
-				});
-		expr.fillGrammarRule(term, addendTail, CC.EOF).action(new Action() {
-			public Object act(Object... params) {
-				int addend = (Integer) params[0];
-				Object[] addendTailReturn = (Object[]) params[1];
-				String op = (String) addendTailReturn[0];
-				int addend2 = (Integer) addendTailReturn[1];
-				if ("+".equals(op)) {
-					return addend + addend2;
-				} else if ("-".equals(op)) {
-					return addend - addend2;
-				} else {
-					throw new RuntimeException("Unsupported operator: " + op);
-				}
-			}
-		});
-		// 1.compile it!
-		calculator.compile();
-		// 0.FIRE!!!
-		System.out.println(calculator
-				.exe("1+2+3+(4+5*6*7*(64/8/2/(2/1)/1)*8+9)+10"));
-	}
+    /**
+     * <pre>
+     * left recursion version: 
+     * expr ::= addition EOF;
+     * addition ::= addend
+     *            | addition (ADD | SUB) addend;
+     * addend ::= factor
+     *          | addend (MUL | DIV) factor;
+     * factor ::= DIGIT
+     *          | LEFTPAREN addition RIGHTPAREN;
+     * 
+     * kleene closure version: 
+     * expr ::= addition EOF;
+     * addition ::= addend ((AND | SUB) addend)*;
+     * addend ::= factor ((MUL | DIV) factor)*;
+     * factor ::= DIGIT
+     * 			| LEFTPAREN addition RIGHTPAREN;
+     * </pre>
+     */
+    public void testCalculator() {
+        // 3.define lexical rules
+        Lang calculator = new Lang();
+        Token DIGIT = calculator.addToken("\\d+");
+        Token ADD = calculator.addToken("\\+");
+        Token SUB = calculator.addToken("\\-");
+        Token MUL = calculator.addToken("\\*");
+        Token DIV = calculator.addToken("/");
+        Token LEFTPAREN = calculator.addToken("\\(");
+        Token RIGHTPAREN = calculator.addToken("\\)");
+        // 2.define grammar rules and corresponding actions
+        Grule addition = calculator.newGrule();
+        Grule addend = calculator.newGrule();
+        Grule factor = calculator.newGrule();
+        Element expr = calculator.addGrammarRule(addition, Tokens.EOF).action(new Action() {
+            public Object act(Object... params) {
+                return params[0];
+            }
+        });
+        addition.fillGrammarRule(addend, CC.ks((ADD.or(SUB)), addend)).action(new Action() {
+            public Object act(Object... params) {
+                double leftMost = (Double) params[0];
+                Object[] opAndOther = (Object[]) params[1];
+                for (int i = 0; i < opAndOther.length; i++) {
+                    Object[] opAndOne = (Object[]) opAndOther[i];
+                    if ("+".equals(opAndOne[0])) {
+                        leftMost += (Double) opAndOne[1];
+                    } else if ("-".equals(opAndOne[1])) {
+                        leftMost -= (Double) opAndOne[1];
+                    } else {
+                        throw new RuntimeException("Invalid operator: " + opAndOne[0]);
+                    }
+                }
+                return leftMost;
+            }
+        });
+        addend.fillGrammarRule(factor, CC.ks(MUL.or(DIV), factor)).action(new Action() {
+            public Object act(Object... params) {
+                double leftMost = (Double) params[0];
+                Object[] opAndOthers = (Object[]) params[1];
+                for (int i = 0; i < opAndOthers.length; i++) {
+                    Object[] opAndOther = (Object[]) opAndOthers[i];
+                    if ("*".equals(opAndOthers[0])) {
+                        leftMost *= (Double) opAndOthers[1];
+                    } else if ("/".equals(opAndOthers[0])) {
+                        leftMost /= (Double) opAndOthers[1];
+                    } else {
+                        throw new RuntimeException("Invalid operator: " + opAndOther[0]);
+                    }
+                }
+                return leftMost;
+            }
+        });
+        factor.fillGrammarRule(DIGIT).action(new Action() {
+            public Object act(Object... params) {
+                return Double.parseDouble((String) params[0]);
+            }
+        }).alt(LEFTPAREN, addition, RIGHTPAREN).action(new Action() {
+            public Object act(Object... params) {
+                return (Double) params[1];
+            }
+        });
+        // 1.compile it!
+        calculator.compile();
+        // 0.FIRE!!!
+        System.out.println(calculator.exe("1+2+3+(4+5*6*7*(64/8/2/(2/1)/1)*8+9)+10"));
+    }
 }

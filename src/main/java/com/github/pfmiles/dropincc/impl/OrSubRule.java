@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.github.pfmiles.dropincc.impl;
 
 import java.util.ArrayList;

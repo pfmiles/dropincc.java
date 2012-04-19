@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.github.pfmiles.dropincc.testhelper;
 
 import java.lang.reflect.Field;

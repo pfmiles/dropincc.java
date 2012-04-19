@@ -10,6 +10,8 @@
  ******************************************************************************/
 package com.github.pfmiles.dropincc;
 
+import com.github.pfmiles.dropincc.impl.kleene.KleeneStarNode;
+
 /**
  * 
  * This is a utility class that contains a handful of static methods or
@@ -19,17 +21,23 @@ package com.github.pfmiles.dropincc;
  * 
  */
 public class CC {
-	/**
-	 * end of parsing file(or character stream) token
-	 */
-	public static final Element EOF = new Element() {
-		private static final long serialVersionUID = 9194950534504326943L;
-	};
+    private CC() {
+    }
 
-	/**
-	 * represents a 'blank' alternative of a grammar rule
-	 */
-	public static final Element NOTHING = new Element() {
-		private static final long serialVersionUID = -897759698260072002L;
-	};
+    /**
+     * represents a 'blank' alternative of a grammar rule
+     */
+    public static final Element NOTHING = new Element() {
+        private static final long serialVersionUID = -897759698260072002L;
+    };
+
+    /**
+     * The kleene star syntactic suger
+     * 
+     * @param elements
+     * @return
+     */
+    public static KleeneStarNode ks(Element... elements) {
+        return new KleeneStarNode(elements);
+    }
 }
