@@ -27,67 +27,72 @@ import com.github.pfmiles.dropincc.impl.util.Util;
  */
 public class Grule implements Element {
 
-	private static final long serialVersionUID = 2584938374078652301L;
+    private static final long serialVersionUID = 2584938374078652301L;
 
-	// protected access privilege makes Grule could only be created via
-	// Lang.newGrule() or subClassOfGrule.new Grule()
-	protected Grule() {
-	}
+    // just for display when debuging...
+    private String name;
 
-	private List<Alternative> alts = new ArrayList<Alternative>();
+    // protected access privilege makes Grule could only be created via
+    // Lang.newGrule() or subClassOfGrule.new Grule()
+    protected Grule(int defIndex) {
+        this.name = String.valueOf(defIndex);
+    }
 
-	public AndSubRule and(Element e) {
-		if (e == null)
-			throw new DropinccException(
-					"Could not construct empty alternative.");
-		return new AndSubRule(this, e);
-	}
+    private List<Alternative> alts = new ArrayList<Alternative>();
 
-	public OrSubRule or(Element e) {
-		if (e == null)
-			throw new DropinccException(
-					"Could not construct empty alternative.");
-		return new OrSubRule(this, e);
-	}
+    public AndSubRule and(Element e) {
+        if (e == null)
+            throw new DropinccException("Could not construct empty alternative.");
+        return new AndSubRule(this, e);
+    }
 
-	public ConstructingGrule fillGrammarRule(Element... eles) {
-		if (eles == null || eles.length == 0)
-			throw new DropinccException(
-					"Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
-		eles = Util.filterConstructingGrules(eles);
-		this.alts.add(new Alternative(eles));
-		return new ConstructingGrule(this);
-	}
+    public OrSubRule or(Element e) {
+        if (e == null)
+            throw new DropinccException("Could not construct empty alternative.");
+        return new OrSubRule(this, e);
+    }
 
-	/**
-	 * get all alternatives for this rule
-	 * 
-	 * @return
-	 */
-	public List<Alternative> getAlts() {
-		return this.alts;
-	}
+    public ConstructingGrule fillGrammarRule(Element... eles) {
+        if (eles == null || eles.length == 0)
+            throw new DropinccException("Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
+        eles = Util.filterConstructingGrules(eles);
+        this.alts.add(new Alternative(eles));
+        return new ConstructingGrule(this);
+    }
 
-	public void setAlts(List<Alternative> alts) {
-		this.alts = alts;
-	}
+    /**
+     * get all alternatives for this rule
+     * 
+     * @return
+     */
+    public List<Alternative> getAlts() {
+        return this.alts;
+    }
 
-	/**
-	 * Grule needs exactly the same 'hashCode' method as Object.class has, for
-	 * 'every individual grule is different from each other even if their
-	 * containing alts are the same.'
-	 */
-	public int hashCode() {
-		return super.hashCode();
-	}
+    public void setAlts(List<Alternative> alts) {
+        this.alts = alts;
+    }
 
-	/**
-	 * Grule needs exactly the same 'equals' method as Object.class has, for
-	 * 'every individual grule is different from each other even if their
-	 * containing alts are the same.'
-	 */
-	public boolean equals(Object obj) {
-		return super.equals(obj);
-	}
+    /**
+     * Grule needs exactly the same 'hashCode' method as Object.class has, for
+     * 'every individual grule is different from each other even if their
+     * containing alts are the same.'
+     */
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    /**
+     * Grule needs exactly the same 'equals' method as Object.class has, for
+     * 'every individual grule is different from each other even if their
+     * containing alts are the same.'
+     */
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
+
+    public String toString() {
+        return "Grule[" + name + "]";
+    }
 
 }

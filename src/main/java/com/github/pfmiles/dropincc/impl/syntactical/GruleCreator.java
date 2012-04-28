@@ -1,4 +1,4 @@
-package com.github.pfmiles.dropincc.impl;
+package com.github.pfmiles.dropincc.impl.syntactical;
 
 import com.github.pfmiles.dropincc.Grule;
 
@@ -14,13 +14,18 @@ import com.github.pfmiles.dropincc.Grule;
  */
 final class GruleCreator extends Grule {
 
-	private static final long serialVersionUID = 7844640022778630030L;
+    private static final long serialVersionUID = 7844640022778630030L;
 
-	private GruleCreator() {
-	}
+    private GruleCreator() {
+        super(-1);
+    }
 
-	static Grule createGrule() {
-		return new GruleCreator();
-	}
+    static Grule createGrule() {
+        return new GruleCreator();
+    }
+
+    public String toString() {
+        return "GruleCreator";
+    }
 
 }

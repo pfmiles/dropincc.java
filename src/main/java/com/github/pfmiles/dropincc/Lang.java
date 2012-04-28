@@ -38,7 +38,8 @@ public class Lang implements Serializable {
     private AnalyzedLang alang;
 
     /**
-     * Add a new token rule
+     * Add a new token rule, note that the token rules are trying to match as
+     * the same order as it is added. TODO add 'priority' parameter of rules
      * 
      * @param regExpr
      *            , the regExp to describe a token rule
@@ -61,9 +62,8 @@ public class Lang implements Serializable {
      */
     public ConstructingGrule addGrammarRule(Element... eles) {
         if (eles == null || eles.length == 0)
-            throw new DropinccException(
-                    "Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
-        Grule g = new Grule();
+            throw new DropinccException("Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
+        Grule g = new Grule(this.grules.size());
         eles = Util.filterConstructingGrules(eles);
         g.getAlts().add(new Alternative(eles));
         this.grules.add(g);
@@ -125,7 +125,7 @@ public class Lang implements Serializable {
      * @return
      */
     public Grule newGrule() {
-        Grule g = new Grule();
+        Grule g = new Grule(this.grules.size());
         this.grules.add(g);
         return g;
     }

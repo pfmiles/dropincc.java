@@ -1,0 +1,62 @@
+package com.github.pfmiles.dropincc.impl;
+
+import java.util.Map;
+
+import com.github.pfmiles.dropincc.Element;
+import com.github.pfmiles.dropincc.Grule;
+import com.github.pfmiles.dropincc.Token;
+import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
+import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
+
+/**
+ * @author pf-miles
+ * 
+ */
+public class TypeMappingParam {
+    private Map<Token, TokenType> tokenTypeMapping;
+    private Map<Grule, GruleType> gruleTypeMapping;
+    private Map<Element, SpecialType> specialTypeMapping;
+    private Map<AbstractKleeneNode, KleeneType> kleeneTypeMapping;
+
+    public TypeMappingParam(Map<Token, TokenType> tokenTypeMapping, Map<Grule, GruleType> gruleTypeMapping,
+            Map<Element, SpecialType> specialTypeMapping,
+            Map<AbstractKleeneNode, KleeneType> kleeneTypeMapping) {
+        super();
+        this.tokenTypeMapping = tokenTypeMapping;
+        this.gruleTypeMapping = gruleTypeMapping;
+        this.specialTypeMapping = specialTypeMapping;
+        this.kleeneTypeMapping = kleeneTypeMapping;
+    }
+
+    public Map<Token, TokenType> getTokenTypeMapping() {
+        return tokenTypeMapping;
+    }
+
+    public void setTokenTypeMapping(Map<Token, TokenType> tokenTypeMapping) {
+        this.tokenTypeMapping = tokenTypeMapping;
+    }
+
+    public Map<Grule, GruleType> getGruleTypeMapping() {
+        return gruleTypeMapping;
+    }
+
+    public void setGruleTypeMapping(Map<Grule, GruleType> gruleTypeMapping) {
+        this.gruleTypeMapping = gruleTypeMapping;
+    }
+
+    public Map<Element, SpecialType> getSpecialTypeMapping() {
+        return specialTypeMapping;
+    }
+
+    public void setSpecialTypeMapping(Map<Element, SpecialType> specialTypeMapping) {
+        this.specialTypeMapping = specialTypeMapping;
+    }
+
+    public Map<AbstractKleeneNode, KleeneType> getKleeneTypeMapping() {
+        return kleeneTypeMapping;
+    }
+
+    public void setKleeneTypeMapping(Map<AbstractKleeneNode, KleeneType> kleeneTypeMapping) {
+        this.kleeneTypeMapping = kleeneTypeMapping;
+    }
+}
