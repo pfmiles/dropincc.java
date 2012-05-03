@@ -2,6 +2,7 @@ package com.github.pfmiles.dropincc.impl.syntactical;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -80,7 +81,7 @@ public class ParserCompiler {
             if (AndSubRule.class.isAssignableFrom(eleCls)) {
                 iter.remove();
                 AndSubRule asr = (AndSubRule) e;
-                Grule genGrule = GruleCreator.createGrule();
+                Grule genGrule = new GenedGrule();
                 List<Alternative> asrAlts = asr.getAlts();
                 genGrule.setAlts(asrAlts);
                 iter.add(genGrule);
@@ -89,7 +90,7 @@ public class ParserCompiler {
             } else if (OrSubRule.class.isAssignableFrom(eleCls)) {
                 iter.remove();
                 OrSubRule osr = (OrSubRule) e;
-                Grule genGrule = GruleCreator.createGrule();
+                Grule genGrule = new GenedGrule();
                 List<Alternative> osrAlts = osr.getAlts();
                 genGrule.setAlts(osrAlts);
                 iter.add(genGrule);
@@ -112,7 +113,7 @@ public class ParserCompiler {
     }
 
     public static Map<Grule, GruleType> buildGruleTypeMapping(List<Grule> grules, List<Grule> genGrules) {
-        Map<Grule, GruleType> gruleTypeMapping = new HashMap<Grule, GruleType>();
+        Map<Grule, GruleType> gruleTypeMapping = new LinkedHashMap<Grule, GruleType>();
         if (grules != null && !grules.isEmpty()) {
             for (int i = 0; i < grules.size(); i++) {
                 gruleTypeMapping.put(grules.get(i), new GruleType(i));

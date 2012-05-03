@@ -43,13 +43,13 @@ public class KleeneCompiler {
         return ret;
     }
 
-    private static void registerKleenesInGrule(Grule grule, Counter kleeneCount, Map<AbstractKleeneNode, KleeneType> kleeneTypeMapping, Set<Grule> examinedGrules) {
+    private static void registerKleenesInGrule(Grule grule, Counter kleeneCount, Map<AbstractKleeneNode, KleeneType> ret, Set<Grule> examinedGrules) {
         if (examinedGrules.contains(grule)) {
             return;
         } else {
             examinedGrules.add(grule);
             for (Alternative alt : grule.getAlts()) {
-                registerKleenesInElements(alt.getElements(), kleeneCount, kleeneTypeMapping, examinedGrules);
+                registerKleenesInElements(alt.getElements(), kleeneCount, ret, examinedGrules);
             }
         }
     }
@@ -59,14 +59,7 @@ public class KleeneCompiler {
         for (Element e : elements) {
             Class<?> eleCls = e.getClass();
             if (Grule.class.isAssignableFrom(eleCls)) {
-                if (examinedGrules.contains((Grule) e)) {
-                    continue;
-                } else {
-                    examinedGrules.add((Grule) e);
-                    for (Alternative alt : ((Grule) e).getAlts()) {
-                        registerKleenesInElements(alt.getElements(), kleeneCount, kleeneTypeMapping, examinedGrules);
-                    }
-                }
+                registerKleenesInGrule((Grule) e, kleeneCount, kleeneTypeMapping, examinedGrules);
             } else if (AbstractKleeneNode.class.isAssignableFrom(eleCls)) {
                 if (!kleeneTypeMapping.containsKey(e)) {
                     kleeneTypeMapping.put((AbstractKleeneNode) e, resolveKleeneType((AbstractKleeneNode) e, kleeneCount));

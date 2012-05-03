@@ -1,10 +1,9 @@
-package com.github.pfmiles.dropincc.impl.lookahead.links;
+package com.github.pfmiles.dropincc.impl.lookahead;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import com.github.pfmiles.dropincc.impl.EleType;
-import com.github.pfmiles.dropincc.impl.lookahead.LALink;
 
 /**
  * A normal look-ahead link, containing look-aheads of the corresponding

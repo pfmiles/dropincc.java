@@ -12,20 +12,16 @@ import com.github.pfmiles.dropincc.Grule;
  * @author pf-miles
  * 
  */
-final class GruleCreator extends Grule {
+final class GenedGrule extends Grule {
 
     private static final long serialVersionUID = 7844640022778630030L;
 
-    private GruleCreator() {
+    GenedGrule() {
         super(-1);
     }
 
-    static Grule createGrule() {
-        return new GruleCreator();
-    }
-
     public String toString() {
-        return "GruleCreator";
+        return "GenedGrule";
     }
 
 }

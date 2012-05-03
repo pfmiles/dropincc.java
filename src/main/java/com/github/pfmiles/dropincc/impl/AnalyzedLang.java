@@ -41,6 +41,8 @@ public class AnalyzedLang {
     // the token mathcing pattern
     private Pattern tokenPatterns;
 
+    private boolean whitespaceSensitive;
+
     // Grammar rule type -> alternatives with predicts, analysis & generated
     // from 'gruleTypeMapping' after sub-rule rewriting
     private Map<GruleType, List<CAlternative>> ruleTypeToAlts;
@@ -53,10 +55,13 @@ public class AnalyzedLang {
     // 'AnalyzedLang' compiling(resolveParserAst). For later analysis & code gen
     private Map<KleeneType, CKleeneNode> kleeneTypeToNode;
 
-    public AnalyzedLang(List<Token> tokens, List<Grule> grules) {
+    public AnalyzedLang(List<Token> tokens, List<Grule> grules, boolean whitespaceSensitive) {
         // build token -> tokenType mapping
         this.tokens = tokens;
-        this.tokenTypeMapping = LexerCompiler.buildTokenTypeMapping(tokens);
+
+        this.whitespaceSensitive = whitespaceSensitive;
+
+        this.tokenTypeMapping = LexerCompiler.buildTokenTypeMapping(tokens, whitespaceSensitive);
 
         this.grules = grules;
         // rewrite sub-rules
@@ -67,18 +72,6 @@ public class AnalyzedLang {
 
         // traverse and register kleene nodes
         this.kleeneTypeMapping = KleeneCompiler.buildKleeneTypeMapping(this.gruleTypeMapping);
-    }
-
-    public Map<Integer, EleType> getGroupNumToType() {
-        return groupNumToType;
-    }
-
-    public Map<GruleType, List<CAlternative>> getRuleTypeToAlts() {
-        return ruleTypeToAlts;
-    }
-
-    public Pattern getTokenPatterns() {
-        return tokenPatterns;
     }
 
     public void compile() {
@@ -120,4 +113,15 @@ public class AnalyzedLang {
         return kleeneTypeToNode;
     }
 
+    public Map<Integer, EleType> getGroupNumToType() {
+        return groupNumToType;
+    }
+
+    public Map<GruleType, List<CAlternative>> getRuleTypeToAlts() {
+        return ruleTypeToAlts;
+    }
+
+    public Pattern getTokenPatterns() {
+        return tokenPatterns;
+    }
 }

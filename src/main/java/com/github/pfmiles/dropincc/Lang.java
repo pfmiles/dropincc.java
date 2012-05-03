@@ -30,6 +30,9 @@ public class Lang implements Serializable {
 
     private static final long serialVersionUID = 631738160652653120L;
 
+    // if true, the lexer generator won't add a whitespace token automatically
+    // at the end of token regex chain. Left over the whitespace manipulation
+    // tasks to user defined lexer rules.
     private boolean whiteSpaceSensitive;
 
     private List<Token> tokens = new ArrayList<Token>();
@@ -74,7 +77,7 @@ public class Lang implements Serializable {
      * compile the rules to an more efficient form and ready for code gen.
      */
     public void compile() {
-        AnalyzedLang cl = new AnalyzedLang(this.tokens, this.grules);
+        AnalyzedLang cl = new AnalyzedLang(this.tokens, this.grules, this.whiteSpaceSensitive);
         cl.compile();
         this.alang = cl;
     }
@@ -90,8 +93,10 @@ public class Lang implements Serializable {
     }
 
     /**
-     * set the parse white-space sensitive, the parser is not white-space
-     * sensitive by default.
+     * Set the generated lexer white-space sensitive, the lexer is not
+     * white-space sensitive by default(it would ignore any whitespace
+     * characters not matched by user defined lexer rules).You may want this to
+     * be 'true' if you want to parse a language like Python...
      * 
      * @param whiteSpaceSensitive
      */

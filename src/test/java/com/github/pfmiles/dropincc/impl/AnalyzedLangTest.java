@@ -51,7 +51,7 @@ public class AnalyzedLangTest extends TestCase {
         addition.fillGrammarRule(addend, CC.ks(ADD.or(SUB), addend));
         addend.fillGrammarRule(factor, CC.ks(MUL.or(DIV), factor));
         factor.fillGrammarRule(DIGIT).alt(LEFTPAREN, addition, RIGHTPAREN);
-        AnalyzedLang cl = new AnalyzedLang((List<Token>) TestHelper.priField(calculator, "tokens"), (List<Grule>) TestHelper.priField(calculator, "grules"));
+        AnalyzedLang cl = new AnalyzedLang((List<Token>) TestHelper.priField(calculator, "tokens"), (List<Grule>) TestHelper.priField(calculator, "grules"), false);
         KleeneStarNode k1 = (KleeneStarNode) addition.getAlts().get(0).getElements().get(1);
         Object shouldBeRewritten = k1.getElements().get(0);
         assertTrue(shouldBeRewritten instanceof Grule);
