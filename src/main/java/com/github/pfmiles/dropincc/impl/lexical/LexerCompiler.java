@@ -45,7 +45,8 @@ public class LexerCompiler {
 
     /**
      * @param tokens
-     * @return
+     * @return Pair&lt;GroupNumToType, Patterns&gt;
+     * 
      */
     public static Pair<Map<Integer, EleType>, Pattern> checkAndCompileTokenRules(List<Token> tokens, Map<Token, TokenType> tokenTypeMapping) {
         // check regex valid

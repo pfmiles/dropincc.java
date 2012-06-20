@@ -19,8 +19,13 @@ import com.github.pfmiles.dropincc.impl.ConstructingGrule;
 import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.OrSubRule;
+import com.github.pfmiles.dropincc.impl.SpecialType;
+import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.TypeMappingParam;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
+import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
+import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
+import com.github.pfmiles.dropincc.impl.util.SetStack;
 import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
@@ -121,7 +126,7 @@ public class ParserCompiler {
             if (genGrules.size() != 0) {
                 int base = grules.size();
                 for (int i = 0; i < genGrules.size(); i++) {
-                    gruleTypeMapping.put(genGrules.get(i), new GruleType(base + i));
+                    gruleTypeMapping.put(genGrules.get(i), new GenedGruleType(base + i));
                 }
             }
         } else {
@@ -158,4 +163,41 @@ public class ParserCompiler {
         return ret;
     }
 
+    /**
+     * Detect left-recursions, which is not allowed in LL parsing
+     * 
+     */
+    public static void checkAndReportLeftRecursions(Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+        SetStack<GruleType> path = new SetStack<GruleType>();
+        for (Map.Entry<GruleType, List<CAlternative>> e : ruleTypeToAlts.entrySet())
+            examineEleType(e.getKey(), path, ruleTypeToAlts, kleeneTypeToNode);
+    }
+
+    private static void examineEleType(EleType t, SetStack<GruleType> path, Map<GruleType, List<CAlternative>> ruleTypeToAlts,
+            Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+        if (t instanceof SpecialType) {
+            return;
+        } else if (t instanceof TokenType) {
+            return;
+        } else if (t instanceof GruleType) {
+            if (path.contains(t)) {
+                throw new DropinccException("Left recursion detected: " + Util.dumpCirclePath(path, t));
+            } else {
+                path.push((GruleType) t);
+                List<CAlternative> alts = ruleTypeToAlts.get(t);
+                for (CAlternative a : alts) {
+                    // only the first eleType need to be checked
+                    examineEleType(a.getMatchSequence().get(0), path, ruleTypeToAlts, kleeneTypeToNode);
+                }
+                path.pop();
+            }
+        } else if (t instanceof KleeneType) {
+            CKleeneNode knode = kleeneTypeToNode.get(t);
+            for (EleType e : knode.getContents()) {
+                examineEleType(e, path, ruleTypeToAlts, kleeneTypeToNode);
+            }
+        } else {
+            throw new DropinccException("Unhandled element type: " + t);
+        }
+    }
 }

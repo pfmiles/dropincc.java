@@ -10,7 +10,9 @@
  ******************************************************************************/
 package com.github.pfmiles.dropincc;
 
+import com.github.pfmiles.dropincc.impl.kleene.KleeneCrossNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneStarNode;
+import com.github.pfmiles.dropincc.impl.kleene.OptionalNode;
 
 /**
  * 
@@ -32,7 +34,7 @@ public class CC {
     };
 
     /**
-     * The kleene star syntactic suger
+     * The kleene star syntactic sugar creator
      * 
      * @param elements
      * @return
@@ -40,4 +42,25 @@ public class CC {
     public static KleeneStarNode ks(Element... elements) {
         return new KleeneStarNode(elements);
     }
+
+    /**
+     * The kleene cross node creator
+     * 
+     * @param elements
+     * @return
+     */
+    public static KleeneCrossNode kc(Element... elements) {
+        return new KleeneCrossNode(elements);
+    }
+
+    /**
+     * The optional node creator
+     * 
+     * @param elements
+     * @return
+     */
+    public static OptionalNode op(Element... elements) {
+        return new OptionalNode(elements);
+    }
+
 }

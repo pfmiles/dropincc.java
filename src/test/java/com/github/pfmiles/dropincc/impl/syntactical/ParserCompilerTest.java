@@ -5,6 +5,8 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import com.github.pfmiles.dropincc.CC;
+import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
@@ -12,6 +14,7 @@ import com.github.pfmiles.dropincc.Token;
 import com.github.pfmiles.dropincc.Tokens;
 import com.github.pfmiles.dropincc.impl.Alternative;
 import com.github.pfmiles.dropincc.impl.GruleType;
+import com.github.pfmiles.dropincc.testhelper.AnalyzedLangForTest;
 import com.github.pfmiles.dropincc.testhelper.TestHelper;
 
 /**
@@ -111,4 +114,95 @@ public class ParserCompilerTest extends TestCase {
     }
 
     // TODO add a test which rewrites 'and' invocation cascading 'or'
+
+    /**
+     * direct left recursion:
+     * 
+     * <pre>
+     * L ::= L '>' '0'
+     * </pre>
+     * 
+     * chained left recursion:
+     * 
+     * <pre>
+     * L ::= '(' A ')'
+     *     | B ']'
+     *     | '0'
+     * A ::= '{' B '}'
+     * B ::= L '&gt;'
+     * </pre>
+     * 
+     * left recursion with kleene nodes:
+     * 
+     * <pre>
+     * L ::= '(' A ')'
+     *     | (B ']')*
+     *     | '0'
+     * A ::= '{' B '}'
+     *     | (L)?
+     * B ::= (A)+ '&gt;'
+     * </pre>
+     */
+    public void testCheckAndReportLeftRecursions() {
+        // direct left recursion
+        Lang testLang = new Lang();
+        Token gt = testLang.addToken("\\>");
+        Token zero = testLang.addToken("0");
+        Grule L = testLang.newGrule();
+        L.fillGrammarRule(L, gt, zero);
+        AnalyzedLangForTest a = TestHelper.resolveAnalyzedLangForTest(testLang);
+        try {
+            ParserCompiler.checkAndReportLeftRecursions(a.ruleTypeToAlts, a.kleeneTypeToNode);
+            assertTrue(false);
+        } catch (DropinccException e) {
+            // System.out.println(e.getMessage());
+            assertTrue(true);
+        }
+
+        // chained left recursion
+        testLang = new Lang();
+        Token leftParen = testLang.addToken("\\(");
+        Token rightParen = testLang.addToken("\\)");
+        Token rightBracket = testLang.addToken("\\]");
+        zero = testLang.addToken("0");
+        Token leftBrace = testLang.addToken("\\{");
+        Token rightBrace = testLang.addToken("\\}");
+        gt = testLang.addToken("\\>");
+        Grule A = testLang.newGrule();
+        Grule B = testLang.newGrule();
+        Element l = testLang.addGrammarRule(leftParen, A, rightParen).alt(B, rightBracket).alt(zero);
+        A.fillGrammarRule(leftBrace, B, rightBrace);
+        B.fillGrammarRule(l, gt);
+        a = TestHelper.resolveAnalyzedLangForTest(testLang);
+        try {
+            ParserCompiler.checkAndReportLeftRecursions(a.ruleTypeToAlts, a.kleeneTypeToNode);
+            assertTrue(false);
+        } catch (DropinccException e) {
+            // System.out.println(e.getMessage());
+            assertTrue(true);
+        }
+
+        // left recursion in kleene nodes
+        testLang = new Lang();
+        leftParen = testLang.addToken("\\(");
+        rightParen = testLang.addToken("\\)");
+        rightBracket = testLang.addToken("\\]");
+        zero = testLang.addToken("0");
+        leftBrace = testLang.addToken("\\{");
+        rightBrace = testLang.addToken("\\}");
+        gt = testLang.addToken("\\>");
+        A = testLang.newGrule();
+        B = testLang.newGrule();
+        l = testLang.addGrammarRule(leftParen, A, rightParen).alt(CC.ks(B, rightBracket)).alt(zero);
+        A.fillGrammarRule(leftBrace, B, rightBrace).alt(CC.op(l));
+        B.fillGrammarRule(CC.kc(A), gt);
+        a = TestHelper.resolveAnalyzedLangForTest(testLang);
+        try {
+            ParserCompiler.checkAndReportLeftRecursions(a.ruleTypeToAlts, a.kleeneTypeToNode);
+            assertTrue(false);
+        } catch (DropinccException e) {
+            // System.out.println(e.getMessage());
+            assertTrue(true);
+        }
+    }
 }

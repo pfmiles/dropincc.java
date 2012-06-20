@@ -7,8 +7,8 @@ import com.github.pfmiles.dropincc.Element;
 /**
  * This is not a kleene closure node indeed... But it's quite a convenience to
  * put it together with kleene star and kleene cross since they have similar
- * appearence(lexically) when building grammar rules. 'Optional' node is a
- * syntactic suger for 'one or nothing' rules.
+ * appearance(lexically) when building grammar rules. 'Optional' node is a
+ * syntactic sugar for 'one or nothing' rules.
  * 
  * @author pf-miles
  * 

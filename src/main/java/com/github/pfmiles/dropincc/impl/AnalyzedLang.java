@@ -31,7 +31,7 @@ public class AnalyzedLang {
     // grule -> gruleType mapping, inited when AnalyzedLang obj creating,
     // completed after sub-rule rewriting
     private Map<Grule, GruleType> gruleTypeMapping;
-    private static Map<Element, SpecialType> specialTypeMapping = new HashMap<Element, SpecialType>();
+    private static final Map<Element, SpecialType> specialTypeMapping = new HashMap<Element, SpecialType>();
     static {
         // special type 1, 'nothing' represents a empty alternative.
         specialTypeMapping.put(CC.NOTHING, new SpecialType(0));
@@ -86,13 +86,15 @@ public class AnalyzedLang {
         // mappings, including generated grules
         this.ruleTypeToAlts = ParserCompiler.buildRuleTypeToAlts(typeMappingParam);
 
+        // XXX need identical genGrules merging?
+
         // at this time, 'kleeneTypeMapping' should contain all KleeneNode ->
         // KleeneType mapping (built when traverse and register kleene nodes)
         this.kleeneTypeToNode = KleeneCompiler.buildKleeneTypeToNode(typeMappingParam);
 
-        // 3.check & simplify & compute grammar rules TODO
-        // TODO merge identical sub-grules
-        // TODO detect and report left-recursion
+        // 3.check or simplify & compute grammar rules
+        // detect and report left-recursion, LL parsing needed
+        ParserCompiler.checkAndReportLeftRecursions(this.ruleTypeToAlts, this.kleeneTypeToNode);
         // TODO compute predicts, LL(*)
         // TODO detect and report rule conflicts
         // 4.parser code gen

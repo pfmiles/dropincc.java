@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.pfmiles.dropincc.Action;
+import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
  * Compiled rule alternative, with matching element sequence and look-aheads,
@@ -48,5 +49,14 @@ public class CAlternative {
     // same equals method as Object.class needed
     public boolean equals(Object obj) {
         return super.equals(obj);
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("CAlternative(").append(this.matchSequence.toString());
+        if (this.action != null)
+            sb.append(", ").append(Util.resolveActionName(this.action));
+        sb.append(")");
+        return sb.toString();
     }
 }
