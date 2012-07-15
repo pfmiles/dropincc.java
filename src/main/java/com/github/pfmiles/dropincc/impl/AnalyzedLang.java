@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
-import com.github.pfmiles.dropincc.Token;
+import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneCompiler;
@@ -25,9 +25,9 @@ import com.github.pfmiles.dropincc.impl.util.Pair;
  * 
  */
 public class AnalyzedLang {
-    private List<Token> tokens;
+    private List<TokenDef> tokens;
     private List<Grule> grules;
-    private Map<Token, TokenType> tokenTypeMapping;
+    private Map<TokenDef, TokenType> tokenTypeMapping;
     // grule -> gruleType mapping, inited when AnalyzedLang obj creating,
     // completed after sub-rule rewriting
     private Map<Grule, GruleType> gruleTypeMapping;
@@ -55,7 +55,7 @@ public class AnalyzedLang {
     // 'AnalyzedLang' compiling(resolveParserAst). For later analysis & code gen
     private Map<KleeneType, CKleeneNode> kleeneTypeToNode;
 
-    public AnalyzedLang(List<Token> tokens, List<Grule> grules, boolean whitespaceSensitive) {
+    public AnalyzedLang(List<TokenDef> tokens, List<Grule> grules, boolean whitespaceSensitive) {
         // build token -> tokenType mapping
         this.tokens = tokens;
 
@@ -97,13 +97,14 @@ public class AnalyzedLang {
         ParserCompiler.checkAndReportLeftRecursions(this.ruleTypeToAlts, this.kleeneTypeToNode);
         // TODO compute predicts, LL(*)
         // TODO detect and report rule conflicts
+        List<PredictingGrule> predGrules = ParserCompiler.computePredictingGrules(this.ruleTypeToAlts, this.kleeneTypeToNode);
         // 4.parser code gen
         // TODO kleene match should return a 'retry-able' result, and kleene
         // match should handle try-rollback logic
         // 5.compile and maintain the code in a separate classloader
     }
 
-    public Map<Token, TokenType> getTokenTypeMapping() {
+    public Map<TokenDef, TokenType> getTokenTypeMapping() {
         return tokenTypeMapping;
     }
 

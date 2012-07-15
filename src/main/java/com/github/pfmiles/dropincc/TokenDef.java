@@ -15,16 +15,16 @@ import com.github.pfmiles.dropincc.impl.OrSubRule;
 
 /**
  * 
- * This represents a token. In dropincc.java, token rules are forced to be
- * described as regular expressions. Any rule conflict which cannot be solved in
- * regular grammar should be pushed back into syntactic analysis phase or even
- * semantics analysis phase. This should be a good practice that keeps the
- * lexical rules quite simple.
+ * This represents a token definition. In dropincc.java, token rules are forced
+ * to be described as regular expressions. Any rule conflict which cannot be
+ * solved in regular grammar should be pushed back into syntactic analysis phase
+ * or even semantics analysis phase. This should be a good practice that keeps
+ * the lexical rules simple.
  * 
  * @author pf-miles
  * 
  */
-public class Token implements Element {
+public class TokenDef implements Element {
 
     private static final long serialVersionUID = -8800772928848920147L;
 
@@ -36,7 +36,7 @@ public class Token implements Element {
      * 
      * @param regexp
      */
-    protected Token(String regexp) {
+    protected TokenDef(String regexp) {
         this.regexp = regexp;
     }
 
@@ -88,7 +88,7 @@ public class Token implements Element {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Token other = (Token) obj;
+        TokenDef other = (TokenDef) obj;
         if (regexp == null) {
             if (other.regexp != null)
                 return false;

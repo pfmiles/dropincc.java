@@ -10,7 +10,7 @@ import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
-import com.github.pfmiles.dropincc.Token;
+import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.Tokens;
 import com.github.pfmiles.dropincc.impl.Alternative;
 import com.github.pfmiles.dropincc.impl.GruleType;
@@ -26,13 +26,13 @@ public class ParserCompilerTest extends TestCase {
     @SuppressWarnings("unchecked")
     public void testOrSubRuleRewrite() {
         Lang calculator = new Lang();
-        Token DIGIT = calculator.addToken("\\d+");
-        Token ADD = calculator.addToken("\\+");
-        Token SUB = calculator.addToken("\\-");
-        Token MUL = calculator.addToken("\\*");
-        Token DIV = calculator.addToken("/");
-        Token LEFTPAREN = calculator.addToken("\\(");
-        Token RIGHTPAREN = calculator.addToken("\\)");
+        TokenDef DIGIT = calculator.addToken("\\d+");
+        TokenDef ADD = calculator.addToken("\\+");
+        TokenDef SUB = calculator.addToken("\\-");
+        TokenDef MUL = calculator.addToken("\\*");
+        TokenDef DIV = calculator.addToken("/");
+        TokenDef LEFTPAREN = calculator.addToken("\\(");
+        TokenDef RIGHTPAREN = calculator.addToken("\\)");
         Grule expr = calculator.newGrule();
         Grule term = calculator.newGrule();
         Element mulTail = calculator.addGrammarRule(MUL.or(DIV), term);
@@ -47,7 +47,7 @@ public class ParserCompilerTest extends TestCase {
             assertTrue(gg.getAlts().size() == 2);
             for (Alternative alt : gg.getAlts()) {
                 assertTrue(alt.getElements().size() == 1);
-                assertTrue(alt.getElements().get(0) instanceof Token);
+                assertTrue(alt.getElements().get(0) instanceof TokenDef);
             }
         }
         Map<Grule, GruleType> gruleTypeMapping = ParserCompiler.buildGruleTypeMapping(grules, genGrules);
@@ -67,13 +67,13 @@ public class ParserCompilerTest extends TestCase {
     @SuppressWarnings("unchecked")
     public void testSubRuleRewriteOrCascadingAnd() {
         Lang calculator = new Lang();
-        Token DIGIT = calculator.addToken("\\d+");
-        Token ADD = calculator.addToken("\\+");
-        Token SUB = calculator.addToken("\\-");
-        Token MUL = calculator.addToken("\\*");
-        Token DIV = calculator.addToken("/");
-        Token LEFTPAREN = calculator.addToken("\\(");
-        Token RIGHTPAREN = calculator.addToken("\\)");
+        TokenDef DIGIT = calculator.addToken("\\d+");
+        TokenDef ADD = calculator.addToken("\\+");
+        TokenDef SUB = calculator.addToken("\\-");
+        TokenDef MUL = calculator.addToken("\\*");
+        TokenDef DIV = calculator.addToken("/");
+        TokenDef LEFTPAREN = calculator.addToken("\\(");
+        TokenDef RIGHTPAREN = calculator.addToken("\\)");
 
         Grule term = calculator.newGrule();
         Grule expr = calculator.newGrule();
@@ -92,9 +92,9 @@ public class ParserCompilerTest extends TestCase {
         Grule g2 = genGrules.get(1);
         assertTrue(g2.getAlts().size() == 2);
         assertTrue(g2.getAlts().get(0).getElements().size() == 1);
-        assertTrue(g2.getAlts().get(0).getElements().get(0) instanceof Token);
+        assertTrue(g2.getAlts().get(0).getElements().get(0) instanceof TokenDef);
         assertTrue(g2.getAlts().get(1).getElements().size() == 1);
-        assertTrue(g2.getAlts().get(1).getElements().get(0) instanceof Token);
+        assertTrue(g2.getAlts().get(1).getElements().get(0) instanceof TokenDef);
 
         Grule g3 = genGrules.get(2);
         assertTrue(g3.getAlts().size() == 1);
@@ -105,9 +105,9 @@ public class ParserCompilerTest extends TestCase {
         Grule g4 = genGrules.get(3);
         assertTrue(g4.getAlts().size() == 2);
         assertTrue(g4.getAlts().get(0).getElements().size() == 1);
-        assertTrue(g4.getAlts().get(0).getElements().get(0) instanceof Token);
+        assertTrue(g4.getAlts().get(0).getElements().get(0) instanceof TokenDef);
         assertTrue(g4.getAlts().get(1).getElements().size() == 1);
-        assertTrue(g4.getAlts().get(1).getElements().get(0) instanceof Token);
+        assertTrue(g4.getAlts().get(1).getElements().get(0) instanceof TokenDef);
 
         Map<Grule, GruleType> gruleTypeMapping = ParserCompiler.buildGruleTypeMapping(grules, genGrules);
         assertTrue(gruleTypeMapping.size() == 6);
@@ -146,8 +146,8 @@ public class ParserCompilerTest extends TestCase {
     public void testCheckAndReportLeftRecursions() {
         // direct left recursion
         Lang testLang = new Lang();
-        Token gt = testLang.addToken("\\>");
-        Token zero = testLang.addToken("0");
+        TokenDef gt = testLang.addToken("\\>");
+        TokenDef zero = testLang.addToken("0");
         Grule L = testLang.newGrule();
         L.fillGrammarRule(L, gt, zero);
         AnalyzedLangForTest a = TestHelper.resolveAnalyzedLangForTest(testLang);
@@ -161,12 +161,12 @@ public class ParserCompilerTest extends TestCase {
 
         // chained left recursion
         testLang = new Lang();
-        Token leftParen = testLang.addToken("\\(");
-        Token rightParen = testLang.addToken("\\)");
-        Token rightBracket = testLang.addToken("\\]");
+        TokenDef leftParen = testLang.addToken("\\(");
+        TokenDef rightParen = testLang.addToken("\\)");
+        TokenDef rightBracket = testLang.addToken("\\]");
         zero = testLang.addToken("0");
-        Token leftBrace = testLang.addToken("\\{");
-        Token rightBrace = testLang.addToken("\\}");
+        TokenDef leftBrace = testLang.addToken("\\{");
+        TokenDef rightBrace = testLang.addToken("\\}");
         gt = testLang.addToken("\\>");
         Grule A = testLang.newGrule();
         Grule B = testLang.newGrule();

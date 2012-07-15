@@ -10,7 +10,7 @@ import java.util.Map;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
-import com.github.pfmiles.dropincc.Token;
+import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.AnalyzedLang;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.SpecialType;
@@ -96,9 +96,9 @@ public class TestHelper {
     @SuppressWarnings("unchecked")
     public static AnalyzedLangForTest resolveAnalyzedLangForTest(Lang lang) {
         AnalyzedLangForTest ret = new AnalyzedLangForTest();
-        AnalyzedLang al = new AnalyzedLang((List<Token>) priField(lang, "tokens"), (List<Grule>) priField(lang, "grules"),
+        AnalyzedLang al = new AnalyzedLang((List<TokenDef>) priField(lang, "tokens"), (List<Grule>) priField(lang, "grules"),
                 (Boolean) priField(lang, "whiteSpaceSensitive"));
-        TypeMappingParam typeMappingParam = new TypeMappingParam((Map<Token, TokenType>) TestHelper.priField(al, "tokenTypeMapping"),
+        TypeMappingParam typeMappingParam = new TypeMappingParam((Map<TokenDef, TokenType>) TestHelper.priField(al, "tokenTypeMapping"),
                 (Map<Grule, GruleType>) TestHelper.priField(al, "gruleTypeMapping"), (Map<Element, SpecialType>) TestHelper.priField(al, "specialTypeMapping"),
                 (Map<AbstractKleeneNode, KleeneType>) TestHelper.priField(al, "kleeneTypeMapping"));
         ret.kleeneTypeToNode = KleeneCompiler.buildKleeneTypeToNode(typeMappingParam);

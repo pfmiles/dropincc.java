@@ -11,7 +11,7 @@ import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
-import com.github.pfmiles.dropincc.Token;
+import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.Alternative;
 import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.GruleType;
@@ -65,7 +65,7 @@ public class KleeneCompiler {
                     kleeneTypeMapping.put((AbstractKleeneNode) e, resolveKleeneType((AbstractKleeneNode) e, kleeneCount));
                     registerKleenesInElements(((AbstractKleeneNode) e).getElements(), kleeneCount, kleeneTypeMapping, examinedGrules);
                 }
-            } else if (Token.class.isAssignableFrom(eleCls)) {
+            } else if (TokenDef.class.isAssignableFrom(eleCls)) {
                 continue;
             } else if (CC.NOTHING.equals(e)) {
                 continue;

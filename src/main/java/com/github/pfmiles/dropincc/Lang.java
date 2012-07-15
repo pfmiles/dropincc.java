@@ -30,27 +30,35 @@ public class Lang implements Serializable {
 
     private static final long serialVersionUID = 631738160652653120L;
 
-    // if true, the lexer generator won't add a whitespace token automatically
-    // at the end of token regex chain. Left over the whitespace manipulation
-    // tasks to user defined lexer rules.
+    /*
+     * if true, the lexer generator won't add a whitespace token automatically
+     * at the end of token regex chain. Left over the whitespace manipulation
+     * tasks to user defined lexer rules.
+     */
     private boolean whiteSpaceSensitive;
 
-    private List<Token> tokens = new ArrayList<Token>();
+    /*
+     * if turned on, tokens does not record any more infomation other than
+     * 'type' and 'lexeme'
+     */
+    private boolean infiniteParsing;
+
+    private List<TokenDef> tokens = new ArrayList<TokenDef>();
     private List<Grule> grules = new ArrayList<Grule>();
 
     private AnalyzedLang alang;
 
     /**
      * Add a new token rule, note that the token rules are trying to match as
-     * the same order as it is added. TODO add 'priority' parameter of rules
+     * the same order as it is added. TODO lexer should do 'longest match'
      * 
      * @param regExpr
      *            , the regExp to describe a token rule
      * @return the added token itself as an element, for use in later grammar
      *         rule definitions.
      */
-    public Token addToken(String regExpr) {
-        Token t = new Token(regExpr);
+    public TokenDef addToken(String regExpr) {
+        TokenDef t = new TokenDef(regExpr);
         this.tokens.add(t);
         return t;
     }
@@ -143,5 +151,9 @@ public class Lang implements Serializable {
     // same equals method as Object.class needed
     public boolean equals(Object obj) {
         return super.equals(obj);
+    }
+
+    public void setInfiniteParsing(boolean infiniteParsing) {
+        this.infiniteParsing = infiniteParsing;
     }
 }

@@ -39,13 +39,13 @@ public class LangTest extends TestCase {
     public void testCalculator() {
         // 3.define lexical rules
         Lang calculator = new Lang();
-        Token DIGIT = calculator.addToken("\\d+");
-        Token ADD = calculator.addToken("\\+");
-        Token SUB = calculator.addToken("\\-");
-        Token MUL = calculator.addToken("\\*");
-        Token DIV = calculator.addToken("/");
-        Token LEFTPAREN = calculator.addToken("\\(");
-        Token RIGHTPAREN = calculator.addToken("\\)");
+        TokenDef DIGIT = calculator.addToken("\\d+");
+        TokenDef ADD = calculator.addToken("\\+");
+        TokenDef SUB = calculator.addToken("\\-");
+        TokenDef MUL = calculator.addToken("\\*");
+        TokenDef DIV = calculator.addToken("/");
+        TokenDef LEFTPAREN = calculator.addToken("\\(");
+        TokenDef RIGHTPAREN = calculator.addToken("\\)");
         // 2.define grammar rules and corresponding actions
         Grule addition = calculator.newGrule();
         Grule addend = calculator.newGrule();

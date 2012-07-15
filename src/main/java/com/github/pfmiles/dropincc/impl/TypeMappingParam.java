@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
-import com.github.pfmiles.dropincc.Token;
+import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 
@@ -13,12 +13,12 @@ import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
  * 
  */
 public class TypeMappingParam {
-    private Map<Token, TokenType> tokenTypeMapping;
+    private Map<TokenDef, TokenType> tokenTypeMapping;
     private Map<Grule, GruleType> gruleTypeMapping;
     private Map<Element, SpecialType> specialTypeMapping;
     private Map<AbstractKleeneNode, KleeneType> kleeneTypeMapping;
 
-    public TypeMappingParam(Map<Token, TokenType> tokenTypeMapping, Map<Grule, GruleType> gruleTypeMapping,
+    public TypeMappingParam(Map<TokenDef, TokenType> tokenTypeMapping, Map<Grule, GruleType> gruleTypeMapping,
             Map<Element, SpecialType> specialTypeMapping,
             Map<AbstractKleeneNode, KleeneType> kleeneTypeMapping) {
         super();
@@ -28,11 +28,11 @@ public class TypeMappingParam {
         this.kleeneTypeMapping = kleeneTypeMapping;
     }
 
-    public Map<Token, TokenType> getTokenTypeMapping() {
+    public Map<TokenDef, TokenType> getTokenTypeMapping() {
         return tokenTypeMapping;
     }
 
-    public void setTokenTypeMapping(Map<Token, TokenType> tokenTypeMapping) {
+    public void setTokenTypeMapping(Map<TokenDef, TokenType> tokenTypeMapping) {
         this.tokenTypeMapping = tokenTypeMapping;
     }
 

@@ -10,7 +10,7 @@ import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
-import com.github.pfmiles.dropincc.Token;
+import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.Tokens;
 import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneStarNode;
@@ -36,13 +36,13 @@ public class AnalyzedLangTest extends TestCase {
     @SuppressWarnings({ "unused", "unchecked" })
     public void testSubRuleRewriteWithKleeneNodes() {
         Lang calculator = new Lang();
-        Token DIGIT = calculator.addToken("\\d+");
-        Token ADD = calculator.addToken("\\+");
-        Token SUB = calculator.addToken("\\-");
-        Token MUL = calculator.addToken("\\*");
-        Token DIV = calculator.addToken("/");
-        Token LEFTPAREN = calculator.addToken("\\(");
-        Token RIGHTPAREN = calculator.addToken("\\)");
+        TokenDef DIGIT = calculator.addToken("\\d+");
+        TokenDef ADD = calculator.addToken("\\+");
+        TokenDef SUB = calculator.addToken("\\-");
+        TokenDef MUL = calculator.addToken("\\*");
+        TokenDef DIV = calculator.addToken("/");
+        TokenDef LEFTPAREN = calculator.addToken("\\(");
+        TokenDef RIGHTPAREN = calculator.addToken("\\)");
         // 2.define grammar rules and corresponding actions
         Grule addition = calculator.newGrule();
         Grule addend = calculator.newGrule();
@@ -51,7 +51,7 @@ public class AnalyzedLangTest extends TestCase {
         addition.fillGrammarRule(addend, CC.ks(ADD.or(SUB), addend));
         addend.fillGrammarRule(factor, CC.ks(MUL.or(DIV), factor));
         factor.fillGrammarRule(DIGIT).alt(LEFTPAREN, addition, RIGHTPAREN);
-        AnalyzedLang cl = new AnalyzedLang((List<Token>) TestHelper.priField(calculator, "tokens"), (List<Grule>) TestHelper.priField(calculator, "grules"), false);
+        AnalyzedLang cl = new AnalyzedLang((List<TokenDef>) TestHelper.priField(calculator, "tokens"), (List<Grule>) TestHelper.priField(calculator, "grules"), false);
         KleeneStarNode k1 = (KleeneStarNode) addition.getAlts().get(0).getElements().get(1);
         Object shouldBeRewritten = k1.getElements().get(0);
         assertTrue(shouldBeRewritten instanceof Grule);
@@ -72,13 +72,13 @@ public class AnalyzedLangTest extends TestCase {
 
     public void testResolveParserAst() {
         Lang calculator = new Lang();
-        Token DIGIT = calculator.addToken("\\d+");
-        Token ADD = calculator.addToken("\\+");
-        Token SUB = calculator.addToken("\\-");
-        Token MUL = calculator.addToken("\\*");
-        Token DIV = calculator.addToken("/");
-        Token LEFTPAREN = calculator.addToken("\\(");
-        Token RIGHTPAREN = calculator.addToken("\\)");
+        TokenDef DIGIT = calculator.addToken("\\d+");
+        TokenDef ADD = calculator.addToken("\\+");
+        TokenDef SUB = calculator.addToken("\\-");
+        TokenDef MUL = calculator.addToken("\\*");
+        TokenDef DIV = calculator.addToken("/");
+        TokenDef LEFTPAREN = calculator.addToken("\\(");
+        TokenDef RIGHTPAREN = calculator.addToken("\\)");
         Grule addition = calculator.newGrule();
         Grule addend = calculator.newGrule();
         Grule factor = calculator.newGrule();

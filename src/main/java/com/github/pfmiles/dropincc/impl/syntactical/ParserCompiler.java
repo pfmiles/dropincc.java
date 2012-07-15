@@ -11,7 +11,7 @@ import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
-import com.github.pfmiles.dropincc.Token;
+import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.Alternative;
 import com.github.pfmiles.dropincc.impl.AndSubRule;
 import com.github.pfmiles.dropincc.impl.CAlternative;
@@ -19,6 +19,7 @@ import com.github.pfmiles.dropincc.impl.ConstructingGrule;
 import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.OrSubRule;
+import com.github.pfmiles.dropincc.impl.PredictingGrule;
 import com.github.pfmiles.dropincc.impl.SpecialType;
 import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.TypeMappingParam;
@@ -105,7 +106,7 @@ public class ParserCompiler {
                 throw new DropinccException("Something must be wrong, ConstructingGrule shouldn't appear here");
             } else if (Grule.class.isAssignableFrom(eleCls)) {
                 examineAndRewriteGrule((Grule) e, examinedGrules, genGrules);
-            } else if (Token.class.isAssignableFrom(eleCls)) {
+            } else if (TokenDef.class.isAssignableFrom(eleCls)) {
                 continue;
             } else if (CC.NOTHING.equals(e)) {
                 continue;
@@ -199,5 +200,20 @@ public class ParserCompiler {
         } else {
             throw new DropinccException("Unhandled element type: " + t);
         }
+    }
+
+    /**
+     * Compute lookAheads for grules, prepare to generate parser code
+     * 
+     * @param ruleTypeToAlts
+     * @param kleeneTypeToNode
+     * @return
+     */
+    public static List<PredictingGrule> computePredictingGrules(Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+        List<PredictingGrule> ret = new ArrayList<PredictingGrule>();
+        for (Map.Entry<GruleType, List<CAlternative>> ruleAndAlts : ruleTypeToAlts.entrySet()) {
+            // TODO do ll(*) analyzing
+        }
+        return ret;
     }
 }

@@ -18,8 +18,6 @@ public class CAlternative {
     private List<EleType> matchSequence = new ArrayList<EleType>();
     private Action action = null;
 
-    // TODO LL look aheads
-
     public CAlternative(List<EleType> ms, Action action) {
         this.matchSequence = ms;
         this.action = action;

@@ -1,6 +1,6 @@
 package com.github.pfmiles.dropincc.impl.lexical;
 
-import com.github.pfmiles.dropincc.Token;
+import com.github.pfmiles.dropincc.TokenDef;
 
 /**
  * used internally to create additional tokens.
@@ -8,11 +8,11 @@ import com.github.pfmiles.dropincc.Token;
  * @author pf-miles
  * 
  */
-final class GenedToken extends Token {
+final class GenedTokenDef extends TokenDef {
 
     private static final long serialVersionUID = 7972632057092553906L;
 
-    GenedToken(String regexp) {
+    GenedTokenDef(String regexp) {
         super(regexp);
     }
 

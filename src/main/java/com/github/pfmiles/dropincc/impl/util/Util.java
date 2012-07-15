@@ -9,7 +9,7 @@ import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
-import com.github.pfmiles.dropincc.Token;
+import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.AndSubRule;
 import com.github.pfmiles.dropincc.impl.ConstructingGrule;
 import com.github.pfmiles.dropincc.impl.EleType;
@@ -68,7 +68,7 @@ public class Util {
             return param.getGruleTypeMapping().get(e);
         } else if (OrSubRule.class.isAssignableFrom(eleCls)) {
             throw new DropinccException("OrSubRule shouldn't exist when resolving element types, it should be already rewrited in prior steps.");
-        } else if (Token.class.isAssignableFrom(eleCls)) {
+        } else if (TokenDef.class.isAssignableFrom(eleCls)) {
             return param.getTokenTypeMapping().get(e);
         } else if (e.equals(CC.NOTHING)) {
             return param.getSpecialTypeMapping().get(e);
@@ -133,4 +133,22 @@ public class Util {
         sb.append(" -> ").append(t.toString());
         return sb.toString();
     }
+
+    public static String showHiddenChars(String str) {
+        if (str == null)
+            return null;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (Character.isISOControl(c) || Character.isWhitespace(c)) {
+                sb.append("\\").append((int) c);
+            } else if ('\\' == c) {
+                sb.append("\\\\");
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
 }
