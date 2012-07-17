@@ -1,5 +1,6 @@
 package com.github.pfmiles.dropincc.impl.util;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -149,6 +150,20 @@ public class Util {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * find the min integer
+     * 
+     * @param ints
+     * @return
+     */
+    public static int minInt(Collection<Integer> ints) {
+        int ret = Integer.MAX_VALUE;
+        for (int i : ints)
+            if (i < ret)
+                ret = i;
+        return ret;
     }
 
 }

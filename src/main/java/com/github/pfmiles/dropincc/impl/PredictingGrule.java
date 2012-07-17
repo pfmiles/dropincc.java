@@ -2,7 +2,7 @@ package com.github.pfmiles.dropincc.impl;
 
 import java.util.List;
 
-import com.github.pfmiles.dropincc.impl.lookahead.LookAheadDFA;
+import com.github.pfmiles.dropincc.impl.llstar.LookAheadDFA;
 
 /**
  * Grammar rule with lookAhead DFA and alternatives.
