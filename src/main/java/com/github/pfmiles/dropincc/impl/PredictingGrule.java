@@ -2,7 +2,7 @@ package com.github.pfmiles.dropincc.impl;
 
 import java.util.List;
 
-import com.github.pfmiles.dropincc.impl.llstar.LookAheadDFA;
+import com.github.pfmiles.dropincc.impl.llstar.LookAheadDfa;
 
 /**
  * Grammar rule with lookAhead DFA and alternatives.
@@ -14,11 +14,11 @@ public class PredictingGrule {
 
     private GruleType gruleType;
     // the LL(*) look-ahead DFA
-    private LookAheadDFA dfa;
+    private LookAheadDfa dfa;
     // all alternative productions
     private List<CAlternative> alts;
 
-    public PredictingGrule(GruleType gruleType, LookAheadDFA dfa, List<CAlternative> alts) {
+    public PredictingGrule(GruleType gruleType, LookAheadDfa dfa, List<CAlternative> alts) {
         super();
         this.gruleType = gruleType;
         this.dfa = dfa;
@@ -33,11 +33,11 @@ public class PredictingGrule {
         this.gruleType = gruleType;
     }
 
-    public LookAheadDFA getDfa() {
+    public LookAheadDfa getDfa() {
         return dfa;
     }
 
-    public void setDfa(LookAheadDFA dfa) {
+    public void setDfa(LookAheadDfa dfa) {
         this.dfa = dfa;
     }
 

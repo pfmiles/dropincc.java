@@ -1,5 +1,6 @@
 package com.github.pfmiles.dropincc.impl.llstar;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,13 +12,22 @@ import com.github.pfmiles.dropincc.DropinccException;
  * @author pf-miles
  * 
  */
-public class LookAheadDFA {
+public class LookAheadDfa {
     // all dfa states
     private Set<DfaState> states = new HashSet<DfaState>();
     // final states of this dfa
     private Map<Integer, DfaState> finalStates = new HashMap<Integer, DfaState>();
     // dfa state name sequence gen
     private SeqGen dfaStatesSeq = new SeqGen();
+
+    /**
+     * remove all states specified
+     * 
+     * @param tbds
+     */
+    public void removeStates(Collection<DfaState> tbds) {
+        this.states.removeAll(tbds);
+    }
 
     /**
      * Add a new state to this dfa
@@ -101,5 +111,15 @@ public class LookAheadDFA {
                 return s;
         }
         throw new DropinccException("Impossible!");
+    }
+
+    /**
+     * Return the final dfa state corresponding to the specified alt number
+     * 
+     * @param alt
+     * @return
+     */
+    public DfaState getFinalStateOfAlt(int alt) {
+        return this.finalStates.get(alt);
     }
 }

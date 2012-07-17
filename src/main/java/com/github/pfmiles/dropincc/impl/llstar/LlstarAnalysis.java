@@ -1,14 +1,18 @@
 package com.github.pfmiles.dropincc.impl.llstar;
 
+import java.util.ArrayDeque;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.impl.GruleType;
+import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.util.Pair;
 import com.github.pfmiles.dropincc.impl.util.Util;
 
@@ -50,7 +54,7 @@ public class LlstarAnalysis {
             return false;
         for (Set<AtnConfig> cs : altToConfs.values()) {
             for (AtnConfig c : cs) {
-                c.setWasResolved(true);
+                c.setResolved(true);
             }
         }
         return true;
@@ -200,5 +204,106 @@ public class LlstarAnalysis {
             }
         }
         return ret;
+    }
+
+    public LookAheadDfa createAfa(AtnState atnStartState) {
+        LookAheadDfa ret = new LookAheadDfa();
+        Deque<DfaState> work = new ArrayDeque<DfaState>();
+        DfaState D0 = new DfaState();
+        for (int alt = 0; alt < atnStartState.getTransitionCount(); alt++) {
+            ret.addDummyFinalState(alt);
+        }
+        List<Pair<Object, AtnState>> transitions = atnStartState.getTransitionsAsPairs();
+        for (int i = 0; i < transitions.size(); i++) {
+            AtnState pa_i = transitions.get(i).getRight();
+            Predicate pi = null;
+            // pa_i could have only one transition
+            Object first_t = pa_i.getTransitions().entrySet().iterator().next().getKey();
+            if (first_t instanceof Predicate)
+                pi = (Predicate) first_t;
+            D0.addAllConfs(closure(D0, new AtnConfig(pa_i, i, new CallStack(), pi)));
+            D0.releaseBusy();
+        }
+        work.push(D0);
+        ret.addState(D0);
+        while (!work.isEmpty()) {
+            DfaState state = work.pop();
+            // memorize transitions newly added
+            Set<TokenType> newTrans = new HashSet<TokenType>();
+            // count newly pushed works
+            int newWorkCount = 0;
+            // memorize newly added states
+            Set<DfaState> newStates = new HashSet<DfaState>();
+            moving: for (TokenType a : state.getAllTerminalEdgesOfContainingAtnStates()) {
+                // move & closure
+                DfaState newState = new DfaState();
+                for (AtnConfig conf : state.move(a)) {
+                    newState.addAllConfs(closure(state, conf));
+                    state.releaseBusy();
+                    // state may be marked overflowed while closuring, so it
+                    // must be resolved
+                    resolveOverflow(state);
+                    checkIfFinalAndReplace(state, ret);
+                    if (state.isStopTransit())
+                        break moving;
+                }
+                if (!ret.containState(newState)) {
+                    // resolve conflicts and add to dfa network
+                    resolveConflicts(newState);
+                    if (!checkIfFinalAndReplace(newState, ret)) {
+                        work.push(newState);
+                        newWorkCount++;
+                    }
+                    ret.addState(newState);
+                    newStates.add(newState);
+                    state.addTransition(a, newState);
+                    newTrans.add(a);
+                } else {
+                    // add the same state already in the dfa(not the newly
+                    // created one)
+                    state.addTransition(a, ret.getSameState(newState));
+                    newTrans.add(a);
+                }
+            }
+            if (state.isStopTransit()) {
+                // rollback newly added states, transitions and works if
+                // stoppedTransit
+                ret.removeStates(newStates);
+                state.removeTransitions(newTrans);
+                for (int i = 0; i < newWorkCount; i++) {
+                    work.pop();
+                }
+            }
+            // add predicate transitions, use hashset here to de-duplicate
+            // transitions
+            Set<Pair<Predicate, DfaState>> predTrans = new HashSet<Pair<Predicate, DfaState>>();
+            for (AtnConfig conf : state.getResolvedConfs()) {
+                predTrans.add(new Pair<Predicate, DfaState>(conf.getPred(), ret.getFinalStateOfAlt(conf.getAlt())));
+            }
+            for (Pair<Predicate, DfaState> p : predTrans) {
+                state.addTransition(p.getLeft(), p.getRight());
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Check if the specified dfa state is a final state, and if it is, replace
+     * the old final state of the same alternative number with the new one
+     * 
+     * @param state
+     * @param ret
+     */
+    private static boolean checkIfFinalAndReplace(DfaState state, LookAheadDfa dnet) {
+        Set<Integer> predictingAlts = state.getAllPredictingAlts();
+        if (predictingAlts.size() == 1) {
+            // is final
+            int alt = predictingAlts.iterator().next();
+            state.setAlt(alt);
+            dnet.overrideFinalState(alt, state);
+            state.setStopTransit(true);
+            return true;
+        }
+        return false;
     }
 }

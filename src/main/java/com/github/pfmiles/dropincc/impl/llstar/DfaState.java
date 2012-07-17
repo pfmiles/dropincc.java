@@ -1,8 +1,10 @@
 package com.github.pfmiles.dropincc.impl.llstar;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,6 +41,29 @@ public class DfaState {
 
     // for printing
     private String name;
+
+    /**
+     * Find all resolved ATN configs in this dfa state
+     * 
+     * @return
+     */
+    public List<AtnConfig> getResolvedConfs() {
+        List<AtnConfig> ret = new ArrayList<AtnConfig>();
+        for (AtnConfig c : this.confs) {
+            if (c.isResolved())
+                ret.add(c);
+        }
+        return ret;
+    }
+
+    /**
+     * Remove all transitions with edges specified
+     * 
+     * @param trans
+     */
+    public void removeTransitions(Set<TokenType> trans) {
+        this.transitions.keySet().removeAll(trans);
+    }
 
     /**
      * Add conf to busy set
@@ -257,4 +282,13 @@ public class DfaState {
     public Set<Integer> getRecursiveAlts() {
         return recursiveAlts;
     }
+
+    public int getAlt() {
+        return alt;
+    }
+
+    public void setAlt(int alt) {
+        this.alt = alt;
+    }
+
 }

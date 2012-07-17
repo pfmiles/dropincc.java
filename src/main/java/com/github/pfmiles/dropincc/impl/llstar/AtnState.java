@@ -127,4 +127,17 @@ public class AtnState {
         this._final = f;
     }
 
+    /**
+     * Return num of transitions
+     * 
+     * @return
+     */
+    public int getTransitionCount() {
+        int ret = 0;
+        for (Set<AtnState> dests : this.transitions.values()) {
+            ret += dests.size();
+        }
+        return ret;
+    }
+
 }
