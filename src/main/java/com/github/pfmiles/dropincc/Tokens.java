@@ -6,7 +6,7 @@ package com.github.pfmiles.dropincc;
  * @author pf-miles
  * 
  */
-public class Tokens {
+public abstract class Tokens {
     private Tokens() {
     }
 
@@ -15,5 +15,9 @@ public class Tokens {
      */
     public static final TokenDef EOF = new TokenDef("EOF") {
         private static final long serialVersionUID = 9194950534504326943L;
+
+        public String toString() {
+            return "EOF";
+        }
     };
 }

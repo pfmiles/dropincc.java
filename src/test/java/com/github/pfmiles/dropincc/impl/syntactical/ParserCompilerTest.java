@@ -14,6 +14,7 @@ import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.Tokens;
 import com.github.pfmiles.dropincc.impl.Alternative;
 import com.github.pfmiles.dropincc.impl.GruleType;
+import com.github.pfmiles.dropincc.impl.PredictingGrule;
 import com.github.pfmiles.dropincc.testhelper.AnalyzedLangForTest;
 import com.github.pfmiles.dropincc.testhelper.TestHelper;
 
@@ -204,5 +205,28 @@ public class ParserCompilerTest extends TestCase {
             // System.out.println(e.getMessage());
             assertTrue(true);
         }
+    }
+
+    /**
+     * Test compute predicting grule, basic LL(1) grammar
+     * 
+     * <pre>
+     *  S ::= A $
+     *  A ::= a c*
+     *      | b c*
+     * </pre>
+     */
+    public void testComputePredictingGrules() {
+        Lang ll1 = new Lang();
+        Element a = ll1.addToken("a");
+        Element b = ll1.addToken("b");
+        Element c = ll1.addToken("c");
+        Grule A = ll1.newGrule();
+        ll1.addGrammarRule(A, Tokens.EOF);
+        A.fillGrammarRule(a, CC.ks(c)).alt(b, CC.ks(c));
+        AnalyzedLangForTest al = TestHelper.resolveAnalyzedLangForTest(ll1);
+        List<PredictingGrule> ps = ParserCompiler.computePredictingGrules(al.ruleTypeToAlts, al.kleeneTypeToNode);
+        // System.out.println(ps);
+        assertTrue(ps.size() == 2);
     }
 }
