@@ -11,8 +11,15 @@ import java.util.Map;
 import java.util.Set;
 
 import com.github.pfmiles.dropincc.DropinccException;
+import com.github.pfmiles.dropincc.impl.CAlternative;
+import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.TokenType;
+import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
+import com.github.pfmiles.dropincc.impl.kleene.KleeneCrossType;
+import com.github.pfmiles.dropincc.impl.kleene.KleeneStarType;
+import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
+import com.github.pfmiles.dropincc.impl.kleene.OptionalType;
 import com.github.pfmiles.dropincc.impl.util.Pair;
 import com.github.pfmiles.dropincc.impl.util.Util;
 
@@ -28,11 +35,84 @@ import com.github.pfmiles.dropincc.impl.util.Util;
  */
 public class LlstarAnalysis {
 
-    // errors or warning messages generated while analyzing
+    // warning messages generated while analyzing
     private StringBuilder warnings = new StringBuilder();
 
     // the whole ATN network for the analyzing grammar
     private Atn atn;
+
+    // the resulting grule to look-ahead dfa mapping
+    private Map<GruleType, LookAheadDfa> gruleDfaMapping = new HashMap<GruleType, LookAheadDfa>();
+
+    /**
+     * Do analysis
+     * 
+     * @param ruleTypeToAlts
+     * @param kleeneTypeToNode
+     */
+    public LlstarAnalysis(Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+        this.atn = new Atn();
+        // process rules one by one to create a whole ATN network
+        for (Map.Entry<GruleType, List<CAlternative>> e : ruleTypeToAlts.entrySet()) {
+            GruleType grule = e.getKey();
+            List<CAlternative> calts = e.getValue();
+            AtnState pa = this.atn.newStartStateForGrule(grule);
+            AtnState pa1 = this.atn.newEndStateForGrule(grule);
+            for (int i = 0; i < calts.size(); i++) {
+                CAlternative calt = calts.get(i);
+                List<EleType> alt = calt.getMatchSequence();
+                AtnState pai = this.atn.newAltStateForGrule(grule, i);
+                pa.addTransition(Constants.epsilon, pai);
+                if (alt != null && !alt.isEmpty()) {
+                    AtnState p0 = this.atn.newAtnState(grule);
+                    Predicate pred = calt.getPredicate();
+                    if (pred != null) {
+                        pai.addTransition(pred, p0);
+                    } else {
+                        pai.addTransition(Constants.epsilon, p0);
+                    }
+                    // AtnState last = this.atn.genTransitions(p0, alt, grule,
+                    // kleeneTypeToNode);
+                    AtnState curState = p0;
+                    for (EleType edge : alt) {
+                        if (edge instanceof TokenType || edge instanceof GruleType) {
+                            AtnState nextState = this.atn.newAtnState(grule);
+                            curState.addTransition(edge, nextState);
+                            curState = nextState;
+                        } else if (edge instanceof KleeneStarType) {
+                            this.atn.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) edge).getContents(), curState, grule, kleeneTypeToNode);
+                        } else if (edge instanceof KleeneCrossType) {
+                            List<EleType> contents = kleeneTypeToNode.get((KleeneCrossType) edge).getContents();
+                            AtnState nextState = this.atn.newAtnState(grule);
+                            this.atn.genTransitions(curState, contents, nextState, grule, kleeneTypeToNode);
+                            curState = nextState;
+                            this.atn.genTransitions(curState, contents, curState, grule, kleeneTypeToNode);
+                        } else if (edge instanceof OptionalType) {
+                            AtnState nextState = this.atn.newAtnState(grule);
+                            curState.addTransition(edge, nextState);
+                            curState.addTransition(Constants.epsilon, nextState);
+                            curState = nextState;
+                        } else {
+                            throw new DropinccException("Illegal transition edge of ATN: " + edge);
+                        }
+                    }
+                    curState.addTransition(Constants.epsilon, pa1);
+                } else {
+                    pai.addTransition(Constants.epsilon, pa1);
+                }
+            }
+        }
+        // create look-ahead DFAs
+        for (Map.Entry<GruleType, List<CAlternative>> e : ruleTypeToAlts.entrySet()) {
+            if (e.getValue().size() > 1) {
+                // there's no need to compute look-ahead dfa for a rule which
+                // has only one single alternative production
+                GruleType grule = e.getKey();
+                LookAheadDfa dfa = this.createAfa(this.atn.getStartState(grule));
+                this.gruleDfaMapping.put(grule, dfa);
+            }
+        }
+    }
 
     /**
      * Trying to resolve conflicts with predicates.
@@ -305,5 +385,23 @@ public class LlstarAnalysis {
             return true;
         }
         return false;
+    }
+
+    public String getWarnings() {
+        return warnings.toString();
+    }
+
+    public Atn getAtn() {
+        return atn;
+    }
+
+    /**
+     * Get the generated look-ahead dfa for the specified gruleType
+     * 
+     * @param grule
+     * @return
+     */
+    public LookAheadDfa getLookAheadDfa(GruleType grule) {
+        return this.gruleDfaMapping.get(grule);
     }
 }

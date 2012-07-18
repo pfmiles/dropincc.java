@@ -26,6 +26,7 @@ import com.github.pfmiles.dropincc.impl.TypeMappingParam;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
+import com.github.pfmiles.dropincc.impl.llstar.LlstarAnalysis;
 import com.github.pfmiles.dropincc.impl.util.SetStack;
 import com.github.pfmiles.dropincc.impl.util.Util;
 
@@ -211,8 +212,10 @@ public class ParserCompiler {
      */
     public static List<PredictingGrule> computePredictingGrules(Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
         List<PredictingGrule> ret = new ArrayList<PredictingGrule>();
-        for (Map.Entry<GruleType, List<CAlternative>> ruleAndAlts : ruleTypeToAlts.entrySet()) {
-            // TODO do ll(*) analyzing
+        LlstarAnalysis a = new LlstarAnalysis(ruleTypeToAlts, kleeneTypeToNode);
+        for (Map.Entry<GruleType, List<CAlternative>> e : ruleTypeToAlts.entrySet()) {
+            GruleType grule = e.getKey();
+            ret.add(new PredictingGrule(grule, a.getLookAheadDfa(grule), e.getValue()));
         }
         return ret;
     }

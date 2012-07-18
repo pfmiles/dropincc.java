@@ -86,8 +86,6 @@ public class AnalyzedLang {
         // mappings, including generated grules
         this.ruleTypeToAlts = ParserCompiler.buildRuleTypeToAlts(typeMappingParam);
 
-        // XXX need identical genGrules merging?
-
         // at this time, 'kleeneTypeMapping' should contain all KleeneNode ->
         // KleeneType mapping (built when traverse and register kleene nodes)
         this.kleeneTypeToNode = KleeneCompiler.buildKleeneTypeToNode(typeMappingParam);
@@ -95,8 +93,7 @@ public class AnalyzedLang {
         // 3.check or simplify & compute grammar rules
         // detect and report left-recursion, LL parsing needed
         ParserCompiler.checkAndReportLeftRecursions(this.ruleTypeToAlts, this.kleeneTypeToNode);
-        // TODO compute predicts, LL(*)
-        // TODO detect and report rule conflicts
+        // 3.1 compute predicts, LL(*), detect and report rule conflicts
         List<PredictingGrule> predGrules = ParserCompiler.computePredictingGrules(this.ruleTypeToAlts, this.kleeneTypeToNode);
         // 4.parser code gen
         // TODO kleene match should return a 'retry-able' result, and kleene

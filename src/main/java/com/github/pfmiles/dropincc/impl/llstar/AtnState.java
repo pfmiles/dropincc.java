@@ -52,7 +52,7 @@ public class AtnState {
      */
     public AtnState(String name, boolean _final) {
         super();
-        this.name = name;
+        this.name = "p" + name;// name starts with 'p' by convention
         this._final = _final;
     }
 

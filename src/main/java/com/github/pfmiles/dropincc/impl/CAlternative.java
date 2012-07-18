@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.pfmiles.dropincc.Action;
+import com.github.pfmiles.dropincc.impl.llstar.Predicate;
 import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
@@ -17,6 +18,7 @@ public class CAlternative {
 
     private List<EleType> matchSequence = new ArrayList<EleType>();
     private Action action = null;
+    private Predicate predicate = null;
 
     public CAlternative(List<EleType> ms, Action action) {
         this.matchSequence = ms;
@@ -56,5 +58,13 @@ public class CAlternative {
             sb.append(", ").append(Util.resolveActionName(this.action));
         sb.append(")");
         return sb.toString();
+    }
+
+    public Predicate getPredicate() {
+        return predicate;
+    }
+
+    public void setPredicate(Predicate predicate) {
+        this.predicate = predicate;
     }
 }
