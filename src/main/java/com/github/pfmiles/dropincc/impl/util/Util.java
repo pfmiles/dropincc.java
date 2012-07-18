@@ -3,6 +3,7 @@ package com.github.pfmiles.dropincc.impl.util;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import com.github.pfmiles.dropincc.Action;
@@ -164,6 +165,24 @@ public class Util {
             if (i < ret)
                 ret = i;
         return ret;
+    }
+
+    /**
+     * Join all elements as a whole string, using 'joint' to separate each
+     * element
+     * 
+     * @param joint
+     * @param elements
+     * @return
+     */
+    public static String join(String joint, List<String> elements) {
+        StringBuilder sb = new StringBuilder();
+        for (String ele : elements) {
+            if (sb.length() != 0)
+                sb.append(joint);
+            sb.append(ele);
+        }
+        return sb.toString();
     }
 
 }
