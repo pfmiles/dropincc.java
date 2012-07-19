@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.pfmiles.dropincc.Action;
-import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 
 /**
@@ -19,11 +18,16 @@ public class Alternative {
     private Action action = null;
 
     public Alternative(Element[] eles) {
-        if (eles == null || eles.length == 0)
-            throw new DropinccException(
-                    "Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
+        if (!allNull(eles))
+            for (Element e : eles)
+                this.elements.add(e);
+    }
+
+    private boolean allNull(Element[] eles) {
         for (Element e : eles)
-            this.elements.add(e);
+            if (e != null)
+                return false;
+        return true;
     }
 
     public Action getAction() {

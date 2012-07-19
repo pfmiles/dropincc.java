@@ -11,7 +11,6 @@ import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
 import com.github.pfmiles.dropincc.TokenDef;
-import com.github.pfmiles.dropincc.Tokens;
 import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneStarNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneStarType;
@@ -47,7 +46,7 @@ public class AnalyzedLangTest extends TestCase {
         Grule addition = calculator.newGrule();
         Grule addend = calculator.newGrule();
         Grule factor = calculator.newGrule();
-        Element expr = calculator.addGrammarRule(addition, Tokens.EOF);
+        Element expr = calculator.addGrammarRule(addition, CC.EOF);
         addition.fillGrammarRule(addend, CC.ks(ADD.or(SUB), addend));
         addend.fillGrammarRule(factor, CC.ks(MUL.or(DIV), factor));
         factor.fillGrammarRule(DIGIT).alt(LEFTPAREN, addition, RIGHTPAREN);
@@ -82,7 +81,7 @@ public class AnalyzedLangTest extends TestCase {
         Grule addition = calculator.newGrule();
         Grule addend = calculator.newGrule();
         Grule factor = calculator.newGrule();
-        Element expr = calculator.addGrammarRule(addition, Tokens.EOF).action(new Action() {
+        Element expr = calculator.addGrammarRule(addition, CC.EOF).action(new Action() {
             public Object act(Object... params) {
                 return params[0];
             }

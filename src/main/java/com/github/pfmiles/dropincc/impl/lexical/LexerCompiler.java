@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.TokenDef;
-import com.github.pfmiles.dropincc.Tokens;
 import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.util.Pair;
@@ -29,7 +29,7 @@ public class LexerCompiler {
                 tokenTypeMapping.put(tokens.get(i), new TokenType(i, tokens.get(i).getRegexp()));
             }
             // EOF is of token type -1
-            tokenTypeMapping.put(Tokens.EOF, new TokenType(-1, "EOF"));
+            tokenTypeMapping.put(CC.EOF, new TokenType(-1, "EOF"));
             if (!whitespaceSensitive) {
                 // if the lexer want to be not sensitive about whitespaces, add
                 // a default lexer rule to the end of lexer rule chain to catch
@@ -73,7 +73,7 @@ public class LexerCompiler {
         StringBuilder sb = new StringBuilder();
         int groupCount = 1;// group num starts at 1
         for (TokenDef t : tokens) {
-            if (t.equals(Tokens.EOF))
+            if (t.equals(CC.EOF))
                 continue;
             if (sb.length() != 0)
                 sb.append("|");

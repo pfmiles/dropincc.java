@@ -75,7 +75,7 @@ public class Lang implements Serializable {
         if (eles == null || eles.length == 0)
             throw new DropinccException("Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
         Grule g = new Grule(this.grules.size());
-        eles = Util.filterConstructingGrules(eles);
+        eles = Util.filterProductionEles(eles);
         g.getAlts().add(new Alternative(eles));
         this.grules.add(g);
         return new ConstructingGrule(g);

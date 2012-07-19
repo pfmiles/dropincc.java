@@ -40,7 +40,7 @@ public class ConstructingGrule implements Element {
 		if (eles == null || eles.length == 0)
 			throw new DropinccException(
 					"Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
-		eles = Util.filterConstructingGrules(eles);
+		eles = Util.filterProductionEles(eles);
 		this.grule.getAlts().add(new Alternative(eles));
 		return this;
 	}

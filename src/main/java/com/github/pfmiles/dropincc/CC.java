@@ -22,7 +22,7 @@ import com.github.pfmiles.dropincc.impl.kleene.OptionalNode;
  * @author pf-miles
  * 
  */
-public class CC {
+public abstract class CC {
     private CC() {
     }
 
@@ -31,6 +31,17 @@ public class CC {
      */
     public static final Element NOTHING = new Element() {
         private static final long serialVersionUID = -897759698260072002L;
+    };
+
+    /**
+     * end of parsing file(or character stream) token
+     */
+    public static final TokenDef EOF = new TokenDef("EOF") {
+        private static final long serialVersionUID = 9194950534504326943L;
+
+        public String toString() {
+            return "EOF";
+        }
     };
 
     /**

@@ -1,7 +1,8 @@
 package com.github.pfmiles.dropincc.impl;
 
 /**
- * Element type for special grammar elements.
+ * Element type for special grammar elements. Special typed elements are not
+ * allowed to be in any grammar rule's productions
  * 
  * @author pf-miles
  * 

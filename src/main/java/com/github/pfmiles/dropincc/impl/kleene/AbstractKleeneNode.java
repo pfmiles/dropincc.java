@@ -20,7 +20,7 @@ public abstract class AbstractKleeneNode implements Element {
     protected AbstractKleeneNode(Element... elements) {
         if (elements == null || elements.length == 0)
             throw new DropinccException("Could not create empty kleene closure node.");
-        Collections.addAll(this.elements, Util.filterConstructingGrules(elements));
+        Collections.addAll(this.elements, Util.filterProductionEles(elements));
     }
 
     // same hashCode method implementation as Object.class needed

@@ -38,21 +38,31 @@ public class Util {
     }
 
     /**
-     * accepts an element array contains ConstructingGrule possibly, returns an
-     * array with no containing ConstructingGrule.
+     * Invoked at every point which possibly defining elements match
+     * sequence(Lang.addGrammarRule, Grule.fillGrammarRule, new KleeneXxxNode()
+     * etc.), filtering any special concerned element type. Ensure that the
+     * resulting elements are legal for grammar rule production element
+     * sequence.
      * 
      * @param eles
      * @return
      */
-    public static Element[] filterConstructingGrules(Element[] eles) {
+    public static Element[] filterProductionEles(Element[] eles) {
         if (eles == null)
             return null;
         Element[] eleNoCon = new Element[eles.length];
         for (int i = 0; i < eles.length; i++) {
-            if (eles[i].getClass().equals(ConstructingGrule.class)) {
-                eleNoCon[i] = ((ConstructingGrule) eles[i]).getGrule();
+            Element ele = eles[i];
+            if (ele.getClass().equals(ConstructingGrule.class)) {
+                // filtering out ConstructingGrule elements
+                eleNoCon[i] = ((ConstructingGrule) ele).getGrule();
+            } else if (ele.equals(CC.NOTHING)) {
+                // check for empty alt
+                if (eles.length != 1)
+                    throw new DropinccException(
+                            "Alternative production which contains 'CC.NOTHING' could not have any other elements(Because this is an 'empty' alternative production.)");
             } else {
-                eleNoCon[i] = eles[i];
+                eleNoCon[i] = ele;
             }
         }
         return eleNoCon;

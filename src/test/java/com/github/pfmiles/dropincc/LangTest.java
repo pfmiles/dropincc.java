@@ -50,7 +50,7 @@ public class LangTest extends TestCase {
         Grule addition = calculator.newGrule();
         Grule addend = calculator.newGrule();
         Grule factor = calculator.newGrule();
-        Element expr = calculator.addGrammarRule(addition, Tokens.EOF).action(new Action() {
+        Element expr = calculator.addGrammarRule(addition, CC.EOF).action(new Action() {
             public Object act(Object... params) {
                 return params[0];
             }

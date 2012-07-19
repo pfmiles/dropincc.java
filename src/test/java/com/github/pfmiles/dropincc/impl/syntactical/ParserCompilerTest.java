@@ -11,7 +11,6 @@ import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
 import com.github.pfmiles.dropincc.TokenDef;
-import com.github.pfmiles.dropincc.Tokens;
 import com.github.pfmiles.dropincc.impl.Alternative;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.PredictingGrule;
@@ -39,7 +38,7 @@ public class ParserCompilerTest extends TestCase {
         Element mulTail = calculator.addGrammarRule(MUL.or(DIV), term);
         term.fillGrammarRule(DIGIT, mulTail).alt(LEFTPAREN, expr, RIGHTPAREN).alt(DIGIT);
         Element addendTail = calculator.addGrammarRule(ADD.or(SUB), term);
-        expr.fillGrammarRule(term, addendTail, Tokens.EOF);
+        expr.fillGrammarRule(term, addendTail, CC.EOF);
 
         List<Grule> grules = (List<Grule>) TestHelper.priField(calculator, "grules");
         List<Grule> genGrules = ParserCompiler.rewriteSubRules(grules);
@@ -79,7 +78,7 @@ public class ParserCompilerTest extends TestCase {
         Grule term = calculator.newGrule();
         Grule expr = calculator.newGrule();
         term.fillGrammarRule(DIGIT, MUL.or(DIV).and(term)).alt(LEFTPAREN, expr, RIGHTPAREN).alt(DIGIT);
-        expr.fillGrammarRule(term, ADD.or(SUB).and(term), Tokens.EOF);
+        expr.fillGrammarRule(term, ADD.or(SUB).and(term), CC.EOF);
 
         List<Grule> grules = (List<Grule>) TestHelper.priField(calculator, "grules");
         List<Grule> genGrules = ParserCompiler.rewriteSubRules(grules);
@@ -222,7 +221,7 @@ public class ParserCompilerTest extends TestCase {
         Element b = ll1.addToken("b");
         Element c = ll1.addToken("c");
         Grule A = ll1.newGrule();
-        ll1.addGrammarRule(A, Tokens.EOF);
+        ll1.addGrammarRule(A, CC.EOF);
         A.fillGrammarRule(a, CC.ks(c)).alt(b, CC.ks(c));
         AnalyzedLangForTest al = TestHelper.resolveAnalyzedLangForTest(ll1);
         List<PredictingGrule> ps = ParserCompiler.computePredictingGrules(al.ruleTypeToAlts, al.kleeneTypeToNode);

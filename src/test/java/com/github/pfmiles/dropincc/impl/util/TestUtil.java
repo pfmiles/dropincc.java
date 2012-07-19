@@ -24,7 +24,7 @@ public class TestUtil extends TestCase {
                 return null;
             }
         };
-        assertTrue("UtilTest$1".equals(Util.resolveActionName(a)));
+        assertTrue("TestUtil$1".equals(Util.resolveActionName(a)));
     }
 
     public void testDumpCirclePath() {
@@ -59,7 +59,6 @@ public class TestUtil extends TestCase {
         String dotFilePath = dotFile.getAbsolutePath();
         File pngFile = File.createTempFile(imageName, ".png");
         Process p = Runtime.getRuntime().exec("dot -Tpng " + dotFilePath);
-        System.out.println(p.waitFor());
         byte[] buf = new byte[1024];
         FileOutputStream out = new FileOutputStream(pngFile);
         int read = -1;
@@ -69,6 +68,7 @@ public class TestUtil extends TestCase {
             read = p.getInputStream().read(buf);
         }
         out.close();
+        System.out.println(p.waitFor());
         p.getErrorStream().close();
         p.getInputStream().close();
         p.getOutputStream().close();
