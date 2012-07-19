@@ -8,11 +8,11 @@ import com.github.pfmiles.dropincc.TokenDef;
  * @author pf-miles
  * 
  */
-final class GenedTokenDef extends TokenDef {
+public final class GenedTokenDef extends TokenDef {
 
     private static final long serialVersionUID = 7972632057092553906L;
 
-    GenedTokenDef(String regexp) {
+    public GenedTokenDef(String regexp) {
         super(regexp);
     }
 

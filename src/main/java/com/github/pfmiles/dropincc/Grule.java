@@ -52,11 +52,11 @@ public class Grule implements Element {
         return new OrSubRule(this, e);
     }
 
-    public ConstructingGrule fillGrammarRule(Element... eles) {
+    public ConstructingGrule define(Object... eles) {
         if (eles == null || eles.length == 0)
             throw new DropinccException("Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
-        eles = Util.filterProductionEles(eles);
-        this.alts.add(new Alternative(eles));
+        Element[] elements = Util.filterProductionEles(eles);
+        this.alts.add(new Alternative(elements));
         return new ConstructingGrule(this);
     }
 

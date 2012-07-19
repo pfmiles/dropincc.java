@@ -1,17 +1,29 @@
 package com.github.pfmiles.dropincc.impl.lexical;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.DropinccException;
+import com.github.pfmiles.dropincc.Element;
+import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.TokenDef;
+import com.github.pfmiles.dropincc.impl.Alternative;
+import com.github.pfmiles.dropincc.impl.AndSubRule;
+import com.github.pfmiles.dropincc.impl.ConstructingGrule;
 import com.github.pfmiles.dropincc.impl.EleType;
+import com.github.pfmiles.dropincc.impl.OrSubRule;
 import com.github.pfmiles.dropincc.impl.TokenType;
+import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
 import com.github.pfmiles.dropincc.impl.util.Pair;
+import com.github.pfmiles.dropincc.impl.util.SeqGen;
 import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
@@ -25,7 +37,12 @@ public class LexerCompiler {
     public static Map<TokenDef, TokenType> buildTokenTypeMapping(List<TokenDef> tokens, boolean whitespaceSensitive) {
         Map<TokenDef, TokenType> tokenTypeMapping = new HashMap<TokenDef, TokenType>();
         if (tokens != null) {
-            for (int i = 0; i < tokens.size(); i++) {
+            SeqGen seq = new SeqGen();
+            for (Iterator<TokenDef> iter = tokens.iterator(); iter.hasNext();) {
+                TokenDef t = iter.next();
+                if (tokenTypeMapping.containsKey(t))
+                    continue;
+                int i = seq.next();
                 tokenTypeMapping.put(tokens.get(i), new TokenType(i, tokens.get(i).getRegexp()));
             }
             // EOF is of token type -1
@@ -101,4 +118,53 @@ public class LexerCompiler {
         return ret;
     }
 
+    /**
+     * Traverse the grammar rule tree, and gather all instantly added token defs
+     * 
+     * @param grules
+     * @return
+     */
+    public static List<InstantTokenDef> collectInstantTokenDefs(List<Grule> grules) {
+        List<InstantTokenDef> ret = new ArrayList<InstantTokenDef>();
+        Set<Element> traversed = new HashSet<Element>();
+        for (Grule g : grules) {
+            traversed.add(g);
+            ret.addAll(collectInstantTokenDefFromAlts(g.getAlts(), traversed));
+        }
+        return ret;
+    }
+
+    private static List<InstantTokenDef> collectInstantTokenDefFromAlts(List<Alternative> alts, Set<Element> traversed) {
+        List<InstantTokenDef> ret = new ArrayList<InstantTokenDef>();
+        for (Alternative alt : alts) {
+            ret.addAll(collectInstantTokenDefFromElements(alt.getElements(), traversed));
+        }
+        return ret;
+    }
+
+    private static List<InstantTokenDef> collectInstantTokenDefFromElements(List<Element> eles, Set<Element> traversed) {
+        List<InstantTokenDef> ret = new ArrayList<InstantTokenDef>();
+        for (Element ele : eles) {
+            if (traversed.contains(ele))
+                continue;
+            traversed.add(ele);
+            if (ele instanceof AbstractKleeneNode) {
+                ret.addAll(collectInstantTokenDefFromElements(((AbstractKleeneNode) ele).getElements(), traversed));
+            } else if (ele instanceof AndSubRule) {
+                ret.addAll(collectInstantTokenDefFromAlts(((AndSubRule) ele).getAlts(), traversed));
+            } else if (ele instanceof OrSubRule) {
+                ret.addAll(collectInstantTokenDefFromAlts(((OrSubRule) ele).getAlts(), traversed));
+            } else if (ele instanceof ConstructingGrule) {
+                throw new DropinccException("Something must be wrong, ConstructingGrule shouldn't appear here");
+            } else if (ele instanceof Grule) {
+                ret.addAll(collectInstantTokenDefFromAlts(((Grule) ele).getAlts(), traversed));
+            } else if (ele instanceof InstantTokenDef) {
+                ret.add((InstantTokenDef) ele);
+            } else {
+                // other, pass
+                continue;
+            }
+        }
+        return ret;
+    }
 }

@@ -13,18 +13,20 @@ import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.util.Pair;
+import com.github.pfmiles.dropincc.testhelper.TestHelper;
 
 /**
  * @author pf-miles
  * 
  */
+@SuppressWarnings("unchecked")
 public class LexerCompilerTest extends TestCase {
     public void testCheckAndCompileTokenRulesInvalidTokens() {
         Lang dl = new Lang();
         List<TokenDef> tokens = new ArrayList<TokenDef>();
         // null token test
-        tokens.add(dl.addToken(null));
-        dl.addGrammarRule(dl.addToken("ok!"));
+        tokens.add(dl.newToken(null));
+        dl.defineGrule(dl.newToken("ok!"));
         Map<TokenDef, TokenType> tokenTypeMapping = LexerCompiler.buildTokenTypeMapping(tokens, false);
         try {
             LexerCompiler.checkAndCompileTokenRules(tokens, tokenTypeMapping);
@@ -34,7 +36,7 @@ public class LexerCompilerTest extends TestCase {
         }
         tokens.clear();
         // empty token test
-        tokens.add(dl.addToken(""));
+        tokens.add(dl.newToken(""));
         try {
             LexerCompiler.checkAndCompileTokenRules(tokens, tokenTypeMapping);
             assertTrue(false);
@@ -43,8 +45,8 @@ public class LexerCompilerTest extends TestCase {
         }
         tokens.clear();
         // error pattern test
-        tokens.add(dl.addToken("aaa"));
-        tokens.add(dl.addToken("[[["));
+        tokens.add(dl.newToken("aaa"));
+        tokens.add(dl.newToken("[[["));
         try {
             LexerCompiler.checkAndCompileTokenRules(tokens, tokenTypeMapping);
             assertTrue(false);
@@ -57,12 +59,12 @@ public class LexerCompilerTest extends TestCase {
     public void testCombinedTokenRulesGroupNums() {
         Lang dl = new Lang();
         List<TokenDef> tokens = new ArrayList<TokenDef>();
-        tokens.add(dl.addToken("aaa"));
-        tokens.add(dl.addToken("bb(c(d))"));
-        tokens.add(dl.addToken("ee(f\\(g\\))"));
-        tokens.add(dl.addToken("hh\\(i\\(j\\)k\\)l"));
-        tokens.add(dl.addToken("zzz"));
-        dl.addGrammarRule(dl.addToken("stubToken"));
+        tokens.add(dl.newToken("aaa"));
+        tokens.add(dl.newToken("bb(c(d))"));
+        tokens.add(dl.newToken("ee(f\\(g\\))"));
+        tokens.add(dl.newToken("hh\\(i\\(j\\)k\\)l"));
+        tokens.add(dl.newToken("zzz"));
+        dl.defineGrule(dl.newToken("stubToken"));
         Map<TokenDef, TokenType> tokenTypeMapping = LexerCompiler.buildTokenTypeMapping(tokens, false);
         Pair<Map<Integer, EleType>, Pattern> pair = LexerCompiler.checkAndCompileTokenRules(tokens, tokenTypeMapping);
         Map<Integer, EleType> gnumToType = pair.getLeft();
@@ -81,12 +83,12 @@ public class LexerCompilerTest extends TestCase {
     public void testBuildTokenTypeMappingWhiteSpaceSensitive() {
         Lang dl = new Lang();
         List<TokenDef> tokens = new ArrayList<TokenDef>();
-        tokens.add(dl.addToken("aaa"));
-        tokens.add(dl.addToken("bb(c(d))"));
-        tokens.add(dl.addToken("ee(f\\(g\\))"));
-        tokens.add(dl.addToken("hh\\(i\\(j\\)k\\)l"));
-        tokens.add(dl.addToken("zzz"));
-        dl.addGrammarRule(dl.addToken("stubToken"));
+        tokens.add(dl.newToken("aaa"));
+        tokens.add(dl.newToken("bb(c(d))"));
+        tokens.add(dl.newToken("ee(f\\(g\\))"));
+        tokens.add(dl.newToken("hh\\(i\\(j\\)k\\)l"));
+        tokens.add(dl.newToken("zzz"));
+        dl.defineGrule(dl.newToken("stubToken"));
         Map<TokenDef, TokenType> tokenTypeMapping = LexerCompiler.buildTokenTypeMapping(tokens, true);
         Pair<Map<Integer, EleType>, Pattern> pair = LexerCompiler.checkAndCompileTokenRules(tokens, tokenTypeMapping);
         Map<Integer, EleType> gnumToType = pair.getLeft();
@@ -99,5 +101,18 @@ public class LexerCompilerTest extends TestCase {
         exps.put(7, new TokenType(3, "3"));
         exps.put(8, new TokenType(4, "4"));
         assertTrue(gnumToType.equals(exps));
+    }
+
+    public void testAddSameTokens() {
+        Lang l = new Lang();
+        l.newToken("a");
+        l.newToken("b");
+        l.newToken("c");
+        l.newToken("c");
+        l.newToken("a");
+        l.newToken("a");
+        l.newToken("b");
+        Map<TokenDef, TokenType> tokenTypeMapping = LexerCompiler.buildTokenTypeMapping((List<TokenDef>) TestHelper.priField(l, "tokens"), true);
+        assertTrue(tokenTypeMapping.size() == 4);
     }
 }

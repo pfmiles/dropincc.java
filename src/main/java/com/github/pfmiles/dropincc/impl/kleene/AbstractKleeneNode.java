@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
-import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
  * @author pf-miles
@@ -20,7 +19,16 @@ public abstract class AbstractKleeneNode implements Element {
     protected AbstractKleeneNode(Element... elements) {
         if (elements == null || elements.length == 0)
             throw new DropinccException("Could not create empty kleene closure node.");
-        Collections.addAll(this.elements, Util.filterProductionEles(elements));
+        if (!allNotNull(elements))
+            throw new DropinccException("Null element contained in kleene node, illegal!");
+        Collections.addAll(this.elements, elements);
+    }
+
+    private boolean allNotNull(Element[] eles) {
+        for (Element ele : eles)
+            if (ele == null)
+                return false;
+        return true;
     }
 
     // same hashCode method implementation as Object.class needed

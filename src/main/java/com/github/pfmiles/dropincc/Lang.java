@@ -57,7 +57,7 @@ public class Lang implements Serializable {
      * @return the added token itself as an element, for use in later grammar
      *         rule definitions.
      */
-    public TokenDef addToken(String regExpr) {
+    public TokenDef newToken(String regExpr) {
         TokenDef t = new TokenDef(regExpr);
         this.tokens.add(t);
         return t;
@@ -71,12 +71,12 @@ public class Lang implements Serializable {
      * @return the added grammar rule object itself(wrapped for continuing rule
      *         construction), for use in later grammar rule definitions.
      */
-    public ConstructingGrule addGrammarRule(Element... eles) {
+    public ConstructingGrule defineGrule(Object... eles) {
         if (eles == null || eles.length == 0)
             throw new DropinccException("Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
         Grule g = new Grule(this.grules.size());
-        eles = Util.filterProductionEles(eles);
-        g.getAlts().add(new Alternative(eles));
+        Element[] elements = Util.filterProductionEles(eles);
+        g.getAlts().add(new Alternative(elements));
         this.grules.add(g);
         return new ConstructingGrule(g);
     }

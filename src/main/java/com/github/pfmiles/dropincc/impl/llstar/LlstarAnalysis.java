@@ -88,8 +88,9 @@ public class LlstarAnalysis {
                             curState = nextState;
                             this.atn.genTransitions(curState, contents, curState, grule, kleeneTypeToNode);
                         } else if (edge instanceof OptionalType) {
+                            List<EleType> contents = kleeneTypeToNode.get((OptionalType) edge).getContents();
                             AtnState nextState = this.atn.newAtnState(grule);
-                            curState.addTransition(edge, nextState);
+                            this.atn.genTransitions(curState, contents, nextState, grule, kleeneTypeToNode);
                             curState.addTransition(Constants.epsilon, nextState);
                             curState = nextState;
                         } else {

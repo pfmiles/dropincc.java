@@ -26,19 +26,19 @@ public class ParserCompilerTest extends TestCase {
     @SuppressWarnings("unchecked")
     public void testOrSubRuleRewrite() {
         Lang calculator = new Lang();
-        TokenDef DIGIT = calculator.addToken("\\d+");
-        TokenDef ADD = calculator.addToken("\\+");
-        TokenDef SUB = calculator.addToken("\\-");
-        TokenDef MUL = calculator.addToken("\\*");
-        TokenDef DIV = calculator.addToken("/");
-        TokenDef LEFTPAREN = calculator.addToken("\\(");
-        TokenDef RIGHTPAREN = calculator.addToken("\\)");
+        TokenDef DIGIT = calculator.newToken("\\d+");
+        TokenDef ADD = calculator.newToken("\\+");
+        TokenDef SUB = calculator.newToken("\\-");
+        TokenDef MUL = calculator.newToken("\\*");
+        TokenDef DIV = calculator.newToken("/");
+        TokenDef LEFTPAREN = calculator.newToken("\\(");
+        TokenDef RIGHTPAREN = calculator.newToken("\\)");
         Grule expr = calculator.newGrule();
         Grule term = calculator.newGrule();
-        Element mulTail = calculator.addGrammarRule(MUL.or(DIV), term);
-        term.fillGrammarRule(DIGIT, mulTail).alt(LEFTPAREN, expr, RIGHTPAREN).alt(DIGIT);
-        Element addendTail = calculator.addGrammarRule(ADD.or(SUB), term);
-        expr.fillGrammarRule(term, addendTail, CC.EOF);
+        Element mulTail = calculator.defineGrule(MUL.or(DIV), term);
+        term.define(DIGIT, mulTail).alt(LEFTPAREN, expr, RIGHTPAREN).alt(DIGIT);
+        Element addendTail = calculator.defineGrule(ADD.or(SUB), term);
+        expr.define(term, addendTail, CC.EOF);
 
         List<Grule> grules = (List<Grule>) TestHelper.priField(calculator, "grules");
         List<Grule> genGrules = ParserCompiler.rewriteSubRules(grules);
@@ -67,18 +67,18 @@ public class ParserCompilerTest extends TestCase {
     @SuppressWarnings("unchecked")
     public void testSubRuleRewriteOrCascadingAnd() {
         Lang calculator = new Lang();
-        TokenDef DIGIT = calculator.addToken("\\d+");
-        TokenDef ADD = calculator.addToken("\\+");
-        TokenDef SUB = calculator.addToken("\\-");
-        TokenDef MUL = calculator.addToken("\\*");
-        TokenDef DIV = calculator.addToken("/");
-        TokenDef LEFTPAREN = calculator.addToken("\\(");
-        TokenDef RIGHTPAREN = calculator.addToken("\\)");
+        TokenDef DIGIT = calculator.newToken("\\d+");
+        TokenDef ADD = calculator.newToken("\\+");
+        TokenDef SUB = calculator.newToken("\\-");
+        TokenDef MUL = calculator.newToken("\\*");
+        TokenDef DIV = calculator.newToken("/");
+        TokenDef LEFTPAREN = calculator.newToken("\\(");
+        TokenDef RIGHTPAREN = calculator.newToken("\\)");
 
         Grule term = calculator.newGrule();
         Grule expr = calculator.newGrule();
-        term.fillGrammarRule(DIGIT, MUL.or(DIV).and(term)).alt(LEFTPAREN, expr, RIGHTPAREN).alt(DIGIT);
-        expr.fillGrammarRule(term, ADD.or(SUB).and(term), CC.EOF);
+        term.define(DIGIT, MUL.or(DIV).and(term)).alt(LEFTPAREN, expr, RIGHTPAREN).alt(DIGIT);
+        expr.define(term, ADD.or(SUB).and(term), CC.EOF);
 
         List<Grule> grules = (List<Grule>) TestHelper.priField(calculator, "grules");
         List<Grule> genGrules = ParserCompiler.rewriteSubRules(grules);
@@ -146,10 +146,10 @@ public class ParserCompilerTest extends TestCase {
     public void testCheckAndReportLeftRecursions() {
         // direct left recursion
         Lang testLang = new Lang();
-        TokenDef gt = testLang.addToken("\\>");
-        TokenDef zero = testLang.addToken("0");
+        TokenDef gt = testLang.newToken("\\>");
+        TokenDef zero = testLang.newToken("0");
         Grule L = testLang.newGrule();
-        L.fillGrammarRule(L, gt, zero);
+        L.define(L, gt, zero);
         AnalyzedLangForTest a = TestHelper.resolveAnalyzedLangForTest(testLang);
         try {
             ParserCompiler.checkAndReportLeftRecursions(a.ruleTypeToAlts, a.kleeneTypeToNode);
@@ -161,18 +161,18 @@ public class ParserCompilerTest extends TestCase {
 
         // chained left recursion
         testLang = new Lang();
-        TokenDef leftParen = testLang.addToken("\\(");
-        TokenDef rightParen = testLang.addToken("\\)");
-        TokenDef rightBracket = testLang.addToken("\\]");
-        zero = testLang.addToken("0");
-        TokenDef leftBrace = testLang.addToken("\\{");
-        TokenDef rightBrace = testLang.addToken("\\}");
-        gt = testLang.addToken("\\>");
+        TokenDef leftParen = testLang.newToken("\\(");
+        TokenDef rightParen = testLang.newToken("\\)");
+        TokenDef rightBracket = testLang.newToken("\\]");
+        zero = testLang.newToken("0");
+        TokenDef leftBrace = testLang.newToken("\\{");
+        TokenDef rightBrace = testLang.newToken("\\}");
+        gt = testLang.newToken("\\>");
         Grule A = testLang.newGrule();
         Grule B = testLang.newGrule();
-        Element l = testLang.addGrammarRule(leftParen, A, rightParen).alt(B, rightBracket).alt(zero);
-        A.fillGrammarRule(leftBrace, B, rightBrace);
-        B.fillGrammarRule(l, gt);
+        Element l = testLang.defineGrule(leftParen, A, rightParen).alt(B, rightBracket).alt(zero);
+        A.define(leftBrace, B, rightBrace);
+        B.define(l, gt);
         a = TestHelper.resolveAnalyzedLangForTest(testLang);
         try {
             ParserCompiler.checkAndReportLeftRecursions(a.ruleTypeToAlts, a.kleeneTypeToNode);
@@ -184,18 +184,18 @@ public class ParserCompilerTest extends TestCase {
 
         // left recursion in kleene nodes
         testLang = new Lang();
-        leftParen = testLang.addToken("\\(");
-        rightParen = testLang.addToken("\\)");
-        rightBracket = testLang.addToken("\\]");
-        zero = testLang.addToken("0");
-        leftBrace = testLang.addToken("\\{");
-        rightBrace = testLang.addToken("\\}");
-        gt = testLang.addToken("\\>");
+        leftParen = testLang.newToken("\\(");
+        rightParen = testLang.newToken("\\)");
+        rightBracket = testLang.newToken("\\]");
+        zero = testLang.newToken("0");
+        leftBrace = testLang.newToken("\\{");
+        rightBrace = testLang.newToken("\\}");
+        gt = testLang.newToken("\\>");
         A = testLang.newGrule();
         B = testLang.newGrule();
-        l = testLang.addGrammarRule(leftParen, A, rightParen).alt(CC.ks(B, rightBracket)).alt(zero);
-        A.fillGrammarRule(leftBrace, B, rightBrace).alt(CC.op(l));
-        B.fillGrammarRule(CC.kc(A), gt);
+        l = testLang.defineGrule(leftParen, A, rightParen).alt(CC.ks(B, rightBracket)).alt(zero);
+        A.define(leftBrace, B, rightBrace).alt(CC.op(l));
+        B.define(CC.kc(A), gt);
         a = TestHelper.resolveAnalyzedLangForTest(testLang);
         try {
             ParserCompiler.checkAndReportLeftRecursions(a.ruleTypeToAlts, a.kleeneTypeToNode);
@@ -217,12 +217,12 @@ public class ParserCompilerTest extends TestCase {
      */
     public void testComputePredictingGrules() {
         Lang ll1 = new Lang();
-        Element a = ll1.addToken("a");
-        Element b = ll1.addToken("b");
-        Element c = ll1.addToken("c");
+        Element a = ll1.newToken("a");
+        Element b = ll1.newToken("b");
+        Element c = ll1.newToken("c");
         Grule A = ll1.newGrule();
-        ll1.addGrammarRule(A, CC.EOF);
-        A.fillGrammarRule(a, CC.ks(c)).alt(b, CC.ks(c));
+        ll1.defineGrule(A, CC.EOF);
+        A.define(a, CC.ks(c)).alt(b, CC.ks(c));
         AnalyzedLangForTest al = TestHelper.resolveAnalyzedLangForTest(ll1);
         List<PredictingGrule> ps = ParserCompiler.computePredictingGrules(al.ruleTypeToAlts, al.kleeneTypeToNode);
         // System.out.println(ps);

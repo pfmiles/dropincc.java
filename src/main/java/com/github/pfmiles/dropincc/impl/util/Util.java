@@ -18,6 +18,7 @@ import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.OrSubRule;
 import com.github.pfmiles.dropincc.impl.TypeMappingParam;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
+import com.github.pfmiles.dropincc.impl.lexical.InstantTokenDef;
 
 /**
  * @author pf-miles
@@ -45,15 +46,16 @@ public class Util {
      * sequence.
      * 
      * @param eles
+     * @param lang
      * @return
      */
-    public static Element[] filterProductionEles(Element[] eles) {
+    public static Element[] filterProductionEles(Object[] eles) {
         if (eles == null)
             return null;
         Element[] eleNoCon = new Element[eles.length];
         for (int i = 0; i < eles.length; i++) {
-            Element ele = eles[i];
-            if (ele.getClass().equals(ConstructingGrule.class)) {
+            Object ele = eles[i];
+            if (ele instanceof ConstructingGrule) {
                 // filtering out ConstructingGrule elements
                 eleNoCon[i] = ((ConstructingGrule) ele).getGrule();
             } else if (ele.equals(CC.NOTHING)) {
@@ -61,8 +63,15 @@ public class Util {
                 if (eles.length != 1)
                     throw new DropinccException(
                             "Alternative production which contains 'CC.NOTHING' could not have any other elements(Because this is an 'empty' alternative production.)");
+            } else if (ele instanceof Element) {
+                // any other Element type
+                eleNoCon[i] = (Element) ele;
+            } else if (ele instanceof String) {
+                // tokenDef on-the-fly
+                eleNoCon[i] = new InstantTokenDef((String) ele);
             } else {
-                eleNoCon[i] = ele;
+                // report error
+                throw new DropinccException("Illegal production element type: " + ele);
             }
         }
         return eleNoCon;

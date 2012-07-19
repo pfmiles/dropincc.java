@@ -86,7 +86,7 @@ public class TokenDef implements Element {
             return true;
         if (obj == null)
             return false;
-        if (getClass() != obj.getClass())
+        if (!(obj instanceof TokenDef))
             return false;
         TokenDef other = (TokenDef) obj;
         if (regexp == null) {

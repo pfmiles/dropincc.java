@@ -16,32 +16,38 @@ import com.github.pfmiles.dropincc.Element;
  */
 public class OrSubRule implements Element {
 
-	private static final long serialVersionUID = -4844644881965256903L;
+    private static final long serialVersionUID = -4844644881965256903L;
 
-	private List<Alternative> alts = new ArrayList<Alternative>();
+    private List<Alternative> alts = new ArrayList<Alternative>();
 
-	public OrSubRule(Element... ele) {
-		if (ele == null)
-			throw new DropinccException(
-					"Could not construct empty alternative.");
-		for (Element e : ele)
-			this.alts.add(new Alternative(new Element[] { e }));
-	}
+    public OrSubRule(Element... ele) {
+        if (ele == null)
+            throw new DropinccException("Could not construct empty alternative.");
+        for (Element e : ele)
+            this.alts.add(new Alternative(new Element[] { e }));
+    }
 
-	public OrSubRule or(Element ele) {
-		if (ele == null)
-			throw new DropinccException(
-					"Could not construct empty alternative.");
-		this.alts.add(new Alternative(new Element[] { ele }));
-		return this;
-	}
+    public OrSubRule or(Element ele) {
+        if (ele == null)
+            throw new DropinccException("Could not construct empty alternative.");
+        this.alts.add(new Alternative(new Element[] { ele }));
+        return this;
+    }
 
-	public List<Alternative> getAlts() {
-		return alts;
-	}
+    public List<Alternative> getAlts() {
+        return alts;
+    }
 
-	public AndSubRule and(Element ele) {
-		return new AndSubRule(this, ele);
-	}
+    public AndSubRule and(Element ele) {
+        return new AndSubRule(this, ele);
+    }
+
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 
 }

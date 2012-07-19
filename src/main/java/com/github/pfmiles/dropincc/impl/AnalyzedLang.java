@@ -58,6 +58,8 @@ public class AnalyzedLang {
     public AnalyzedLang(List<TokenDef> tokens, List<Grule> grules, boolean whitespaceSensitive) {
         // build token -> tokenType mapping
         this.tokens = tokens;
+        // Gathering instant tokenDefs...
+        this.tokens.addAll(LexerCompiler.collectInstantTokenDefs(grules));
 
         this.whitespaceSensitive = whitespaceSensitive;
 

@@ -39,23 +39,23 @@ public class LangTest extends TestCase {
     public void testCalculator() {
         // 3.define lexical rules
         Lang calculator = new Lang();
-        TokenDef DIGIT = calculator.addToken("\\d+");
-        TokenDef ADD = calculator.addToken("\\+");
-        TokenDef SUB = calculator.addToken("\\-");
-        TokenDef MUL = calculator.addToken("\\*");
-        TokenDef DIV = calculator.addToken("/");
-        TokenDef LEFTPAREN = calculator.addToken("\\(");
-        TokenDef RIGHTPAREN = calculator.addToken("\\)");
+        TokenDef DIGIT = calculator.newToken("\\d+");
+        TokenDef ADD = calculator.newToken("\\+");
+        TokenDef SUB = calculator.newToken("\\-");
+        TokenDef MUL = calculator.newToken("\\*");
+        TokenDef DIV = calculator.newToken("/");
+        TokenDef LEFTPAREN = calculator.newToken("\\(");
+        TokenDef RIGHTPAREN = calculator.newToken("\\)");
         // 2.define grammar rules and corresponding actions
         Grule addition = calculator.newGrule();
         Grule addend = calculator.newGrule();
         Grule factor = calculator.newGrule();
-        Element expr = calculator.addGrammarRule(addition, CC.EOF).action(new Action() {
+        Element expr = calculator.defineGrule(addition, CC.EOF).action(new Action() {
             public Object act(Object... params) {
                 return params[0];
             }
         });
-        addition.fillGrammarRule(addend, CC.ks((ADD.or(SUB)), addend)).action(new Action() {
+        addition.define(addend, CC.ks((ADD.or(SUB)), addend)).action(new Action() {
             public Object act(Object... params) {
                 double leftMost = (Double) params[0];
                 Object[] opAndOther = (Object[]) params[1];
@@ -72,7 +72,7 @@ public class LangTest extends TestCase {
                 return leftMost;
             }
         });
-        addend.fillGrammarRule(factor, CC.ks(MUL.or(DIV), factor)).action(new Action() {
+        addend.define(factor, CC.ks(MUL.or(DIV), factor)).action(new Action() {
             public Object act(Object... params) {
                 double leftMost = (Double) params[0];
                 Object[] opAndOthers = (Object[]) params[1];
@@ -89,7 +89,7 @@ public class LangTest extends TestCase {
                 return leftMost;
             }
         });
-        factor.fillGrammarRule(DIGIT).action(new Action() {
+        factor.define(DIGIT).action(new Action() {
             public Object act(Object... params) {
                 return Double.parseDouble((String) params[0]);
             }

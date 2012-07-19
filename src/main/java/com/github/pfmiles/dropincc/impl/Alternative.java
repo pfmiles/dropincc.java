@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.github.pfmiles.dropincc.Action;
+import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 
 /**
@@ -18,16 +19,38 @@ public class Alternative {
     private Action action = null;
 
     public Alternative(Element[] eles) {
-        if (!allNull(eles))
+        switch (checkNull(eles)) {
+        case 0:
+            // empty alternative, add nothing
+            break;
+        case 1:
+            // illegal
+            throw new DropinccException("Null elements among non-null ones, something must be wrong.");
+        case 2:
             for (Element e : eles)
                 this.elements.add(e);
+            break;
+        default:
+            throw new DropinccException("Impossible.");
+        }
     }
 
-    private boolean allNull(Element[] eles) {
-        for (Element e : eles)
-            if (e != null)
-                return false;
-        return true;
+    /*
+     * 切克闹... Returns 0 if all elements are null; 1 if some of them are, 2 if
+     * none of them...
+     */
+    private int checkNull(Element[] eles) {
+        int nullCount = 0;
+        for (Element ele : eles)
+            if (ele == null)
+                nullCount++;
+        if (nullCount == eles.length)
+            return 0;
+        if (nullCount != 0 && nullCount < eles.length)
+            return 1;
+        if (nullCount == 0)
+            return 2;
+        return -1;
     }
 
     public Action getAction() {

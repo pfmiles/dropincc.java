@@ -13,6 +13,7 @@ package com.github.pfmiles.dropincc;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneCrossNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneStarNode;
 import com.github.pfmiles.dropincc.impl.kleene.OptionalNode;
+import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
  * 
@@ -50,7 +51,10 @@ public abstract class CC {
      * @param elements
      * @return
      */
-    public static KleeneStarNode ks(Element... elements) {
+    public static KleeneStarNode ks(Object... eles) {
+        if (eles == null || eles.length == 0)
+            throw new DropinccException("Could not create empty kleene star node.");
+        Element[] elements = Util.filterProductionEles(eles);
         return new KleeneStarNode(elements);
     }
 
@@ -60,7 +64,10 @@ public abstract class CC {
      * @param elements
      * @return
      */
-    public static KleeneCrossNode kc(Element... elements) {
+    public static KleeneCrossNode kc(Object... eles) {
+        if (eles == null || eles.length == 0)
+            throw new DropinccException("Could not create empty kleene cross node.");
+        Element[] elements = Util.filterProductionEles(eles);
         return new KleeneCrossNode(elements);
     }
 
@@ -70,7 +77,10 @@ public abstract class CC {
      * @param elements
      * @return
      */
-    public static OptionalNode op(Element... elements) {
+    public static OptionalNode op(Object... eles) {
+        if (eles == null || eles.length == 0)
+            throw new DropinccException("Could not create empty optional node.");
+        Element[] elements = Util.filterProductionEles(eles);
         return new OptionalNode(elements);
     }
 
