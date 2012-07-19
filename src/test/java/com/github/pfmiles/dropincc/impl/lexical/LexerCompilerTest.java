@@ -69,12 +69,12 @@ public class LexerCompilerTest extends TestCase {
         assertTrue(gnumToType.size() == 6);
         // Integer[] exps = new Integer[] { 1, 2, 5, 7, 8 , -2};
         Map<Integer, EleType> exps = new HashMap<Integer, EleType>();
-        exps.put(1, new TokenType(0));
-        exps.put(2, new TokenType(1));
-        exps.put(5, new TokenType(2));
-        exps.put(7, new TokenType(3));
-        exps.put(8, new TokenType(4));
-        exps.put(9, new TokenType(-2));
+        exps.put(1, new TokenType(0, "0"));
+        exps.put(2, new TokenType(1, "1"));
+        exps.put(5, new TokenType(2, "2"));
+        exps.put(7, new TokenType(3, "3"));
+        exps.put(8, new TokenType(4, "4"));
+        exps.put(9, new TokenType(-2, "-2"));
         assertTrue(gnumToType.equals(exps));
     }
 
@@ -93,11 +93,11 @@ public class LexerCompilerTest extends TestCase {
         assertTrue(gnumToType.size() == 5);
         // Integer[] exps = new Integer[] { 1, 2, 5, 7, 8};
         Map<Integer, EleType> exps = new HashMap<Integer, EleType>();
-        exps.put(1, new TokenType(0));
-        exps.put(2, new TokenType(1));
-        exps.put(5, new TokenType(2));
-        exps.put(7, new TokenType(3));
-        exps.put(8, new TokenType(4));
+        exps.put(1, new TokenType(0, "0"));
+        exps.put(2, new TokenType(1, "1"));
+        exps.put(5, new TokenType(2, "2"));
+        exps.put(7, new TokenType(3, "3"));
+        exps.put(8, new TokenType(4, "4"));
         assertTrue(gnumToType.equals(exps));
     }
 }

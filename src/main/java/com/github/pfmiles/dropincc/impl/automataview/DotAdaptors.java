@@ -9,7 +9,6 @@ import java.util.Set;
 import com.github.pfmiles.dropincc.impl.llstar.AtnState;
 import com.github.pfmiles.dropincc.impl.llstar.DfaState;
 import com.github.pfmiles.dropincc.impl.util.Pair;
-import com.github.pfmiles.dropincc.impl.util.SeqGen;
 
 /**
  * Some adapting methods to convert ATN or DFA states to GeneratingStates which
@@ -77,8 +76,6 @@ public final class DotAdaptors {
 
     private static final class DotDfaState implements GeneratingState {
         private DfaState state;
-        private int seqNum = -1;
-        private SeqGen seq = new SeqGen();
 
         public DotDfaState(DfaState state) {
             this.state = state;
@@ -86,16 +83,10 @@ public final class DotAdaptors {
 
         public String getId() {
             if (this.state.isFinal()) {
-                return "d" + resolveSeqNum() + "_" + this.state.getAlt();
+                return this.state.getName() + "_" + this.state.getAlt();
             } else {
-                return "d" + resolveSeqNum();
+                return this.state.getName();
             }
-        }
-
-        private int resolveSeqNum() {
-            if (this.seqNum == -1)
-                this.seqNum = this.seq.next();
-            return this.seqNum;
         }
 
         public List<Pair<String, GeneratingState>> getTransitions() {

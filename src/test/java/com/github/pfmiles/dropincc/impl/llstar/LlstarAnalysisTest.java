@@ -28,8 +28,11 @@ public class LlstarAnalysisTest extends TestCase {
         Grule A = ll1.newGrule();
         ll1.addGrammarRule(A, Tokens.EOF);
         A.fillGrammarRule(a, CC.ks(c)).alt(b, CC.ks(c));
+        genImages(ll1);
+    }
 
-        AnalyzedLangForTest al = TestHelper.resolveAnalyzedLangForTest(ll1);
+    private static void genImages(Lang lang) throws Throwable {
+        AnalyzedLangForTest al = TestHelper.resolveAnalyzedLangForTest(lang);
         LlstarAnalysis llstar = new LlstarAnalysis(al.ruleTypeToAlts, al.kleeneTypeToNode);
         DotGenerator dotGen = new DotGenerator(DotAdaptors.adaptAtnStates(llstar.getAtn().getStates()));
         TestUtil.createPng(dotGen, "atn");

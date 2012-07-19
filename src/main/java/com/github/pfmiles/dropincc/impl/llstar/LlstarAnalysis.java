@@ -301,7 +301,7 @@ public class LlstarAnalysis {
             Object first_t = pa_i.getTransitions().entrySet().iterator().next().getKey();
             if (first_t instanceof Predicate)
                 pi = (Predicate) first_t;
-            D0.addAllConfs(closure(D0, new AtnConfig(pa_i, i, new CallStack(), pi)));
+            D0.addAllConfs(closure(D0, new AtnConfig(pa_i, extractAltFromAltState(pa_i), new CallStack(), pi)));
             D0.releaseBusy();
         }
         work.push(D0);
@@ -365,6 +365,21 @@ public class LlstarAnalysis {
             }
         }
         return ret;
+    }
+
+    /**
+     * Resolve predicting alt number from 'alt state', according to alt state
+     * naming convention
+     * 
+     * @param pai
+     *            alt state, has naming convention 'pRx_x', the second 'x' is
+     *            the predicting alt number...
+     * 
+     * @return
+     */
+    private static int extractAltFromAltState(AtnState pai) {
+        String name = pai.getName();
+        return Integer.parseInt(name.substring(name.indexOf('_') + 1));
     }
 
     /**

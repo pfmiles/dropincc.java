@@ -60,7 +60,9 @@ public class LookAheadDfa {
         DfaState state = new DfaState();
         // add a special dummy final atn_config, to satisfy dfa state's equality
         // definition when replacing old final state
-        state.addConf(new AtnConfig(new AtnState("p_dummy_final_" + alt), alt));
+        state.addConf(new AtnConfig(new AtnState("_dummy_final_" + alt), alt));
+        state.setAlt(alt);
+        state.setStopTransit(true);
         this.addState(state);
         this.finalStates.put(alt, state);
     }

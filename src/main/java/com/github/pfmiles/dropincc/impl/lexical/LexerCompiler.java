@@ -26,10 +26,10 @@ public class LexerCompiler {
         Map<TokenDef, TokenType> tokenTypeMapping = new HashMap<TokenDef, TokenType>();
         if (tokens != null) {
             for (int i = 0; i < tokens.size(); i++) {
-                tokenTypeMapping.put(tokens.get(i), new TokenType(i));
+                tokenTypeMapping.put(tokens.get(i), new TokenType(i, tokens.get(i).getRegexp()));
             }
             // EOF is of token type -1
-            tokenTypeMapping.put(Tokens.EOF, new TokenType(-1));
+            tokenTypeMapping.put(Tokens.EOF, new TokenType(-1, "EOF"));
             if (!whitespaceSensitive) {
                 // if the lexer want to be not sensitive about whitespaces, add
                 // a default lexer rule to the end of lexer rule chain to catch
@@ -37,7 +37,7 @@ public class LexerCompiler {
                 // lexer rules previously
                 TokenDef whiteSpaceToken = new GenedTokenDef("\\s+");
                 tokens.add(whiteSpaceToken);
-                tokenTypeMapping.put(whiteSpaceToken, new TokenType(-2));
+                tokenTypeMapping.put(whiteSpaceToken, new TokenType(-2, "WHITESPACE"));
             }
         }
         return tokenTypeMapping;
