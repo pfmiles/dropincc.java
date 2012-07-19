@@ -15,6 +15,7 @@ import com.github.pfmiles.dropincc.impl.kleene.KleeneCrossType;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneStarType;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 import com.github.pfmiles.dropincc.impl.kleene.OptionalType;
+import com.github.pfmiles.dropincc.impl.util.SeqGen;
 
 /**
  * The whole ATN network for the analyzing grammar
@@ -175,5 +176,9 @@ public class Atn {
             }
         }
         curState.addTransition(lastEdge, end);
+    }
+
+    public Set<AtnState> getStates() {
+        return states;
     }
 }

@@ -1,4 +1,4 @@
-package com.github.pfmiles.dropincc.impl.llstar;
+package com.github.pfmiles.dropincc.impl.util;
 
 /**
  * Utility class to generate integer number sequence...

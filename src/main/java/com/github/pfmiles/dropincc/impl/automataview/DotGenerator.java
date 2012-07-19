@@ -57,6 +57,7 @@ public class DotGenerator {
     private List<String> renderTransitionStrs(List<String[]> transitions) {
         List<String> ret = new ArrayList<String>();
         for (String[] trans : transitions) {
+            trans[2] = trans[2].replaceAll("\\\"", "\\");
             ret.add(transitionTemp.format(trans));
         }
         return ret;

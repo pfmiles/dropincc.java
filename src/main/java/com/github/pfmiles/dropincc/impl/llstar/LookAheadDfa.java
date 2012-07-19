@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.github.pfmiles.dropincc.DropinccException;
+import com.github.pfmiles.dropincc.impl.util.SeqGen;
 
 /**
  * @author pf-miles
@@ -121,5 +122,9 @@ public class LookAheadDfa {
      */
     public DfaState getFinalStateOfAlt(int alt) {
         return this.finalStates.get(alt);
+    }
+
+    public Set<DfaState> getStates() {
+        return states;
     }
 }
