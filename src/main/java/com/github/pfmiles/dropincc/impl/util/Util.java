@@ -81,23 +81,27 @@ public class Util {
     // defined here using if-else to determine which type should be returned.
     public static EleType resolveEleType(Element e, TypeMappingParam param) {
         Class<?> eleCls = e.getClass();
+        EleType t = null;
         if (AndSubRule.class.isAssignableFrom(eleCls)) {
             throw new DropinccException("AndSubRule shouldn't exist when resolving element types, it should be already rewrited in prior steps.");
         } else if (ConstructingGrule.class.isAssignableFrom(eleCls)) {
             throw new DropinccException("There must be something wrong, ConstructingGrule shouldn't appear here.");
         } else if (Grule.class.isAssignableFrom(eleCls)) {
-            return param.getGruleTypeMapping().get(e);
+            t = param.getGruleTypeMapping().get(e);
         } else if (OrSubRule.class.isAssignableFrom(eleCls)) {
             throw new DropinccException("OrSubRule shouldn't exist when resolving element types, it should be already rewrited in prior steps.");
         } else if (TokenDef.class.isAssignableFrom(eleCls)) {
-            return param.getTokenTypeMapping().get(e);
+            t = param.getTokenTypeMapping().get(e);
         } else if (e.equals(CC.NOTHING)) {
-            return param.getSpecialTypeMapping().get(e);
+            t = param.getSpecialTypeMapping().get(e);
         } else if (AbstractKleeneNode.class.isAssignableFrom(eleCls)) {
-            return param.getKleeneTypeMapping().get(e);
+            t = param.getKleeneTypeMapping().get(e);
         } else {
             throw new DropinccException("Unhandled element: " + e);
         }
+        if (t == null)
+            throw new DropinccException("Could not resolve element type for element: " + e + ", is this element defined in a proper manner?");
+        return t;
     }
 
     /**

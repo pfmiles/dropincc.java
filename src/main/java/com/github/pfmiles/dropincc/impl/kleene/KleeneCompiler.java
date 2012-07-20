@@ -61,8 +61,11 @@ public class KleeneCompiler {
             if (Grule.class.isAssignableFrom(eleCls)) {
                 registerKleenesInGrule((Grule) e, kleeneCount, kleeneTypeMapping, examinedGrules);
             } else if (AbstractKleeneNode.class.isAssignableFrom(eleCls)) {
+                // kleeneTypeMapping.containsKey(e) at here should never be
+                // true, because kleene nodes have same hashcode/equals methods
+                // as Object class.
                 if (!kleeneTypeMapping.containsKey(e)) {
-                    kleeneTypeMapping.put((AbstractKleeneNode) e, resolveKleeneType((AbstractKleeneNode) e, kleeneCount));
+                    kleeneTypeMapping.put((AbstractKleeneNode) e, constructKleeneType((AbstractKleeneNode) e, kleeneCount));
                     registerKleenesInElements(((AbstractKleeneNode) e).getElements(), kleeneCount, kleeneTypeMapping, examinedGrules);
                 }
             } else if (TokenDef.class.isAssignableFrom(eleCls)) {
@@ -75,7 +78,7 @@ public class KleeneCompiler {
         }
     }
 
-    private static KleeneType resolveKleeneType(AbstractKleeneNode e, Counter kleeneCount) {
+    private static KleeneType constructKleeneType(AbstractKleeneNode e, Counter kleeneCount) {
         Class<?> eleCls = e.getClass();
         KleeneType ret = null;
         if (KleeneCrossNode.class.isAssignableFrom(eleCls)) {
@@ -109,7 +112,10 @@ public class KleeneCompiler {
             throw new DropinccException("Cannot create empty kleene node: " + node);
         }
         for (Element e : node.getElements()) {
-            ret.add(Util.resolveEleType(e, param));
+            EleType t = Util.resolveEleType(e, param);
+            if (t == null)
+                throw new DropinccException("Could not resolve element type for element: " + e + ", is this element defined in a proper manner?");
+            ret.add(t);
         }
         return ret;
     }

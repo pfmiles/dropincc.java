@@ -95,12 +95,13 @@ public class AnalyzedLang {
         // 3.check or simplify & compute grammar rules
         // detect and report left-recursion, LL parsing needed
         ParserCompiler.checkAndReportLeftRecursions(this.ruleTypeToAlts, this.kleeneTypeToNode);
-        // 3.1 compute predicts, LL(*), detect and report rule conflicts
+        // 4.compute predicts, LL(*), detect and report rule conflicts
         List<PredictingGrule> predGrules = ParserCompiler.computePredictingGrules(this.ruleTypeToAlts, this.kleeneTypeToNode);
-        // 4.parser code gen
+        // 5.lexer code gen
+        // 6.parser code gen
         // TODO kleene match should return a 'retry-able' result, and kleene
         // match should handle try-rollback logic
-        // 5.compile and maintain the code in a separate classloader
+        // 7.compile and maintain the code in a separate classloader
     }
 
     public Map<TokenDef, TokenType> getTokenTypeMapping() {

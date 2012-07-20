@@ -2,10 +2,12 @@ package com.github.pfmiles.dropincc.impl.syntactical;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.DropinccException;
@@ -47,39 +49,25 @@ public class ParserCompiler {
     public static List<Grule> rewriteSubRules(List<Grule> grules) {
         if (grules != null && !grules.isEmpty()) {
             List<Grule> genGrules = new ArrayList<Grule>();
-            rewriteSubRules(grules, new ArrayList<Grule>(), genGrules);
+            Set<Grule> examinedGrules = new HashSet<Grule>();
+            for (Grule g : grules)
+                rewriteSubRulesForGrule(g, examinedGrules, genGrules);
             return genGrules;
         } else {
             throw new DropinccException("No grammar rules defined, error!");
         }
     }
 
-    // rewrite possiblely AndSubRules or OrSubRules, left to right post-order
-    // traverse, recursively, stop when all grules are in 'examinedGrules'
-    private static void rewriteSubRules(List<Grule> grules, List<Grule> examinedGrules, List<Grule> genGrules) {
-        for (Grule g : grules) {
-            examinedGrules.add(g);
-            rewriteAlts(g.getAlts(), examinedGrules, genGrules);
+    private static void rewriteSubRulesForGrule(Grule g, Set<Grule> examinedGrules, List<Grule> genGrules) {
+        if (examinedGrules.contains(g))
+            return;
+        examinedGrules.add(g);
+        for (Alternative alt : g.getAlts()) {
+            rewriteSubRuleForElements(alt.getElements(), examinedGrules, genGrules);
         }
     }
 
-    // examine and rewrite grules, check if the grule is already examined.
-    private static void examineAndRewriteGrule(Grule g, List<Grule> examinedGrules, List<Grule> genGrules) {
-        if (!examinedGrules.contains(g)) {
-            examinedGrules.add(g);
-            rewriteAlts(g.getAlts(), examinedGrules, genGrules);
-        }
-    }
-
-    // rewrite subRules, in order not to pollute the Element.java interface,
-    // it's implemented here.
-    private static void rewriteAlts(List<Alternative> alts, List<Grule> examinedGrules, List<Grule> genGrules) {
-        for (Alternative a : alts) {
-            rewriteElements(a.getElements(), examinedGrules, genGrules);
-        }
-    }
-
-    private static void rewriteElements(List<Element> eles, List<Grule> examinedGrules, List<Grule> genGrules) {
+    private static void rewriteSubRuleForElements(List<Element> eles, Set<Grule> examinedGrules, List<Grule> genGrules) {
         ListIterator<Element> iter = eles.listIterator();
         while (iter.hasNext()) {
             Element e = iter.next();
@@ -93,7 +81,8 @@ public class ParserCompiler {
                 genGrule.setAlts(asrAlts);
                 iter.add(genGrule);
                 genGrules.add(genGrule);
-                rewriteAlts(asrAlts, examinedGrules, genGrules);
+                for (Alternative alt : asrAlts)
+                    rewriteSubRuleForElements(alt.getElements(), examinedGrules, genGrules);
             } else if (OrSubRule.class.isAssignableFrom(eleCls)) {
                 iter.remove();
                 OrSubRule osr = (OrSubRule) e;
@@ -102,17 +91,18 @@ public class ParserCompiler {
                 genGrule.setAlts(osrAlts);
                 iter.add(genGrule);
                 genGrules.add(genGrule);
-                rewriteAlts(osrAlts, examinedGrules, genGrules);
+                for (Alternative alt : osrAlts)
+                    rewriteSubRuleForElements(alt.getElements(), examinedGrules, genGrules);
             } else if (ConstructingGrule.class.isAssignableFrom(eleCls)) {
                 throw new DropinccException("Something must be wrong, ConstructingGrule shouldn't appear here");
             } else if (Grule.class.isAssignableFrom(eleCls)) {
-                examineAndRewriteGrule((Grule) e, examinedGrules, genGrules);
+                rewriteSubRulesForGrule((Grule) e, examinedGrules, genGrules);
             } else if (TokenDef.class.isAssignableFrom(eleCls)) {
                 continue;
             } else if (CC.NOTHING.equals(e)) {
                 continue;
             } else if (AbstractKleeneNode.class.isAssignableFrom(eleCls)) {
-                rewriteElements(((AbstractKleeneNode) e).getElements(), examinedGrules, genGrules);
+                rewriteSubRuleForElements(((AbstractKleeneNode) e).getElements(), examinedGrules, genGrules);
             } else {
                 throw new DropinccException("Unhandled element: " + e);
             }
@@ -188,16 +178,15 @@ public class ParserCompiler {
                 path.push((GruleType) t);
                 List<CAlternative> alts = ruleTypeToAlts.get(t);
                 for (CAlternative a : alts) {
-                    // only the first eleType need to be checked
+                    // only the first eleType need to be checked for each
+                    // alternative
                     examineEleType(a.getMatchSequence().get(0), path, ruleTypeToAlts, kleeneTypeToNode);
                 }
                 path.pop();
             }
         } else if (t instanceof KleeneType) {
             CKleeneNode knode = kleeneTypeToNode.get(t);
-            for (EleType e : knode.getContents()) {
-                examineEleType(e, path, ruleTypeToAlts, kleeneTypeToNode);
-            }
+            examineEleType(knode.getContents().get(0), path, ruleTypeToAlts, kleeneTypeToNode);
         } else {
             throw new DropinccException("Unhandled element type: " + t);
         }
