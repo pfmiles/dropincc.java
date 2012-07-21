@@ -6,6 +6,7 @@ import com.github.pfmiles.dropincc.Action;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
+import com.github.pfmiles.dropincc.Predicate;
 import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
@@ -58,6 +59,27 @@ public class ConstructingGrule implements Element {
         if (alt.getAction() != null)
             throw new DropinccException("Any alternative could have one and only one action.");
         alt.setAction(action);
+        return this;
+    }
+
+    /**
+     * Add predicate to the current alternative of this grule. Each alternative
+     * could have only one predicate. The predicate is invoked when the
+     * look-ahead DFA of this rule could not determine which alternative
+     * production should being expanded just looking at the input tokens. Any
+     * logic code could be woven in a predicate include the context-sensitive
+     * ones(like lookup in the symbol table).
+     * 
+     * @param pred
+     * @return
+     */
+    public ConstructingGrule pred(Predicate pred) {
+        List<Alternative> alts = this.grule.getAlts();
+        Alternative alt = alts.get(alts.size() - 1);
+        if (alt.getPred() != null) {
+            throw new DropinccException("Any alternative could have one and only one predicate.");
+        }
+        alt.setPred(pred);
         return this;
     }
 

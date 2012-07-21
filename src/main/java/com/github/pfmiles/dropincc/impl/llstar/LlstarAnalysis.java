@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.github.pfmiles.dropincc.DropinccException;
+import com.github.pfmiles.dropincc.Predicate;
 import com.github.pfmiles.dropincc.impl.CAlternative;
 import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.GruleType;
@@ -315,6 +316,8 @@ public class LlstarAnalysis {
             int newWorkCount = 0;
             // memorize newly added states
             Set<DfaState> newStates = new HashSet<DfaState>();
+            // old final states backup
+            Map<Integer, DfaState> finalsBack = new HashMap<Integer, DfaState>();
             moving: for (TokenType a : state.getAllTerminalEdgesOfContainingAtnStates()) {
                 // move & closure
                 DfaState newState = new DfaState();
@@ -324,14 +327,14 @@ public class LlstarAnalysis {
                     // state may be marked overflowed while closuring, so it
                     // must be resolved
                     resolveOverflow(state);
-                    checkIfFinalAndReplace(state, ret);
+                    checkIfFinalAndReplace(state, ret, finalsBack, false);
                     if (state.isStopTransit())
                         break moving;
                 }
                 if (!ret.containState(newState)) {
                     // resolve conflicts and add to dfa network
                     resolveConflicts(newState);
-                    if (!checkIfFinalAndReplace(newState, ret)) {
+                    if (!checkIfFinalAndReplace(newState, ret, finalsBack, true)) {
                         work.push(newState);
                         newWorkCount++;
                     }
@@ -347,10 +350,15 @@ public class LlstarAnalysis {
                 }
             }
             if (state.isStopTransit()) {
-                // rollback newly added states, transitions and works if
-                // stoppedTransit
+                // rollback newly added states, transitions, final states and
+                // works if stoppedTransit
                 ret.removeStates(newStates);
                 state.removeTransitions(newTrans);
+                for (Map.Entry<Integer, DfaState> e : finalsBack.entrySet()) {
+                    DfaState s = e.getValue();
+                    ret.addState(s);
+                    ret.overrideFinalState(e.getKey(), s);
+                }
                 for (int i = 0; i < newWorkCount; i++) {
                     work.pop();
                 }
@@ -369,6 +377,26 @@ public class LlstarAnalysis {
     }
 
     /**
+     * Check if the specified dfa state is a final state, and if it is, replace
+     * the old final state of the same alternative number with the new one
+     * 
+     */
+    private boolean checkIfFinalAndReplace(DfaState state, LookAheadDfa dnet, Map<Integer, DfaState> finalsBack, boolean backup) {
+        Set<Integer> predictingAlts = state.getAllPredictingAlts();
+        if (predictingAlts.size() == 1) {
+            // is final
+            int alt = predictingAlts.iterator().next();
+            state.setAlt(alt);
+            DfaState oldFinal = dnet.overrideFinalState(alt, state);
+            if (backup && !finalsBack.containsKey(alt))
+                finalsBack.put(alt, oldFinal);
+            state.setStopTransit(true);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Resolve predicting alt number from 'alt state', according to alt state
      * naming convention
      * 
@@ -381,26 +409,6 @@ public class LlstarAnalysis {
     private static int extractAltFromAltState(AtnState pai) {
         String name = pai.getName();
         return Integer.parseInt(name.substring(name.indexOf('_') + 1));
-    }
-
-    /**
-     * Check if the specified dfa state is a final state, and if it is, replace
-     * the old final state of the same alternative number with the new one
-     * 
-     * @param state
-     * @param ret
-     */
-    private static boolean checkIfFinalAndReplace(DfaState state, LookAheadDfa dnet) {
-        Set<Integer> predictingAlts = state.getAllPredictingAlts();
-        if (predictingAlts.size() == 1) {
-            // is final
-            int alt = predictingAlts.iterator().next();
-            state.setAlt(alt);
-            dnet.overrideFinalState(alt, state);
-            state.setStopTransit(true);
-            return true;
-        }
-        return false;
     }
 
     public String getWarnings() {

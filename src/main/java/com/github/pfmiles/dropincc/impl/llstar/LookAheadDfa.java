@@ -73,7 +73,7 @@ public class LookAheadDfa {
      * @param alt
      * @param state
      */
-    public void overrideFinalState(int alt, DfaState state) {
+    public DfaState overrideFinalState(int alt, DfaState state) {
         DfaState oldFinal = this.finalStates.put(alt, state);
         for (DfaState s : this.states) {
             for (Map.Entry<Object, DfaState> trans : s.getTransitions().entrySet()) {
@@ -82,7 +82,11 @@ public class LookAheadDfa {
                 }
             }
         }
-        this.states.remove(oldFinal);
+        if (!oldFinal.equals(state))
+            // if two states are equal, the old one is already removed while
+            // previous state adding, need not remove again here
+            this.states.remove(oldFinal);
+        return oldFinal;
     }
 
     public String toString() {

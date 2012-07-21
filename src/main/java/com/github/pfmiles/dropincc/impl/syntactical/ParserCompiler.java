@@ -139,7 +139,7 @@ public class ParserCompiler {
         List<CAlternative> ret = new ArrayList<CAlternative>();
         for (Alternative a : alts) {
             List<EleType> ms = eleListToTypeList(a.getElements(), param);
-            ret.add(new CAlternative(ms, a.getAction()));
+            ret.add(new CAlternative(ms, a.getAction(), a.getPred()));
         }
         return ret;
     }

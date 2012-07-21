@@ -1,5 +1,7 @@
 package com.github.pfmiles.dropincc.impl.llstar;
 
+import com.github.pfmiles.dropincc.Predicate;
+
 /**
  * AtnConfig needed in LL(*) analyzing, as described in the paper.
  * 

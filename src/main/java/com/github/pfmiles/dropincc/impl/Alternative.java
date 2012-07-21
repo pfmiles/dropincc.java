@@ -6,6 +6,7 @@ import java.util.List;
 import com.github.pfmiles.dropincc.Action;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
+import com.github.pfmiles.dropincc.Predicate;
 
 /**
  * A rule alternative, for internal implementation usage only.
@@ -17,6 +18,8 @@ public class Alternative {
 
     private List<Element> elements = new ArrayList<Element>();
     private Action action = null;
+    // semantic predicate
+    private Predicate pred;
 
     public Alternative(Element[] eles) {
         switch (checkNull(eles)) {
@@ -73,5 +76,13 @@ public class Alternative {
     // same equals method as Object.class needed
     public boolean equals(Object obj) {
         return super.equals(obj);
+    }
+
+    public Predicate getPred() {
+        return pred;
+    }
+
+    public void setPred(Predicate pred) {
+        this.pred = pred;
     }
 }

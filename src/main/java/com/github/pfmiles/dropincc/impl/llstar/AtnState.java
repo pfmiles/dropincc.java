@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.github.pfmiles.dropincc.DropinccException;
+import com.github.pfmiles.dropincc.Predicate;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.util.Pair;
@@ -61,7 +62,7 @@ public class AtnState {
     }
 
     public void addTransition(Object edge, AtnState otherState) {
-        if (!edge.equals(Constants.epsilon) && !(edge instanceof TokenType) && !(edge instanceof GruleType))
+        if (!edge.equals(Constants.epsilon) && !(edge instanceof TokenType) && !(edge instanceof GruleType) && !(edge instanceof Predicate))
             throw new DropinccException("Illegal ATN transition edge: " + edge);
         if (this.transitions.containsKey(edge)) {
             this.transitions.get(edge).add(otherState);

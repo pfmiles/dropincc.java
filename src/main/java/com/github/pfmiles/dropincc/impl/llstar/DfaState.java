@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.github.pfmiles.dropincc.DropinccException;
+import com.github.pfmiles.dropincc.Predicate;
 import com.github.pfmiles.dropincc.impl.TokenType;
 
 /**

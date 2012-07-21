@@ -18,42 +18,23 @@ public class LlstarAnalysisExperiments {
     // experiments bench, generate images to see ATN or DFAs
     public static void main(String... args) throws Throwable {
         /*
-         * # S ::= A $
-# A ::= B a*
-#     | C a+
-#     | D a?
-# B ::= a b c C
-#     | a b c D
-#     | d
-# C ::= e f g D
-#     | e f g h
-# D ::= i j k l
-#     | i j k m
+         * # conflicts mixed with overflow, resolved by predicates
+# S ::= A $
+# A ::= B a
+#     | b* c
+#     | b* c
+# B ::= b+ B
          */
-        Lang ll3 = new Lang();
-        Grule A = ll3.newGrule();
-        
-        ll3.defineGrule(A, CC.EOF);
-        
-        Grule B = ll3.newGrule();
-        Grule C = ll3.newGrule();
-        Grule D = ll3.newGrule();
-        
-        A.define(B, CC.ks("a"))
-            .alt(C, CC.kc("a"))
-            .alt(D, CC.op("a"));
-        
-        B.define("a", "b", "c", C)
-            .alt("a", "b", "c", D)
-            .alt("d");
-        
-        C.define("e", "f", "g", D)
-            .alt("e", "f", "g", "h");
-        
-        D.define("i", "j", "k", "l")
-            .alt("i", "j", "k", "m");
-        
-        genImages(ll3);
+        Lang lang = new Lang();
+        Grule A = lang.newGrule();
+        lang.defineGrule(A, CC.EOF);
+        Grule B = lang.newGrule();
+        A.define(B, "a")
+        .alt(CC.ks("b"), "c")
+        .alt(CC.ks("b"), "c");
+        B.define(CC.kc("b"), B);
+
+        genImages(lang);
     }
 
     private static void genImages(Lang lang) throws Throwable {
