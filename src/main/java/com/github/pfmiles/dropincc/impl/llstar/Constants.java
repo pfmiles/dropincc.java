@@ -19,6 +19,6 @@ public interface Constants {
     /**
      * maximun recursion depth when doing 'closure' operation in ATN
      */
-    int MAX_REC_DEPTH = 2;
+    int MAX_REC_DEPTH = 10;
 
 }

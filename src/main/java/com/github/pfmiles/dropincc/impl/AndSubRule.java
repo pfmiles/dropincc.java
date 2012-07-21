@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
+import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
  * @author pf-miles
@@ -16,20 +17,26 @@ public class AndSubRule implements Element {
 
     private List<Alternative> alts = new ArrayList<Alternative>();
 
-    public AndSubRule(Element... ele) {
-        if (ele == null)
-            throw new DropinccException("Could not construct empty alternative.");
-        this.alts.add(new Alternative(ele));
+    public AndSubRule(Element ele, Object other) {
+        if (other == null)
+            throw new DropinccException("Could not add null elements.");
+        Element[] es = Util.filterProductionEles(new Object[] { other });
+        if (es == null || es.length == 0)
+            throw new DropinccException("Could not add null elements.");
+        this.alts.add(new Alternative(new Element[] { ele, es[0] }));
     }
 
-    public AndSubRule and(Element ele) {
+    public AndSubRule and(Object ele) {
         if (ele == null)
-            throw new DropinccException("Could not construct empty alternative.");
-        this.alts.get(1).getElements().add(ele);
+            throw new DropinccException("Could not add null elements.");
+        Element[] es = Util.filterProductionEles(new Object[] { ele });
+        if (es == null || es.length == 0)
+            throw new DropinccException("Could not add null elements.");
+        this.alts.get(0).getElements().add(es[0]);
         return this;
     }
 
-    public OrSubRule or(Element ele) {
+    public OrSubRule or(Object... ele) {
         return new OrSubRule(this, ele);
     }
 

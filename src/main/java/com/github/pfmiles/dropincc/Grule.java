@@ -40,16 +40,16 @@ public class Grule implements Element {
 
     private List<Alternative> alts = new ArrayList<Alternative>();
 
-    public AndSubRule and(Element e) {
+    public AndSubRule and(Object e) {
         if (e == null)
             throw new DropinccException("Could not construct empty alternative.");
         return new AndSubRule(this, e);
     }
 
-    public OrSubRule or(Element e) {
+    public OrSubRule or(Object e) {
         if (e == null)
             throw new DropinccException("Could not construct empty alternative.");
-        return new OrSubRule(this, e);
+        return new OrSubRule(this, new Object[] { e });
     }
 
     public ConstructingGrule define(Object... eles) {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
+import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
  * 
@@ -20,17 +21,27 @@ public class OrSubRule implements Element {
 
     private List<Alternative> alts = new ArrayList<Alternative>();
 
-    public OrSubRule(Element... ele) {
-        if (ele == null)
-            throw new DropinccException("Could not construct empty alternative.");
-        for (Element e : ele)
-            this.alts.add(new Alternative(new Element[] { e }));
-    }
-
-    public OrSubRule or(Element ele) {
-        if (ele == null)
+    /**
+     * @param ele
+     *            this element
+     * @param objs
+     *            new alt's elements
+     */
+    public OrSubRule(Element ele, Object[] objs) {
+        if (objs == null || objs.length == 0)
             throw new DropinccException("Could not construct empty alternative.");
         this.alts.add(new Alternative(new Element[] { ele }));
+        Element[] eles = Util.filterProductionEles(objs);
+        this.alts.add(new Alternative(eles));
+    }
+
+    public OrSubRule or(Object ele) {
+        if (ele == null)
+            throw new DropinccException("Could not construct empty alternative.");
+        Element[] eles = Util.filterProductionEles(new Object[] { ele });
+        if (eles == null || eles.length == 0)
+            throw new DropinccException("Could not construct empty alternative.");
+        this.alts.add(new Alternative(eles));
         return this;
     }
 
@@ -38,7 +49,7 @@ public class OrSubRule implements Element {
         return alts;
     }
 
-    public AndSubRule and(Element ele) {
+    public AndSubRule and(Object ele) {
         return new AndSubRule(this, ele);
     }
 

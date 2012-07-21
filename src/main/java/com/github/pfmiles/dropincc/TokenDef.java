@@ -62,11 +62,11 @@ public class TokenDef implements Element {
      * @param ts
      * @return
      */
-    public OrSubRule or(Element ele) {
-        return new OrSubRule(this, ele);
+    public OrSubRule or(Object... eles) {
+        return new OrSubRule(this, eles);
     }
 
-    public AndSubRule and(Element ele) {
+    public AndSubRule and(Object ele) {
         return new AndSubRule(this, ele);
     }
 
