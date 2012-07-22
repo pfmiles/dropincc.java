@@ -20,9 +20,9 @@ public class LlstarAnalysisExperiments {
     public static void main(String... args) throws Throwable {
         /*
          * S ::= A $
-         * A ::= ((a b)|((c|d) g)|(e f)) h
+         * A ::= ((a b)?|((c|d)+ g)*|(e f)+)* h
          *     | B g
-         * B ::= ((a b)|((c|d) g)|(e f)) i
+         * B ::= ((a b)?|((c|d)+ g)*|(e f)+)* i
          *     | h
          */
         Lang lang = new Lang();
@@ -32,9 +32,9 @@ public class LlstarAnalysisExperiments {
         TokenDef c = lang.newToken("c");
         TokenDef e = lang.newToken("e");
         Grule B = lang.newGrule();
-        A.define(a.and("b").or(c.or("d"), "g").or(e.and("f")), "h")
+        A.define(CC.ks(CC.op(a.and("b")).or(CC.ks(CC.kc(c.or("d")).and("g"))).or(CC.kc(e.and("f")))), "h")
         .alt(B, "g");
-        B.define(a.and("b").or(c.or("d"), "g").or(e.and("f")), "i")
+        B.define(CC.ks(CC.op(a.and("b")).or(CC.ks(CC.kc(c.or("d")).and("g"))).or(CC.kc(e.and("f")))), "i")
         .alt("h");
         genImages(lang);
     }

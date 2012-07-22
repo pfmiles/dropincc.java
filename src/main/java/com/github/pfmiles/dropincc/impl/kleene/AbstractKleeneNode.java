@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
+import com.github.pfmiles.dropincc.impl.AndSubRule;
+import com.github.pfmiles.dropincc.impl.OrSubRule;
 
 /**
  * @author pf-miles
@@ -29,6 +31,14 @@ public abstract class AbstractKleeneNode implements Element {
             if (ele == null)
                 return false;
         return true;
+    }
+
+    public AndSubRule and(Object obj) {
+        return new AndSubRule(this, obj);
+    }
+
+    public OrSubRule or(Object... objs) {
+        return new OrSubRule(this, objs);
     }
 
     // same hashCode method implementation as Object.class needed
