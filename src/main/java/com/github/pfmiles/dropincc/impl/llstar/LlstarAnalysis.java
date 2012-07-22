@@ -72,8 +72,6 @@ public class LlstarAnalysis {
                     } else {
                         pai.addTransition(Constants.epsilon, p0);
                     }
-                    // AtnState last = this.atn.genTransitions(p0, alt, grule,
-                    // kleeneTypeToNode);
                     AtnState curState = p0;
                     for (EleType edge : alt) {
                         if (edge instanceof TokenType || edge instanceof GruleType) {
@@ -113,6 +111,44 @@ public class LlstarAnalysis {
                 LookAheadDfa dfa = this.createAfa(this.atn.getStartState(grule), grule);
                 this.gruleDfaMapping.put(grule, dfa);
             }
+        }
+        // remove dangling dfa states, report never matched productions
+        for (Map.Entry<GruleType, LookAheadDfa> e : this.gruleDfaMapping.entrySet()) {
+            GruleType grule = e.getKey();
+            LookAheadDfa dfa = e.getValue();
+            Set<DfaState> dests = new HashSet<DfaState>();
+            for (DfaState state : dfa.getStates()) {
+                dests.addAll(state.getTransitions().values());
+            }
+            Set<DfaState> startAndDangling = new HashSet<DfaState>(dfa.getStates());
+            startAndDangling.removeAll(dests);
+            if (startAndDangling.isEmpty())
+                throw new DropinccException("No start state found for look ahead dfa of grule: " + grule + ", error!");
+            Set<DfaState> dangling = new HashSet<DfaState>();
+            for (DfaState state : startAndDangling) {
+                if (state.getTransitions().isEmpty()) {
+                    dangling.add(state);
+                } else {
+                    dfa.setStart(state);
+                }
+            }
+            dfa.removeStates(dangling);
+            // report never matched alternative productions
+            Set<Integer> allAlts = new HashSet<Integer>();
+            for (int i = 0; i < ruleTypeToAlts.get(grule).size(); i++) {
+                allAlts.add(i);
+            }
+            Set<Integer> finaledAlts = new HashSet<Integer>();
+            for (DfaState state : dfa.getStates()) {
+                if (state.isFinal())
+                    finaledAlts.add(state.getAlt());
+            }
+            allAlts.removeAll(finaledAlts);
+            if (!allAlts.isEmpty()) {
+                this.warnings.append("WARNING: Alternative productions: ").append(allAlts).append(" would never be matched, ").append(" grule: ").append(grule);
+            }
+            if (dfa.getStart() == null)
+                throw new DropinccException("No start state found for look ahead dfa of grule: " + grule + ", error!");
         }
     }
 

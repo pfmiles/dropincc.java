@@ -20,6 +20,18 @@ public class LookAheadDfa {
     private Map<Integer, DfaState> finalStates = new HashMap<Integer, DfaState>();
     // dfa state name sequence gen
     private SeqGen dfaStatesSeq = new SeqGen();
+    // the start state
+    private DfaState start;
+
+    public DfaState getStart() {
+        return start;
+    }
+
+    public void setStart(DfaState start) {
+        if (this.start != null)
+            throw new DropinccException("A look-ahead dfa could have only one start state!");
+        this.start = start;
+    }
 
     /**
      * remove all states specified
