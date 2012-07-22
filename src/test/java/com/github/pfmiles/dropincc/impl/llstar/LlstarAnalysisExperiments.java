@@ -3,7 +3,6 @@ package com.github.pfmiles.dropincc.impl.llstar;
 import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
-import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.automataview.DotAdaptors;
 import com.github.pfmiles.dropincc.impl.automataview.DotGenerator;
@@ -19,23 +18,20 @@ public class LlstarAnalysisExperiments {
     // experiments bench, generate images to see ATN or DFAs
     public static void main(String... args) throws Throwable {
         /*
-         * S ::= A $
-         * A ::= ((a b)?|((c|d)+ g)*|(e f)+)* h
-         *     | B g
-         * B ::= ((a b)?|((c|d)+ g)*|(e f)+)* i
-         *     | h
+         * # S ::= A $
+# A ::= B a
+#     | b* c
+#     | b* c
+# B ::= b+ B
          */
         Lang lang = new Lang();
         Grule A = lang.newGrule();
         lang.defineGrule(A, CC.EOF);
-        TokenDef a = lang.newToken("a");
-        TokenDef c = lang.newToken("c");
-        TokenDef e = lang.newToken("e");
         Grule B = lang.newGrule();
-        A.define(CC.ks(CC.op(a.and("b")).or(CC.ks(CC.kc(c.or("d")).and("g"))).or(CC.kc(e.and("f")))), "h")
-        .alt(B, "g");
-        B.define(CC.ks(CC.op(a.and("b")).or(CC.ks(CC.kc(c.or("d")).and("g"))).or(CC.kc(e.and("f")))), "i")
-        .alt("h");
+        A.define(B, "a")
+        .alt(CC.ks("b"), "c")
+        .alt(CC.ks("b"), "c");
+        B.define(CC.kc("b"), B);
         genImages(lang);
     }
 

@@ -110,7 +110,7 @@ public class LlstarAnalysis {
                 // there's no need to compute look-ahead dfa for a rule which
                 // has only one single alternative production
                 GruleType grule = e.getKey();
-                LookAheadDfa dfa = this.createAfa(this.atn.getStartState(grule));
+                LookAheadDfa dfa = this.createAfa(this.atn.getStartState(grule), grule);
                 this.gruleDfaMapping.put(grule, dfa);
             }
         }
@@ -147,7 +147,7 @@ public class LlstarAnalysis {
      * 
      * @param state
      */
-    public void resolveOverflow(DfaState state) {
+    public void resolveOverflow(DfaState state, GruleType grule) {
         if (!state.isOverflowed())
             return;
         String stateStr = state.toString();
@@ -166,7 +166,8 @@ public class LlstarAnalysis {
                 iter.remove();
         }
         this.warnings.append("State: ").append(stateStr)
-                .append(" overflowed, resolved by removing all competing alternatives except the one defined first, remaining alt: " + minAlt).append('\n');
+                .append(" overflowed, resolved by removing all competing alternatives except the one defined first, remaining alt: ").append(minAlt).append(". Grule: ")
+                .append(grule).append('\n');
     }
 
     /**
@@ -174,7 +175,7 @@ public class LlstarAnalysis {
      * 
      * @param state
      */
-    public void resolveConflicts(DfaState state) {
+    public void resolveConflicts(DfaState state, GruleType grule) {
         // build (state, callStack) -> alts mapping
         Map<Pair<AtnState, CallStack>, Set<Integer>> ssToAlt = new HashMap<Pair<AtnState, CallStack>, Set<Integer>>();
         for (AtnConfig conf : state.getConfs()) {
@@ -218,7 +219,7 @@ public class LlstarAnalysis {
                 iter.remove();
         }
         this.warnings.append("State: ").append(stateStr).append(" has conflict predicting alternatives: ").append(allPredictingAlts)
-                .append(", resolved by selecting the first alt.").append('\n');
+                .append(", resolved by selecting the first alt: ").append(minAlt).append(". Grule: ").append(grule).append('\n');
     }
 
     /**
@@ -288,7 +289,7 @@ public class LlstarAnalysis {
         return ret;
     }
 
-    public LookAheadDfa createAfa(AtnState atnStartState) {
+    public LookAheadDfa createAfa(AtnState atnStartState, GruleType gruleType) {
         LookAheadDfa ret = new LookAheadDfa();
         Deque<DfaState> work = new ArrayDeque<DfaState>();
         DfaState D0 = new DfaState();
@@ -326,14 +327,14 @@ public class LlstarAnalysis {
                     state.releaseBusy();
                     // state may be marked overflowed while closuring, so it
                     // must be resolved
-                    resolveOverflow(state);
+                    resolveOverflow(state, gruleType);
                     checkIfFinalAndReplace(state, ret, finalsBack, false);
                     if (state.isStopTransit())
                         break moving;
                 }
                 if (!ret.containState(newState)) {
                     // resolve conflicts and add to dfa network
-                    resolveConflicts(newState);
+                    resolveConflicts(newState, gruleType);
                     if (!checkIfFinalAndReplace(newState, ret, finalsBack, true)) {
                         work.push(newState);
                         newWorkCount++;
