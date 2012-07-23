@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import com.github.pfmiles.dropincc.Action;
 import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.Element;
+import com.github.pfmiles.dropincc.Exe;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
 import com.github.pfmiles.dropincc.TokenDef;
@@ -129,8 +130,8 @@ public class AnalyzedLangTest extends TestCase {
                 return (Double) params[1];
             }
         });
-        calculator.compile();
-        AnalyzedLang alang = TestHelper.priField(calculator, "alang");
+        Exe exe = calculator.compile();
+        AnalyzedLang alang = TestHelper.priField(exe, "al");
         Map<GruleType, List<CAlternative>> ruleTypeToAlts = alang.getRuleTypeToAlts();
         assertTrue(ruleTypeToAlts.size() == 6);
         for (Map.Entry<GruleType, List<CAlternative>> entry : ruleTypeToAlts.entrySet()) {

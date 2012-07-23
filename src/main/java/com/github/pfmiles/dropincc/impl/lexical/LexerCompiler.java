@@ -18,7 +18,6 @@ import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.Alternative;
 import com.github.pfmiles.dropincc.impl.AndSubRule;
 import com.github.pfmiles.dropincc.impl.ConstructingGrule;
-import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.OrSubRule;
 import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
@@ -46,7 +45,7 @@ public class LexerCompiler {
                 tokenTypeMapping.put(tokens.get(i), new TokenType(i, tokens.get(i).getRegexp()));
             }
             // EOF is of token type -1
-            tokenTypeMapping.put(CC.EOF, new TokenType(-1, "EOF"));
+            tokenTypeMapping.put(CC.EOF, TokenType.EOF);
             if (!whitespaceSensitive) {
                 // if the lexer want to be not sensitive about whitespaces, add
                 // a default lexer rule to the end of lexer rule chain to catch
@@ -54,7 +53,7 @@ public class LexerCompiler {
                 // lexer rules previously
                 TokenDef whiteSpaceToken = new GenedTokenDef("\\s+");
                 tokens.add(whiteSpaceToken);
-                tokenTypeMapping.put(whiteSpaceToken, new TokenType(-2, "WHITESPACE"));
+                tokenTypeMapping.put(whiteSpaceToken, TokenType.WHITESPACE);
             }
         }
         return tokenTypeMapping;
@@ -65,7 +64,7 @@ public class LexerCompiler {
      * @return Pair&lt;GroupNumToType, Patterns&gt;
      * 
      */
-    public static Pair<Map<Integer, EleType>, Pattern> checkAndCompileTokenRules(List<TokenDef> tokens, Map<TokenDef, TokenType> tokenTypeMapping) {
+    public static Pair<Map<Integer, TokenType>, Pattern> checkAndCompileTokenRules(List<TokenDef> tokens, Map<TokenDef, TokenType> tokenTypeMapping) {
         // check regex valid
         checkRegexps(tokens);
         return combineAndCompileRules(tokens, tokenTypeMapping);
@@ -85,8 +84,8 @@ public class LexerCompiler {
 
     // combine all token rules into one for matching these tokens using 'group
     // capturing', also returns each rule's corresponding group number
-    private static Pair<Map<Integer, EleType>, Pattern> combineAndCompileRules(List<TokenDef> tokens, Map<TokenDef, TokenType> tokenTypeMapping) {
-        Map<Integer, EleType> groupNumToType = new HashMap<Integer, EleType>();
+    private static Pair<Map<Integer, TokenType>, Pattern> combineAndCompileRules(List<TokenDef> tokens, Map<TokenDef, TokenType> tokenTypeMapping) {
+        Map<Integer, TokenType> groupNumToType = new HashMap<Integer, TokenType>();
         StringBuilder sb = new StringBuilder();
         int groupCount = 1;// group num starts at 1
         for (TokenDef t : tokens) {
@@ -105,7 +104,7 @@ public class LexerCompiler {
             groupCount += countInnerGroups(regExp);// skip groups in the pattern
         }
 
-        return new Pair<Map<Integer, EleType>, Pattern>(groupNumToType, Pattern.compile(sb.toString()));
+        return new Pair<Map<Integer, TokenType>, Pattern>(groupNumToType, Pattern.compile(sb.toString()));
     }
 
     // count groups inside the sub regExp

@@ -13,6 +13,8 @@ package com.github.pfmiles.dropincc;
 import junit.framework.TestCase;
 
 /**
+ * TODO make this run...
+ * 
  * @author pf-miles
  * 
  */
@@ -99,8 +101,8 @@ public class LangTest extends TestCase {
             }
         });
         // 1.compile it!
-        calculator.compile();
+        Exe exe = calculator.compile();
         // 0.FIRE!!!
-        System.out.println(calculator.exe("1+2+3+(4+5*6*7*(64/8/2/(2/1)/1)*8+9)+10"));
+        // System.out.println(exe.eval("1+2+3+(4+5*6*7*(64/8/2/(2/1)/1)*8+9)+10"));
     }
 }

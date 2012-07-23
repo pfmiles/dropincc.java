@@ -5,6 +5,14 @@ package com.github.pfmiles.dropincc.impl;
  * 
  */
 public class TokenType extends EleType {
+    /**
+     * Auto-added EOF token type constant
+     */
+    public static final TokenType EOF = new TokenType(-1, "EOF");
+    /**
+     * Auto-generated white space token type constant
+     */
+    public static final TokenType WHITESPACE = new TokenType(-2, "WHITESPACE");
 
     // just for print only
     private String name;

@@ -39,14 +39,11 @@ public class Lang implements Serializable {
 
     /*
      * if turned on, tokens does not record any more infomation other than
-     * 'type' and 'lexeme'
+     * 'type' and 'lexeme', TODO infiniteParsing?
      */
-    private boolean infiniteParsing;
 
     private List<TokenDef> tokens = new ArrayList<TokenDef>();
     private List<Grule> grules = new ArrayList<Grule>();
-
-    private AnalyzedLang alang;
 
     /**
      * Add a new token rule, note that the token rules are trying to match as
@@ -84,10 +81,10 @@ public class Lang implements Serializable {
     /**
      * compile the rules to an more efficient form and ready for code gen.
      */
-    public void compile() {
+    public Exe compile() {
         AnalyzedLang cl = new AnalyzedLang(this.tokens, this.grules, this.whiteSpaceSensitive);
         cl.compile();
-        this.alang = cl;
+        return new Exe(cl);
     }
 
     /**
@@ -113,21 +110,10 @@ public class Lang implements Serializable {
     }
 
     /**
-     * Outputs a 'BNF'-alike representation of the underlined language.
+     * Outputs a 'BNF'-alike representation of the constructing language.
      */
     public String toString() {
         return "Lang []";// TODO
-    }
-
-    /**
-     * Execute the new language's code
-     * 
-     * @param code
-     * @return the execution return value of the inputed code, if any
-     */
-    public <T> T exe(String code) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /**
@@ -153,7 +139,4 @@ public class Lang implements Serializable {
         return super.equals(obj);
     }
 
-    public void setInfiniteParsing(boolean infiniteParsing) {
-        this.infiniteParsing = infiniteParsing;
-    }
 }

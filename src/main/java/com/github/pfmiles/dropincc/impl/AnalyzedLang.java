@@ -1,5 +1,6 @@
 package com.github.pfmiles.dropincc.impl;
 
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,11 @@ import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneCompiler;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 import com.github.pfmiles.dropincc.impl.lexical.LexerCompiler;
+import com.github.pfmiles.dropincc.impl.runtime.Parser;
+import com.github.pfmiles.dropincc.impl.runtime.Token;
+import com.github.pfmiles.dropincc.impl.runtime.impl.LexerPrototype;
+import com.github.pfmiles.dropincc.impl.runtime.impl.ParserPrototype;
+import com.github.pfmiles.dropincc.impl.runtime.impl.PreWrittenStringLexerPrototype;
 import com.github.pfmiles.dropincc.impl.syntactical.ParserCompiler;
 import com.github.pfmiles.dropincc.impl.util.Pair;
 
@@ -34,10 +40,10 @@ public class AnalyzedLang {
     private static final Map<Element, SpecialType> specialTypeMapping = new HashMap<Element, SpecialType>();
     static {
         // special type 1, 'nothing' represents a empty alternative.
-        specialTypeMapping.put(CC.NOTHING, new SpecialType(0));
+        specialTypeMapping.put(CC.NOTHING, SpecialType.NOTHING);
     }
     // token group num -> token type
-    private Map<Integer, EleType> groupNumToType;
+    private Map<Integer, TokenType> groupNumToType;
     // the token mathcing pattern
     private Pattern tokenPatterns;
 
@@ -54,6 +60,14 @@ public class AnalyzedLang {
     // kleene node Type -> 'compiled' kleene node mapping, built while
     // 'AnalyzedLang' compiling(resolveParserAst). For later analysis & code gen
     private Map<KleeneType, CKleeneNode> kleeneTypeToNode;
+
+    // grules along with look-ahead dfas, about to generate code
+    private List<PredictingGrule> predGrules;
+
+    // the compiled lexer prototype
+    private LexerPrototype lexerPrototype;
+    // the compiled parser prototype
+    private ParserPrototype parserPrototype;
 
     public AnalyzedLang(List<TokenDef> tokens, List<Grule> grules, boolean whitespaceSensitive) {
         // build token -> tokenType mapping
@@ -78,7 +92,7 @@ public class AnalyzedLang {
 
     public void compile() {
         // 1.check & compile token rules
-        Pair<Map<Integer, EleType>, Pattern> compiledTokenUnit = LexerCompiler.checkAndCompileTokenRules(this.tokens, this.tokenTypeMapping);
+        Pair<Map<Integer, TokenType>, Pattern> compiledTokenUnit = LexerCompiler.checkAndCompileTokenRules(this.tokens, this.tokenTypeMapping);
         this.groupNumToType = compiledTokenUnit.getLeft();
         this.tokenPatterns = compiledTokenUnit.getRight();
 
@@ -96,12 +110,32 @@ public class AnalyzedLang {
         // detect and report left-recursion, LL parsing needed
         ParserCompiler.checkAndReportLeftRecursions(this.ruleTypeToAlts, this.kleeneTypeToNode);
         // 4.compute predicts, LL(*), detect and report rule conflicts
-        List<PredictingGrule> predGrules = ParserCompiler.computePredictingGrules(this.ruleTypeToAlts, this.kleeneTypeToNode);
-        // 5.lexer code gen
-        // 6.parser code gen
+        this.predGrules = ParserCompiler.computePredictingGrules(this.ruleTypeToAlts, this.kleeneTypeToNode);
+        // 5.lexer code gen(using pre-written template code currently)
+        this.lexerPrototype = new PreWrittenStringLexerPrototype(this.groupNumToType, this.tokenPatterns, this.whitespaceSensitive);
+        // 6.parser code gen TODO
+
         // TODO kleene match should return a 'retry-able' result, and kleene
         // match should handle try-rollback logic
         // 7.compile and maintain the code in a separate classloader
+    }
+
+    /**
+     * Create a new instance of the constructing language's lexer.
+     * 
+     * @return
+     */
+    public Enumeration<Token> newLexer(String code) {
+        return this.lexerPrototype.create(code);
+    }
+
+    /**
+     * @param lexer
+     * @param arg
+     * @return
+     */
+    public Parser newParser(Enumeration<Token> lexer, Object arg) {
+        return this.parserPrototype.create(lexer, arg);
     }
 
     public Map<TokenDef, TokenType> getTokenTypeMapping() {
@@ -116,7 +150,7 @@ public class AnalyzedLang {
         return kleeneTypeToNode;
     }
 
-    public Map<Integer, EleType> getGroupNumToType() {
+    public Map<Integer, TokenType> getGroupNumToType() {
         return groupNumToType;
     }
 
@@ -127,4 +161,5 @@ public class AnalyzedLang {
     public Pattern getTokenPatterns() {
         return tokenPatterns;
     }
+
 }

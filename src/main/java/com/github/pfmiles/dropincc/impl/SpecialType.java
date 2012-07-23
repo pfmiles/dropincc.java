@@ -10,6 +10,11 @@ package com.github.pfmiles.dropincc.impl;
 public class SpecialType extends EleType {
 
     /**
+     * Internal 'nothing' element type
+     */
+    public static final SpecialType NOTHING = new SpecialType(0);
+
+    /**
      * valid defIndex starts from 0
      * 
      * @param index

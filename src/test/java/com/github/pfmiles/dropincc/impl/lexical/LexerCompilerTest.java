@@ -66,8 +66,8 @@ public class LexerCompilerTest extends TestCase {
         tokens.add(dl.newToken("zzz"));
         dl.defineGrule(dl.newToken("stubToken"));
         Map<TokenDef, TokenType> tokenTypeMapping = LexerCompiler.buildTokenTypeMapping(tokens, false);
-        Pair<Map<Integer, EleType>, Pattern> pair = LexerCompiler.checkAndCompileTokenRules(tokens, tokenTypeMapping);
-        Map<Integer, EleType> gnumToType = pair.getLeft();
+        Pair<Map<Integer, TokenType>, Pattern> pair = LexerCompiler.checkAndCompileTokenRules(tokens, tokenTypeMapping);
+        Map<Integer, TokenType> gnumToType = pair.getLeft();
         assertTrue(gnumToType.size() == 6);
         // Integer[] exps = new Integer[] { 1, 2, 5, 7, 8 , -2};
         Map<Integer, EleType> exps = new HashMap<Integer, EleType>();
@@ -90,8 +90,8 @@ public class LexerCompilerTest extends TestCase {
         tokens.add(dl.newToken("zzz"));
         dl.defineGrule(dl.newToken("stubToken"));
         Map<TokenDef, TokenType> tokenTypeMapping = LexerCompiler.buildTokenTypeMapping(tokens, true);
-        Pair<Map<Integer, EleType>, Pattern> pair = LexerCompiler.checkAndCompileTokenRules(tokens, tokenTypeMapping);
-        Map<Integer, EleType> gnumToType = pair.getLeft();
+        Pair<Map<Integer, TokenType>, Pattern> pair = LexerCompiler.checkAndCompileTokenRules(tokens, tokenTypeMapping);
+        Map<Integer, TokenType> gnumToType = pair.getLeft();
         assertTrue(gnumToType.size() == 5);
         // Integer[] exps = new Integer[] { 1, 2, 5, 7, 8};
         Map<Integer, EleType> exps = new HashMap<Integer, EleType>();
