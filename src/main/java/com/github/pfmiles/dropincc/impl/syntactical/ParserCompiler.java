@@ -208,4 +208,15 @@ public class ParserCompiler {
         }
         return ret;
     }
+
+    /**
+     * Render parser code according to predicting grules
+     * 
+     * @param predGrules
+     * @return
+     */
+    public static String genParserCode(List<PredictingGrule> predGrules) {
+        // TODO
+        return null;
+    }
 }

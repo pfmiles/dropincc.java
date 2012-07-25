@@ -1,6 +1,5 @@
 package com.github.pfmiles.dropincc.impl;
 
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,13 +9,15 @@ import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.TokenDef;
+import com.github.pfmiles.dropincc.impl.hotcompile.HotCompileUtil;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneCompiler;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 import com.github.pfmiles.dropincc.impl.lexical.LexerCompiler;
 import com.github.pfmiles.dropincc.impl.runtime.Parser;
-import com.github.pfmiles.dropincc.impl.runtime.Token;
+import com.github.pfmiles.dropincc.impl.runtime.impl.ClassBasedParserPrototype;
+import com.github.pfmiles.dropincc.impl.runtime.impl.Lexer;
 import com.github.pfmiles.dropincc.impl.runtime.impl.LexerPrototype;
 import com.github.pfmiles.dropincc.impl.runtime.impl.ParserPrototype;
 import com.github.pfmiles.dropincc.impl.runtime.impl.PreWrittenStringLexerPrototype;
@@ -31,6 +32,7 @@ import com.github.pfmiles.dropincc.impl.util.Pair;
  * 
  */
 public class AnalyzedLang {
+
     private List<TokenDef> tokens;
     private List<Grule> grules;
     private Map<TokenDef, TokenType> tokenTypeMapping;
@@ -66,6 +68,8 @@ public class AnalyzedLang {
 
     // the compiled lexer prototype
     private LexerPrototype lexerPrototype;
+    // the generated parser code(in pure java)
+    private String parserCode;
     // the compiled parser prototype
     private ParserPrototype parserPrototype;
 
@@ -111,13 +115,14 @@ public class AnalyzedLang {
         ParserCompiler.checkAndReportLeftRecursions(this.ruleTypeToAlts, this.kleeneTypeToNode);
         // 4.compute predicts, LL(*), detect and report rule conflicts
         this.predGrules = ParserCompiler.computePredictingGrules(this.ruleTypeToAlts, this.kleeneTypeToNode);
-        // 5.lexer code gen(using pre-written template code currently)
+        // 5.lexer code gen(TODO using pre-written template code currently,
+        // should support stream tokenizing in the future)
         this.lexerPrototype = new PreWrittenStringLexerPrototype(this.groupNumToType, this.tokenPatterns, this.whitespaceSensitive);
-        // 6.parser code gen TODO
+        // 6.parser code gen
+        this.parserCode = ParserCompiler.genParserCode(this.predGrules);// TODO
+        this.parserPrototype = new ClassBasedParserPrototype(HotCompileUtil.<Parser> compile(this.parserCode));
 
-        // TODO kleene match should return a 'retry-able' result, and kleene
-        // match should handle try-rollback logic
-        // 7.compile and maintain the code in a separate classloader
+        // TODO 7.compile and maintain the code in a separate classloader
     }
 
     /**
@@ -125,7 +130,7 @@ public class AnalyzedLang {
      * 
      * @return
      */
-    public Enumeration<Token> newLexer(String code) {
+    public Lexer newLexer(String code) {
         return this.lexerPrototype.create(code);
     }
 
@@ -134,7 +139,7 @@ public class AnalyzedLang {
      * @param arg
      * @return
      */
-    public Parser newParser(Enumeration<Token> lexer, Object arg) {
+    public Parser newParser(Lexer lexer, Object arg) {
         return this.parserPrototype.create(lexer, arg);
     }
 

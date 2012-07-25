@@ -1,0 +1,47 @@
+package com.github.pfmiles.dropincc.impl.runtime.gen;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.github.pfmiles.dropincc.Action;
+import com.github.pfmiles.dropincc.DropinccException;
+import com.github.pfmiles.dropincc.ParamedAction;
+import com.github.pfmiles.dropincc.Predicate;
+import com.github.pfmiles.dropincc.impl.TokenType;
+import com.github.pfmiles.dropincc.impl.runtime.Parser;
+
+/**
+ * Auto generated parser class by dropincc.java
+ */
+@SuppressWarnings("unchecked")
+public class {0} extends Parser '{'
+    // token types start
+    {1}
+    // token types end
+
+    // alternative''s actions start
+    {2}
+    // alternative''s actions end
+
+    // semantic predicates start
+    {3}
+    // semantic predicates end
+
+    // parse method
+    public <T> T parse() '{'
+        return (T) {4}();
+    '}'
+
+    // rule methods start
+    {5}
+    // rule methods end
+
+    // rule alts predicting methods start
+    {6}
+    // rule alts predicting methods end
+
+    // kleene predicting methods start
+    {7}
+    // kleene predicting methods end
+
+'}'

@@ -1,5 +1,7 @@
 package com.github.pfmiles.dropincc;
 
+import com.github.pfmiles.dropincc.impl.runtime.impl.Lexer;
+
 /**
  * @author pf-miles
  * 
@@ -8,10 +10,9 @@ public interface Predicate {
     /**
      * Predicate logic
      * 
-     * @param seemTokens
      * @return true or false
      */
-    boolean pred(Object... seemTokens);
+    <T> boolean pred(T arg, Lexer lexer);// TODO lexer could do too much
 
     /**
      * In order to produce better human-readable DFA transition images, we'd

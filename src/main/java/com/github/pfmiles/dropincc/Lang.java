@@ -47,7 +47,8 @@ public class Lang implements Serializable {
 
     /**
      * Add a new token rule, note that the token rules are trying to match as
-     * the same order as it is added. TODO lexer should do 'longest match'
+     * the same order as it is added. TODO lexer should do 'longest match', when
+     * same length, choose first defined
      * 
      * @param regExpr
      *            , the regExp to describe a token rule

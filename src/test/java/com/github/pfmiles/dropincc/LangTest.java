@@ -53,12 +53,13 @@ public class LangTest extends TestCase {
         Grule addend = calculator.newGrule();
         Grule factor = calculator.newGrule();
         Element expr = calculator.defineGrule(addition, CC.EOF).action(new Action() {
-            public Object act(Object... params) {
-                return params[0];
+            public Object act(Object matched) {
+                return ((Object[]) matched)[0];
             }
         });
         addition.define(addend, CC.ks((ADD.or(SUB)), addend)).action(new Action() {
-            public Object act(Object... params) {
+            public Object act(Object matched) {
+                Object[] params = (Object[]) matched;
                 double leftMost = (Double) params[0];
                 Object[] opAndOther = (Object[]) params[1];
                 for (int i = 0; i < opAndOther.length; i++) {
@@ -75,7 +76,8 @@ public class LangTest extends TestCase {
             }
         });
         addend.define(factor, CC.ks(MUL.or(DIV), factor)).action(new Action() {
-            public Object act(Object... params) {
+            public Object act(Object matched) {
+                Object[] params = (Object[]) matched;
                 double leftMost = (Double) params[0];
                 Object[] opAndOthers = (Object[]) params[1];
                 for (int i = 0; i < opAndOthers.length; i++) {
@@ -92,12 +94,12 @@ public class LangTest extends TestCase {
             }
         });
         factor.define(DIGIT).action(new Action() {
-            public Object act(Object... params) {
-                return Double.parseDouble((String) params[0]);
+            public Object act(Object matched) {
+                return Double.parseDouble((String) matched);
             }
         }).alt(LEFTPAREN, addition, RIGHTPAREN).action(new Action() {
-            public Object act(Object... params) {
-                return (Double) params[1];
+            public Object act(Object matched) {
+                return (Double) ((Object[]) matched)[1];
             }
         });
         // 1.compile it!

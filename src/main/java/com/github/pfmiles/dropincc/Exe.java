@@ -7,6 +7,7 @@ import java.util.List;
 import com.github.pfmiles.dropincc.impl.AnalyzedLang;
 import com.github.pfmiles.dropincc.impl.runtime.Parser;
 import com.github.pfmiles.dropincc.impl.runtime.Token;
+import com.github.pfmiles.dropincc.impl.runtime.impl.Lexer;
 
 /**
  * The compiled representation of the constructing language. It's the main
@@ -33,9 +34,9 @@ public class Exe {
      * @return the execution return value of the inputed code, if any
      */
     public <T> T eval(String code, Object arg) {
-        Enumeration<Token> lexer = al.newLexer(code);
+        Lexer lexer = al.newLexer(code);
         Parser p = al.newParser(lexer, arg);
-        return p.parse(code);
+        return p.parse();
     }
 
     /**

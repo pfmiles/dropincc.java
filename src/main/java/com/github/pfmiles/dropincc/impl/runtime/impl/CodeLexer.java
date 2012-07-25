@@ -1,6 +1,5 @@
 package com.github.pfmiles.dropincc.impl.runtime.impl;
 
-import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -17,7 +16,7 @@ import com.github.pfmiles.dropincc.impl.runtime.Token;
  * @author pf-miles
  * 
  */
-public class CodeLexer implements Enumeration<Token> {
+public class CodeLexer extends Lexer {
 
     // all regex group index -> tokenType mapping
     private Map<Integer, TokenType> groupNumToType;
@@ -62,7 +61,7 @@ public class CodeLexer implements Enumeration<Token> {
         return t;
     }
 
-    private Token realNext() {
+    protected Token realNext() {
         if (currentPos < code.length()) {
             if (this.matcher.find(currentPos)) {
                 // XXX find a more efficient named-capturing group
@@ -88,4 +87,15 @@ public class CodeLexer implements Enumeration<Token> {
             return null;
         }
     }
+
+    public int getCurrentPosition() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    public String getAheadTokensRepr() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

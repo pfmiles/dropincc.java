@@ -14,11 +14,11 @@ public class Token {
      */
     public static final Token EOF = new Token(TokenType.EOF, "<<EOF>>");
     private TokenType type;
-    private String lexeme;
+    private Object lexeme;
 
     // TODO filename, row, col numbers record?
 
-    public Token(TokenType type, String lexeme) {
+    public Token(TokenType type, Object lexeme) {
         this.type = type;
         this.lexeme = lexeme;
     }
@@ -31,11 +31,11 @@ public class Token {
         this.type = type;
     }
 
-    public String getLexeme() {
+    public Object getLexeme() {
         return lexeme;
     }
 
-    public void setLexeme(String lexeme) {
+    public void setLexeme(Object lexeme) {
         this.lexeme = lexeme;
     }
 

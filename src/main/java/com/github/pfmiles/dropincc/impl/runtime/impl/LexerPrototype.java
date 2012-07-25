@@ -1,9 +1,5 @@
 package com.github.pfmiles.dropincc.impl.runtime.impl;
 
-import java.util.Enumeration;
-
-import com.github.pfmiles.dropincc.impl.runtime.Token;
-
 /**
  * 
  * The lexer prototype for runtime copy & use.
@@ -21,6 +17,6 @@ public interface LexerPrototype {
      *            implementations.
      * @return
      */
-    Enumeration<Token> create(Object... args);
+    Lexer create(Object... args);
 
 }

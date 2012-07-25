@@ -1,11 +1,9 @@
 package com.github.pfmiles.dropincc.impl.runtime.impl;
 
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import com.github.pfmiles.dropincc.impl.TokenType;
-import com.github.pfmiles.dropincc.impl.runtime.Token;
 
 /**
  * Lexer prototype using pre-written code skeleton. For string code lexing(not
@@ -26,7 +24,7 @@ public class PreWrittenStringLexerPrototype implements LexerPrototype {
         this.whitespaceSensitive = whitespaceSensitive;
     }
 
-    public Enumeration<Token> create(Object... code) {
+    public Lexer create(Object... code) {
         return new CodeLexer(this.tokenPatterns, this.groupNumToType, (String) code[0], this.whitespaceSensitive);
     }
 

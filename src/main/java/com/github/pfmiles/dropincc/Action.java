@@ -10,22 +10,30 @@ package com.github.pfmiles.dropincc;
  * 
  */
 public interface Action {
-	/**
-	 * code you would like to execute when corresponding alternative matches.
-	 * 
-	 * @param params
-	 *            values resolved at runtime, passed in as an object array, has
-	 *            the same order of your grammar elements stretched in the
-	 *            corresponding alternative, for example, if your corresponding
-	 *            alternative is:
-	 * 
-	 *            <pre>
-	 *            	MUL.or(DIV), term
-	 * </pre>
-	 * 
-	 *            the values in 'params' are: [valueMatchedBy'MUL.or(DIV)',
-	 *            returnValueOf'term'rule]
-	 * @return
-	 */
-	public Object act(Object... params);
+    /**
+     * code you would like to execute when corresponding alternative matches.
+     * 
+     * @param matched
+     *            value(s) resolved at runtime, passed in as an object(or object
+     *            array when matched multiple objects), has the same order of
+     *            your grammar elements stretched in the corresponding
+     *            alternative, for example, if your corresponding alternative
+     *            is:
+     * 
+     *            <pre>
+     *            	MUL.or(DIV), term
+     * </pre>
+     * 
+     *            the values in 'matched' are: [valueMatchedBy'MUL.or(DIV)',
+     *            returnValueOf'term'rule] And if the alternative is:
+     * 
+     *            <pre>
+     * A
+     * </pre>
+     * 
+     *            (note: 'A' is a non-terminal), then your value in 'matched' is
+     *            a single object returned by 'A' rule.
+     * @return
+     */
+    public Object act(Object matched);
 }
