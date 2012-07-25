@@ -1,0 +1,6 @@
+Object {0} = new ArrayList<Object>();
+while ({1}_predicting()) '{'
+	{2}
+    ((List<Object>) {0}).add({3});
+'}'
+{0} = ((List<Object>) {0}).toArray();

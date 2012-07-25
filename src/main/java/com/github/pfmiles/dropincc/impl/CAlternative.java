@@ -3,7 +3,6 @@ package com.github.pfmiles.dropincc.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.pfmiles.dropincc.Action;
 import com.github.pfmiles.dropincc.Predicate;
 import com.github.pfmiles.dropincc.impl.util.Util;
 
@@ -17,10 +16,10 @@ import com.github.pfmiles.dropincc.impl.util.Util;
 public class CAlternative {
 
     private List<EleType> matchSequence = new ArrayList<EleType>();
-    private Action action = null;
+    private Object action = null;
     private Predicate predicate = null;
 
-    public CAlternative(List<EleType> ms, Action action, Predicate pred) {
+    public CAlternative(List<EleType> ms, Object action, Predicate pred) {
         this.matchSequence = ms;
         this.action = action;
         this.predicate = pred;
@@ -34,11 +33,11 @@ public class CAlternative {
         this.matchSequence = matchSequence;
     }
 
-    public Action getAction() {
+    public Object getAction() {
         return action;
     }
 
-    public void setAction(Action action) {
+    public void setAction(Object action) {
         this.action = action;
     }
 

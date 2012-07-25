@@ -3,7 +3,6 @@ package com.github.pfmiles.dropincc.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.pfmiles.dropincc.Action;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Predicate;
@@ -17,7 +16,7 @@ import com.github.pfmiles.dropincc.Predicate;
 public class Alternative {
 
     private List<Element> elements = new ArrayList<Element>();
-    private Action action = null;
+    private Object action = null;
     // semantic predicate
     private Predicate pred;
 
@@ -56,11 +55,11 @@ public class Alternative {
         return -1;
     }
 
-    public Action getAction() {
+    public Object getAction() {
         return action;
     }
 
-    public void setAction(Action action) {
+    public void setAction(Object action) {
         this.action = action;
     }
 

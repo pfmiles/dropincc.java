@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 /**
  * 
- * Append bytes and manage buffer length automaticly.
+ * Append bytes and manage buffer automatically.
  * 
  * @author pf-miles
  * 

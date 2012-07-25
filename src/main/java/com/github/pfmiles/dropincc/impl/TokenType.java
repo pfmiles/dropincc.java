@@ -32,4 +32,10 @@ public class TokenType extends EleType {
         return name;
     }
 
+    public String toCodeGenStr() {
+        if (this.defIndex >= 0)
+            return "tt" + this.defIndex;
+        return "tt_" + Math.abs(this.defIndex);
+    }
+
 }

@@ -20,4 +20,8 @@ final class GenedGruleType extends GruleType {
         super.defIndex = newIndex;
     }
 
+    public String toCodeGenStr() {
+        return "GR" + this.defIndex;
+    }
+
 }

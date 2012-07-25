@@ -15,7 +15,7 @@ import com.github.pfmiles.dropincc.impl.runtime.Token;
  */
 public abstract class Lexer implements Enumeration<Token> {
 
-    private List<Token> lookAheadBuf = new ArrayList<Token>();
+    protected List<Token> lookAheadBuf = new ArrayList<Token>();
 
     /**
      * check if this lexer has more token to get
@@ -62,12 +62,16 @@ public abstract class Lexer implements Enumeration<Token> {
         return t != null ? t.getType() : null;
     }
 
-    private Token LT(int i) {
+    protected final Token LT(int i) {
         if (i < this.lookAheadBuf.size())
             return this.lookAheadBuf.get(i - 1);
         int lng = i - this.lookAheadBuf.size();
         for (int j = 0; j < lng; j++) {
-            this.lookAheadBuf.add(this.realNext());
+            // real next return null if no more token
+            Token t = this.realNext();
+            if (t == null)
+                return null;
+            this.lookAheadBuf.add(t);
         }
         return this.lookAheadBuf.get(i - 1);
     }

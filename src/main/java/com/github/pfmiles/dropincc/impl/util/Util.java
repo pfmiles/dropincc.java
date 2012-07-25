@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.github.pfmiles.dropincc.Action;
 import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
@@ -110,10 +109,10 @@ public class Util {
      * @param action
      * @return
      */
-    public static String resolveActionName(Action action) {
+    public static String resolveActionName(Object action) {
         if (action == null)
             return null;
-        Class<? extends Action> cls = action.getClass();
+        Class<?> cls = action.getClass();
         String name = cls.getSimpleName();
         if (name != null && !"".equals(name))
             return name;

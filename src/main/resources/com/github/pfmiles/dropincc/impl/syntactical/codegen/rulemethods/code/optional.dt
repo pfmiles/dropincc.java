@@ -1,0 +1,5 @@
+Object {0} = null;
+if ({1}_predicting()) '{'
+    {2}
+    {0} = {3};
+'}'

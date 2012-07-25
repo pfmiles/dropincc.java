@@ -19,7 +19,7 @@ import com.github.pfmiles.dropincc.impl.util.Pair;
 public abstract class CodeGen {
     private static final Map<Pair<Class<? extends CodeGen>, String>, MessageFormat> cache = new ConcurrentHashMap<Pair<Class<? extends CodeGen>, String>, MessageFormat>();
 
-    // using a message format implementation currently
+    // using a message format implementation currently TODO this may be static?
     protected MessageFormat getTemplate(String name) {
         Pair<Class<? extends CodeGen>, String> k = new Pair<Class<? extends CodeGen>, String>(this.getClass(), name);
         if (cache.containsKey(k)) {
@@ -35,7 +35,7 @@ public abstract class CodeGen {
         if (stm == null)
             return null;
         ByteAppender ba = new ByteAppender();
-        byte[] buf = new byte[2048];
+        byte[] buf = new byte[1024];
         int count = 0;
         try {
             count = stm.read(buf);
@@ -49,5 +49,5 @@ public abstract class CodeGen {
         }
     }
 
-    public abstract String render(CodeGenContext context);
+    public abstract <T> T render(CodeGenContext context);
 }

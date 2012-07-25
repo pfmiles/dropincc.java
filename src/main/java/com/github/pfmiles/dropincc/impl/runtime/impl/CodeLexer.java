@@ -1,6 +1,5 @@
 package com.github.pfmiles.dropincc.impl.runtime.impl;
 
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,8 +27,6 @@ public class CodeLexer extends Lexer {
     // does the user care about white spaces?
     private boolean whiteSpaceSensitive;
 
-    private LinkedList<Token> lookAheadBuf = new LinkedList<Token>();
-
     public CodeLexer(Pattern pattern, Map<Integer, TokenType> groupNumToType, String code, boolean whiteSpaceSensitive) {
         this.groupNumToType = groupNumToType;
         this.code = code;
@@ -47,7 +44,7 @@ public class CodeLexer extends Lexer {
 
     public Token nextElement() {
         if (!this.lookAheadBuf.isEmpty()) {
-            return this.lookAheadBuf.removeFirst();
+            return this.lookAheadBuf.remove(0);
         } else {
             return realNextFiltered();
         }
@@ -89,13 +86,17 @@ public class CodeLexer extends Lexer {
     }
 
     public int getCurrentPosition() {
-        // TODO Auto-generated method stub
-        return 0;
+        return this.currentPos - this.lookAheadBuf.size();
     }
 
     public String getAheadTokensRepr() {
-        // TODO Auto-generated method stub
-        return null;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= 3; i++) {
+            if (sb.length() != 0)
+                sb.append(", ");
+            sb.append("'").append(this.LT(i).getLexeme()).append("'");
+        }
+        return sb.toString();
     }
 
 }

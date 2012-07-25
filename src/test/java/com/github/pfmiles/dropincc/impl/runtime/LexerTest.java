@@ -1,5 +1,6 @@
 package com.github.pfmiles.dropincc.impl.runtime;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -9,6 +10,9 @@ import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Exe;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
+import com.github.pfmiles.dropincc.impl.AnalyzedLang;
+import com.github.pfmiles.dropincc.impl.runtime.impl.Lexer;
+import com.github.pfmiles.dropincc.testhelper.TestHelper;
 
 /**
  * @author pf-miles
@@ -83,8 +87,27 @@ public class LexerTest extends TestCase {
         A.define(" \\(", A, "\\) ").alt(" \\\\G ");
         lang.setWhiteSpaceSensitive(true);
         Exe exe = lang.compile();
-        System.out.println(exe.lexing(" ( ( ( \\G ) ) ) "));
+        // System.out.println(exe.lexing(" ( ( ( \\G ) ) ) "));
         assertTrue(exe.lexing(" ( ( ( \\G ) ) ) ").size() == 8);
     }
 
+    public void testLaLt() {
+        Lang lang = new Lang();
+        Grule A = lang.newGrule();
+        lang.defineGrule(A, CC.EOF);
+        A.define(" \\(", A, "\\) ").alt(" \\\\G ");
+        lang.setWhiteSpaceSensitive(true);
+        Exe exe = lang.compile();
+        AnalyzedLang al = TestHelper.priField(exe, "al");
+        Lexer l = al.newLexer(" ( ( ( \\G ) ) ) ");
+        for (int i = 1; i <= 8; i++) {
+            assertTrue(l.LA(i) != null);
+        }
+        assertTrue(l.LA(9) == null);
+        List<Token> ts = new ArrayList<Token>();
+        while (l.hasMoreElements())
+            ts.add(l.nextElement());
+        // System.out.println(ts);
+        assertTrue(ts.size() == 8);
+    }
 }

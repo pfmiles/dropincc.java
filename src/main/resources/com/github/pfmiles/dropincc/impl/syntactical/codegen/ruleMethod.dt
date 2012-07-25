@@ -1,0 +1,8 @@
+public Object {0}() '{'
+    switch ({0}_predict()) '{'
+    {1}
+    default:
+        throw new DropinccException("No viable alternative found in rule: {0}, at position: " + lexer.getCurrentPosition() + ", upcoming sequence: "
+                + lexer.getAheadTokensRepr() + "...");
+    '}'
+'}'

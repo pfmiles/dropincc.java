@@ -15,4 +15,13 @@ public class GruleType extends EleType {
         super(index);
     }
 
+    /**
+     * Generate a string representation in code generation process.
+     * 
+     * @return
+     */
+    public String toCodeGenStr() {
+        return "R" + this.defIndex;
+    }
+
 }
