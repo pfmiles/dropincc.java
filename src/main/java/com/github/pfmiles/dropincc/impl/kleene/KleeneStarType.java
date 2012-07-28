@@ -15,4 +15,8 @@ public class KleeneStarType extends KleeneType {
         super(defIndex);
     }
 
+    public String toCodeGenStr() {
+        return "kleeneStar" + this.defIndex;
+    }
+
 }

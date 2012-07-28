@@ -32,6 +32,8 @@ public class Atn {
     private Map<AtnState, GruleType> stateGruleTypeMapping = new HashMap<AtnState, GruleType>();
     // normal state naming sequence
     private SeqGen normalStateSeq = new SeqGen();
+    // mapping from generated kleene grule type to ATN contact point
+    private Map<GenedKleeneGruleType, AtnState> contactPointMapping;
 
     /**
      * Return all target AtnState of the specified transition edge.
@@ -40,12 +42,22 @@ public class Atn {
      * @return
      */
     public Set<AtnState> getAllDestinationsOf(Object edge) {
-        Set<AtnState> ret = new HashSet<AtnState>();
-        for (AtnState state : states) {
-            if (state.getTransitions().containsKey(edge))
-                ret.addAll(state.getTransitions().get(edge));
+        if (edge instanceof GenedKleeneGruleType) {
+            // if is a generated kleene grule type, return the corresponding
+            // contact point
+            if (!this.contactPointMapping.containsKey((GenedKleeneGruleType) edge))
+                throw new DropinccException("Couldn't find ATN contact point for generated kleene grule, ERROR! KleenType: " + edge);
+            Set<AtnState> ret = new HashSet<AtnState>();
+            ret.add(this.contactPointMapping.get((GenedKleeneGruleType) edge));
+            return ret;
+        } else {
+            Set<AtnState> ret = new HashSet<AtnState>();
+            for (AtnState state : states) {
+                if (state.getTransitions().containsKey(edge))
+                    ret.addAll(state.getTransitions().get(edge));
+            }
+            return ret;
         }
-        return ret;
     }
 
     /**
@@ -147,8 +159,10 @@ public class Atn {
      * @param end
      * @param grule
      * @param kleeneTypeToNode
+     * @param contactPoints
      */
-    public void genTransitions(AtnState start, List<EleType> edges, AtnState end, GruleType grule, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+    public void genTransitions(AtnState start, List<EleType> edges, AtnState end, GruleType grule, Map<KleeneType, CKleeneNode> kleeneTypeToNode,
+            Map<KleeneType, AtnState> contactPoints) {
         AtnState curState = start;
         EleType lastEdge = edges.get(edges.size() - 1);
         // iterate from 0 to size-1(except the last one)
@@ -159,26 +173,53 @@ public class Atn {
                 curState.addTransition(edge, nextState);
                 curState = nextState;
             } else if (edge instanceof KleeneStarType) {
-                this.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) edge).getContents(), curState, grule, kleeneTypeToNode);
+                this.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) edge).getContents(), curState, grule, kleeneTypeToNode, contactPoints);
+                contactPoints.put((KleeneStarType) edge, curState);
             } else if (edge instanceof KleeneCrossType) {
                 List<EleType> content = kleeneTypeToNode.get((KleeneCrossType) edge).getContents();
                 AtnState nextState = this.newAtnState(grule);
-                this.genTransitions(curState, content, nextState, grule, kleeneTypeToNode);
+                this.genTransitions(curState, content, nextState, grule, kleeneTypeToNode, contactPoints);
                 curState = nextState;
-                this.genTransitions(curState, content, curState, grule, kleeneTypeToNode);
+                this.genTransitions(curState, content, curState, grule, kleeneTypeToNode, contactPoints);
+                contactPoints.put((KleeneCrossType) edge, curState);
             } else if (edge instanceof OptionalType) {
+                List<EleType> contents = kleeneTypeToNode.get((OptionalType) edge).getContents();
                 AtnState nextState = this.newAtnState(grule);
-                curState.addTransition(edge, nextState);
+                this.genTransitions(curState, contents, nextState, grule, kleeneTypeToNode, contactPoints);
                 curState.addTransition(Constants.epsilon, nextState);
                 curState = nextState;
+                contactPoints.put((OptionalType) edge, curState);
             } else {
                 throw new DropinccException("Illegal transition edge of ATN: " + edge);
             }
         }
-        curState.addTransition(lastEdge, end);
+        // build the last transition
+        if (lastEdge instanceof TokenType || lastEdge instanceof GruleType) {
+            curState.addTransition(lastEdge, end);
+        } else if (lastEdge instanceof KleeneStarType) {
+            this.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) lastEdge).getContents(), curState, grule, kleeneTypeToNode, contactPoints);
+            curState.addTransition(Constants.epsilon, end);
+            contactPoints.put((KleeneStarType) lastEdge, end);
+        } else if (lastEdge instanceof KleeneCrossType) {
+            List<EleType> content = kleeneTypeToNode.get((KleeneCrossType) lastEdge).getContents();
+            this.genTransitions(curState, content, end, grule, kleeneTypeToNode, contactPoints);
+            this.genTransitions(end, content, end, grule, kleeneTypeToNode, contactPoints);
+            contactPoints.put((KleeneCrossType) lastEdge, end);
+        } else if (lastEdge instanceof OptionalType) {
+            List<EleType> contents = kleeneTypeToNode.get((OptionalType) lastEdge).getContents();
+            this.genTransitions(curState, contents, end, grule, kleeneTypeToNode, contactPoints);
+            curState.addTransition(Constants.epsilon, end);
+            contactPoints.put((OptionalType) lastEdge, end);
+        } else {
+            throw new DropinccException("Illegal transition edge of ATN: " + lastEdge);
+        }
     }
 
     public Set<AtnState> getStates() {
         return states;
+    }
+
+    public void setContactPointMapping(Map<GenedKleeneGruleType, AtnState> contactPointMapping) {
+        this.contactPointMapping = contactPointMapping;
     }
 }

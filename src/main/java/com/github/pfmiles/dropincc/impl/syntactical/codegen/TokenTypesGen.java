@@ -22,6 +22,7 @@ public class TokenTypesGen extends CodeGen {
 
     // TODO token type fields may be simpler, may use ints to represent
     // tokenTypes
+    @SuppressWarnings("unchecked")
     public String render(CodeGenContext context) {
         StringBuilder sb = new StringBuilder();
         for (TokenType t : types) {

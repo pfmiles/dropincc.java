@@ -1,0 +1,4 @@
+public Object {0}(Object arg) '{'
+    {1}
+    return {2};
+'}'

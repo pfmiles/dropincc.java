@@ -1,6 +1,8 @@
 package com.github.pfmiles.dropincc.impl.syntactical;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -28,7 +30,19 @@ import com.github.pfmiles.dropincc.impl.TypeMappingParam;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
+import com.github.pfmiles.dropincc.impl.llstar.GenedKleeneGruleType;
 import com.github.pfmiles.dropincc.impl.llstar.LlstarAnalysis;
+import com.github.pfmiles.dropincc.impl.llstar.LookAheadDfa;
+import com.github.pfmiles.dropincc.impl.syntactical.codegen.AltsActionsGen;
+import com.github.pfmiles.dropincc.impl.syntactical.codegen.CodeGenContext;
+import com.github.pfmiles.dropincc.impl.syntactical.codegen.KleenePredsGen;
+import com.github.pfmiles.dropincc.impl.syntactical.codegen.ParserClsGen;
+import com.github.pfmiles.dropincc.impl.syntactical.codegen.PredsGen;
+import com.github.pfmiles.dropincc.impl.syntactical.codegen.RuleDfasGen;
+import com.github.pfmiles.dropincc.impl.syntactical.codegen.RuleMethodsGen;
+import com.github.pfmiles.dropincc.impl.syntactical.codegen.TokenTypesGen;
+import com.github.pfmiles.dropincc.impl.util.Pair;
+import com.github.pfmiles.dropincc.impl.util.SeqGen;
 import com.github.pfmiles.dropincc.impl.util.SetStack;
 import com.github.pfmiles.dropincc.impl.util.Util;
 
@@ -193,20 +207,22 @@ public class ParserCompiler {
     }
 
     /**
-     * Compute lookAheads for grules, prepare to generate parser code
+     * Compute lookAheads for grules and kleene nodes, prepare to generate
+     * parser code
      * 
      * @param ruleTypeToAlts
      * @param kleeneTypeToNode
      * @return
      */
-    public static List<PredictingGrule> computePredictingGrules(Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
-        List<PredictingGrule> ret = new ArrayList<PredictingGrule>();
+    public static Pair<List<PredictingGrule>, Map<KleeneType, LookAheadDfa>> computePredictingGrules(Map<GruleType, List<CAlternative>> ruleTypeToAlts,
+            Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+        List<PredictingGrule> pgs = new ArrayList<PredictingGrule>();
         LlstarAnalysis a = new LlstarAnalysis(ruleTypeToAlts, kleeneTypeToNode);
         for (Map.Entry<GruleType, List<CAlternative>> e : ruleTypeToAlts.entrySet()) {
             GruleType grule = e.getKey();
-            ret.add(new PredictingGrule(grule, a.getLookAheadDfa(grule), e.getValue()));
+            pgs.add(new PredictingGrule(grule, a.getLookAheadDfa(grule), e.getValue()));
         }
-        return ret;
+        return new Pair<List<PredictingGrule>, Map<KleeneType, LookAheadDfa>>(pgs, a.getKleenDfaMapping());
     }
 
     /**
@@ -215,8 +231,62 @@ public class ParserCompiler {
      * @param predGrules
      * @return
      */
-    public static String genParserCode(List<PredictingGrule> predGrules) {
+    public static String genParserCode(String parserName, List<PredictingGrule> predGrules, Collection<TokenType> tokenTypes,
+            Map<KleeneType, CKleeneNode> kleeneTypeToNode, Map<KleeneType, LookAheadDfa> kleenTypeToDfa) {
         // TODO
-        return null;
+        TokenTypesGen tokenTypesGen = new TokenTypesGen(tokenTypes);
+        // list([grule, altIndex, actionObj])
+        List<Object[]> actionInfos = new ArrayList<Object[]>();
+        // list([grule, altInfex, predObj])
+        List<Object[]> predInfos = new ArrayList<Object[]>();
+        for (PredictingGrule pg : predGrules) {
+            GruleType grule = pg.getGruleType();
+            for (int i = 0; i < pg.getAlts().size(); i++) {
+                CAlternative calt = pg.getAlts().get(i);
+                if (calt.getAction() != null) {
+                    actionInfos.add(new Object[] { grule, i, calt.getAction() });
+                }
+                if (calt.getPredicate() != null) {
+                    predInfos.add(new Object[] { grule, i, calt.getPredicate() });
+                }
+            }
+        }
+        AltsActionsGen actionsGen = new AltsActionsGen(actionInfos);
+        PredsGen predsGen = new PredsGen(predInfos);
+        RuleDfasGen ruleDfaGen = new RuleDfasGen(predGrules);
+        KleenePredsGen kleenePreds = new KleenePredsGen(kleenTypeToDfa);
+        GruleType startRule = resolveStartRule(predGrules);
+        RuleMethodsGen ruleMethodsGen = new RuleMethodsGen(predGrules);
+        ParserClsGen parserGen = new ParserClsGen(parserName, tokenTypesGen, actionsGen, predsGen, ruleDfaGen, kleenePreds, startRule, ruleMethodsGen);
+        return parserGen.render(new CodeGenContext(kleeneTypeToNode));
+    }
+
+    private static GruleType resolveStartRule(List<PredictingGrule> predGrules) {
+        return new GruleType(0); // TODO should be analyzed earlier
+    }
+
+    /**
+     * Generate analyzing grules for every kleene node
+     * 
+     * @param kleeneTypeToNode
+     * @param base
+     *            current grule count, as the base number for generated grule
+     *            type's defIndexes
+     * @return
+     */
+    public static Pair<Map<GruleType, List<CAlternative>>, Map<KleeneType, GenedKleeneGruleType>> genAnalyzingGrulesForKleenes(
+            Map<KleeneType, CKleeneNode> kleeneTypeToNode, int base) {
+        Map<GruleType, List<CAlternative>> genedGrules = new HashMap<GruleType, List<CAlternative>>();
+        Map<KleeneType, GenedKleeneGruleType> kleeneToGenedGrule = new HashMap<KleeneType, GenedKleeneGruleType>();
+        SeqGen seq = new SeqGen(base);
+        for (Map.Entry<KleeneType, CKleeneNode> e : kleeneTypeToNode.entrySet()) {
+            List<CAlternative> alts = new ArrayList<CAlternative>();
+            alts.add(new CAlternative(e.getValue().getContents(), null, null));
+            alts.add(new CAlternative(Collections.<EleType> emptyList(), null, null));
+            GenedKleeneGruleType gt = new GenedKleeneGruleType(seq.next());
+            genedGrules.put(gt, alts);
+            kleeneToGenedGrule.put(e.getKey(), gt);
+        }
+        return new Pair<Map<GruleType, List<CAlternative>>, Map<KleeneType, GenedKleeneGruleType>>(genedGrules, kleeneToGenedGrule);
     }
 }

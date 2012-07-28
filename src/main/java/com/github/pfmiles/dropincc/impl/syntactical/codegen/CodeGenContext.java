@@ -7,6 +7,7 @@ import com.github.pfmiles.dropincc.Predicate;
 import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
+import com.github.pfmiles.dropincc.impl.runtime.impl.RunningDfaState;
 import com.github.pfmiles.dropincc.impl.util.SeqGen;
 
 /**
@@ -17,6 +18,11 @@ import com.github.pfmiles.dropincc.impl.util.SeqGen;
  */
 public class CodeGenContext {
 
+    public CodeGenContext(Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+        this.kleeneTypeToNode = kleeneTypeToNode;
+    }
+
+    // TODO could be removed by make token types static
     /**
      * generated parser class field's name to tokenType mapping
      */
@@ -31,6 +37,11 @@ public class CodeGenContext {
      * generated parser class field's name to semantic predicate mapping
      */
     public Map<String, Predicate> fieldPredsMapping = new HashMap<String, Predicate>();
+
+    /**
+     * generated parser class field's name to rule dfa mapping
+     */
+    public Map<String, RunningDfaState> fieldRuleDfaMapping = new HashMap<String, RunningDfaState>();
 
     /**
      * variable sequence generator for method local variables

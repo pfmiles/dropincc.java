@@ -31,7 +31,7 @@ public class ElementsCodeGen extends CodeGen {
 
     // varName {0}
     // ruleName {1}
-    private static final MessageFormat ruleIvkFmt = new MessageFormat("Object {0} = {1}();");
+    private static final MessageFormat ruleIvkFmt = new MessageFormat("Object {0} = {1}(arg);");
 
     private List<EleType> matchSeq;
 
@@ -72,7 +72,7 @@ public class ElementsCodeGen extends CodeGen {
                 ctt.append(v);
             }
             retVar = "p" + context.varSeq.next();
-            sb.append(multiVarFmt.format(new String[] { retVar, ctt.toString() })).append('\n');
+            sb.append(multiVarFmt.format(new String[] { retVar, ctt.toString() }));
         }
         return new Pair<String, String>(retVar, sb.toString());
     }

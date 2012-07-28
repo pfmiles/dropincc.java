@@ -30,6 +30,8 @@ public class Lang implements Serializable {
 
     private static final long serialVersionUID = 631738160652653120L;
 
+    private String name;
+
     /*
      * if true, the lexer generator won't add a whitespace token automatically
      * at the end of token regex chain. Left over the whitespace manipulation
@@ -44,6 +46,14 @@ public class Lang implements Serializable {
 
     private List<TokenDef> tokens = new ArrayList<TokenDef>();
     private List<Grule> grules = new ArrayList<Grule>();
+
+    public Lang() {
+        this.name = "Lang" + System.currentTimeMillis();
+    }
+
+    public Lang(String name) {
+        this.name = name;// TODO name could only be a valid java class name
+    }
 
     /**
      * Add a new token rule, note that the token rules are trying to match as
@@ -83,7 +93,7 @@ public class Lang implements Serializable {
      * compile the rules to an more efficient form and ready for code gen.
      */
     public Exe compile() {
-        AnalyzedLang cl = new AnalyzedLang(this.tokens, this.grules, this.whiteSpaceSensitive);
+        AnalyzedLang cl = new AnalyzedLang(this.name, this.tokens, this.grules, this.whiteSpaceSensitive);
         cl.compile();
         return new Exe(cl);
     }

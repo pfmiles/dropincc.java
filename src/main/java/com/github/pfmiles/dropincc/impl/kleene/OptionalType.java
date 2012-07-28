@@ -14,4 +14,8 @@ public class OptionalType extends KleeneType {
         super(defIndex);
     }
 
+    public String toCodeGenStr() {
+        return "optional" + this.defIndex;
+    }
+
 }

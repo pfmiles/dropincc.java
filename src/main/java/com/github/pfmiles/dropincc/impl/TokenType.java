@@ -34,8 +34,8 @@ public class TokenType extends EleType {
 
     public String toCodeGenStr() {
         if (this.defIndex >= 0)
-            return "tt" + this.defIndex;
-        return "tt_" + Math.abs(this.defIndex);
+            return "tokenType" + this.defIndex;
+        return "specialTokenType" + Math.abs(this.defIndex);
     }
 
 }

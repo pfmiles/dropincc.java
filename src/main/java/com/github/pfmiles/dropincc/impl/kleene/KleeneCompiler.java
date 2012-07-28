@@ -107,7 +107,7 @@ public class KleeneCompiler {
     }
 
     private static List<EleType> resolveCKleeneNode(AbstractKleeneNode node, TypeMappingParam param) {
-        List<EleType> ret = new ArrayList<EleType>();
+        List<EleType> content = new ArrayList<EleType>();
         if (node == null || node.getElements() == null || node.getElements().isEmpty()) {
             throw new DropinccException("Cannot create empty kleene node: " + node);
         }
@@ -115,8 +115,9 @@ public class KleeneCompiler {
             EleType t = Util.resolveEleType(e, param);
             if (t == null)
                 throw new DropinccException("Could not resolve element type for element: " + e + ", is this element defined in a proper manner?");
-            ret.add(t);
+            content.add(t);
         }
-        return ret;
+        return content;
     }
+
 }

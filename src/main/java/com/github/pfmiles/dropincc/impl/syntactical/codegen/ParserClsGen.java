@@ -1,5 +1,7 @@
 package com.github.pfmiles.dropincc.impl.syntactical.codegen;
 
+import java.text.MessageFormat;
+
 import com.github.pfmiles.dropincc.impl.GruleType;
 
 /**
@@ -9,14 +11,17 @@ import com.github.pfmiles.dropincc.impl.GruleType;
  * 
  */
 public class ParserClsGen extends CodeGen {
+
+    private final MessageFormat fmt = this.getTemplate("parserCls.dt");
+
     private String parserClsName;// {0}
-    private CodeGen tokenTypes; // {1}
-    private CodeGen actions;// {2}
-    private CodeGen preds;// {3}
-    private GruleType startRule;// {4}
-    private CodeGen ruleMethods;// {5}
-    private CodeGen ruleAltsPredictingMethods; // {6}
-    private CodeGen kleenePredictingMethods; // {7}
+    private TokenTypesGen tokenTypes; // {1}
+    private AltsActionsGen actions;// {2}
+    private PredsGen preds;// {3}
+    private RuleDfasGen ruleAltsPredictingDfa; // {4}
+    private KleenePredsGen kleenePreds;
+    private GruleType startRule;// {6}
+    private RuleMethodsGen ruleMethods;// {7}
 
     /**
      * Construct a parserCls using all the components.
@@ -30,24 +35,22 @@ public class ParserClsGen extends CodeGen {
      * @param ruleAltsPredictingMethods
      * @param kleenePredictingMethods
      */
-    public ParserClsGen(String parserClsName, CodeGen tokenTypes, CodeGen actions, CodeGen preds, GruleType startRule, CodeGen ruleMethods,
-            CodeGen ruleAltsPredictingMethods, CodeGen kleenePredictingMethods) {
+    public ParserClsGen(String parserClsName, TokenTypesGen tokenTypes, AltsActionsGen actions, PredsGen preds, RuleDfasGen ruleAltsPredictingDfa,
+            KleenePredsGen kleenePreds, GruleType startRule, RuleMethodsGen ruleMethods) {
         super();
         this.parserClsName = parserClsName;
         this.tokenTypes = tokenTypes;
         this.actions = actions;
         this.preds = preds;
+        this.ruleAltsPredictingDfa = ruleAltsPredictingDfa;
+        this.kleenePreds = kleenePreds;
         this.startRule = startRule;
         this.ruleMethods = ruleMethods;
-        this.ruleAltsPredictingMethods = ruleAltsPredictingMethods;
-        this.kleenePredictingMethods = kleenePredictingMethods;
     }
 
     @SuppressWarnings("unchecked")
     public String render(CodeGenContext context) {
-        return this.getTemplate("parserCls.dt").format(
-                new String[] { this.parserClsName, this.tokenTypes.render(context), this.actions.render(context), this.preds.render(context),
-                        this.startRule.toCodeGenStr(), this.ruleMethods.render(context), this.ruleAltsPredictingMethods.render(context),
-                        this.kleenePredictingMethods.render(context) });
+        return fmt.format(new String[] { this.parserClsName, this.tokenTypes.render(context), this.actions.render(context), this.preds.render(context),
+                this.ruleAltsPredictingDfa.render(context), this.kleenePreds.render(context), this.startRule.toCodeGenStr(), this.ruleMethods.render(context) });
     }
 }

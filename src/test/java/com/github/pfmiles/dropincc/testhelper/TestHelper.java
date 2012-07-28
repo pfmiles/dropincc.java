@@ -96,8 +96,8 @@ public class TestHelper {
     @SuppressWarnings("unchecked")
     public static AnalyzedLangForTest resolveAnalyzedLangForTest(Lang lang) {
         AnalyzedLangForTest ret = new AnalyzedLangForTest();
-        AnalyzedLang al = new AnalyzedLang((List<TokenDef>) priField(lang, "tokens"), (List<Grule>) priField(lang, "grules"),
-                (Boolean) priField(lang, "whiteSpaceSensitive"));
+        AnalyzedLang al = new AnalyzedLang("test", (List<TokenDef>) priField(lang, "tokens"), (List<Grule>) priField(lang, "grules"), (Boolean) priField(lang,
+                "whiteSpaceSensitive"));
         TypeMappingParam typeMappingParam = new TypeMappingParam((Map<TokenDef, TokenType>) TestHelper.priField(al, "tokenTypeMapping"),
                 (Map<Grule, GruleType>) TestHelper.priField(al, "gruleTypeMapping"), (Map<Element, SpecialType>) TestHelper.priField(al, "specialTypeMapping"),
                 (Map<AbstractKleeneNode, KleeneType>) TestHelper.priField(al, "kleeneTypeMapping"));

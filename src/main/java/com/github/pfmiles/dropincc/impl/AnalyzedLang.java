@@ -15,6 +15,7 @@ import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneCompiler;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 import com.github.pfmiles.dropincc.impl.lexical.LexerCompiler;
+import com.github.pfmiles.dropincc.impl.llstar.LookAheadDfa;
 import com.github.pfmiles.dropincc.impl.runtime.Parser;
 import com.github.pfmiles.dropincc.impl.runtime.impl.ClassBasedParserPrototype;
 import com.github.pfmiles.dropincc.impl.runtime.impl.Lexer;
@@ -33,6 +34,7 @@ import com.github.pfmiles.dropincc.impl.util.Pair;
  */
 public class AnalyzedLang {
 
+    private String langName;
     private List<TokenDef> tokens;
     private List<Grule> grules;
     private Map<TokenDef, TokenType> tokenTypeMapping;
@@ -65,6 +67,8 @@ public class AnalyzedLang {
 
     // grules along with look-ahead dfas, about to generate code
     private List<PredictingGrule> predGrules;
+    // kleene type to its look ahead dfa mapping
+    private Map<KleeneType, LookAheadDfa> kleeneTypeToDfa;
 
     // the compiled lexer prototype
     private LexerPrototype lexerPrototype;
@@ -73,7 +77,8 @@ public class AnalyzedLang {
     // the compiled parser prototype
     private ParserPrototype parserPrototype;
 
-    public AnalyzedLang(List<TokenDef> tokens, List<Grule> grules, boolean whitespaceSensitive) {
+    public AnalyzedLang(String name, List<TokenDef> tokens, List<Grule> grules, boolean whitespaceSensitive) {
+        this.langName = name;
         // build token -> tokenType mapping
         this.tokens = tokens;
         // Gathering instant tokenDefs...
@@ -114,12 +119,15 @@ public class AnalyzedLang {
         // detect and report left-recursion, LL parsing needed
         ParserCompiler.checkAndReportLeftRecursions(this.ruleTypeToAlts, this.kleeneTypeToNode);
         // 4.compute predicts, LL(*), detect and report rule conflicts
-        this.predGrules = ParserCompiler.computePredictingGrules(this.ruleTypeToAlts, this.kleeneTypeToNode);
+        Pair<List<PredictingGrule>, Map<KleeneType, LookAheadDfa>> gruleAndKleeneDfas = ParserCompiler
+                .computePredictingGrules(this.ruleTypeToAlts, this.kleeneTypeToNode);
+        this.predGrules = gruleAndKleeneDfas.getLeft();
+        this.kleeneTypeToDfa = gruleAndKleeneDfas.getRight();
         // 5.lexer code gen(TODO using pre-written template code currently,
         // should support stream tokenizing in the future)
         this.lexerPrototype = new PreWrittenStringLexerPrototype(this.groupNumToType, this.tokenPatterns, this.whitespaceSensitive);
         // 6.parser code gen
-        this.parserCode = ParserCompiler.genParserCode(this.predGrules);// TODO
+        this.parserCode = ParserCompiler.genParserCode(this.langName, this.predGrules, tokenTypeMapping.values(), this.kleeneTypeToNode, this.kleeneTypeToDfa);
         this.parserPrototype = new ClassBasedParserPrototype(HotCompileUtil.<Parser> compile(this.parserCode));
 
         // TODO 7.compile and maintain the code in a separate classloader

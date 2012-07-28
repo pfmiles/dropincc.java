@@ -3,9 +3,11 @@ package com.github.pfmiles.dropincc.impl.llstar;
 import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
+import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.automataview.DotAdaptors;
 import com.github.pfmiles.dropincc.impl.automataview.DotGenerator;
+import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 import com.github.pfmiles.dropincc.impl.util.TestUtil;
 import com.github.pfmiles.dropincc.testhelper.AnalyzedLangForTest;
 import com.github.pfmiles.dropincc.testhelper.TestHelper;
@@ -18,20 +20,21 @@ public class LlstarAnalysisExperiments {
     // experiments bench, generate images to see ATN or DFAs
     public static void main(String... args) throws Throwable {
         /*
-         * # S ::= A $
-# A ::= B a
-#     | b* c
-#     | b* c
-# B ::= b+ B
+         * Calculator
+         * S ::= L $
+         * L ::= (A (+|-))* A
+         * A ::= (d (*|\))* d
          */
         Lang lang = new Lang();
+        Grule L = lang.newGrule();
+        lang.defineGrule(L, CC.EOF);
+        TokenDef a = lang.newToken("\\+");
         Grule A = lang.newGrule();
-        lang.defineGrule(A, CC.EOF);
-        Grule B = lang.newGrule();
-        A.define(B, "a")
-        .alt(CC.ks("b"), "c")
-        .alt(CC.ks("b"), "c");
-        B.define(CC.kc("b"), B);
+        L.define(CC.ks(A, a.or("\\-")), A);
+        TokenDef d = lang.newToken("[0-9]+");
+        TokenDef m = lang.newToken("\\*");
+        A.define(CC.ks(d, m.or("\\\\")), d);
+        
         genImages(lang);
     }
 
@@ -47,6 +50,13 @@ public class LlstarAnalysisExperiments {
             if (dfa != null) {
                 DotGenerator dfaDot = new DotGenerator(DotAdaptors.adaptLookAheadDfaStates(dfa.getStates()));
                 TestUtil.createPng(dfaDot, "R" + g.getDefIndex() + "_dfa");
+            }
+        }
+        for (KleeneType k : al.kleeneTypeToNode.keySet()) {
+            LookAheadDfa dfa = llstar.getKleenDfaMapping().get(k);
+            if (dfa != null) {
+                DotGenerator dfaDot = new DotGenerator(DotAdaptors.adaptLookAheadDfaStates(dfa.getStates()));
+                TestUtil.createPng(dfaDot, "KR" + k.getDefIndex() + "_dfa");
             }
         }
     }

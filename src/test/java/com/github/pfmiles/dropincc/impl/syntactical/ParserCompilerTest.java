@@ -8,10 +8,12 @@ import junit.framework.TestCase;
 import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
+import com.github.pfmiles.dropincc.Exe;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
 import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.Alternative;
+import com.github.pfmiles.dropincc.impl.AnalyzedLang;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.PredictingGrule;
 import com.github.pfmiles.dropincc.testhelper.AnalyzedLangForTest;
@@ -251,5 +253,28 @@ public class ParserCompilerTest extends TestCase {
         List<PredictingGrule> ps = ParserCompiler.computePredictingGrules(al.ruleTypeToAlts, al.kleeneTypeToNode);
         // System.out.println(ps);
         assertTrue(ps.size() == 5);
+    }
+
+    public void testParserCodeGen() {
+        Lang ll3 = new Lang();
+        Grule A = ll3.newGrule();
+
+        ll3.defineGrule(A, CC.EOF);
+
+        Grule B = ll3.newGrule();
+        Grule C = ll3.newGrule();
+        Grule D = ll3.newGrule();
+
+        A.define(B, CC.ks("a")).alt(C, CC.kc("a")).alt(D, CC.op("a"));
+
+        B.define("a", "b", "c", C).alt("a", "b", "c", D).alt("d");
+
+        C.define("e", "f", "g", D).alt("e", "f", "g", "h");
+
+        D.define("i", "j", "k", "l").alt("i", "j", "k", "m");
+
+        Exe exe = ll3.compile();
+        AnalyzedLang al = TestHelper.priField(exe, "al");
+        System.out.println(TestHelper.priField(al, "parserCode"));
     }
 }

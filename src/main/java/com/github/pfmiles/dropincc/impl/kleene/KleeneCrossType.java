@@ -15,4 +15,8 @@ public class KleeneCrossType extends KleeneType {
         super(defIndex);
     }
 
+    public String toCodeGenStr() {
+        return "kleeneCross" + this.defIndex;
+    }
+
 }

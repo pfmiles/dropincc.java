@@ -13,7 +13,6 @@ import com.github.pfmiles.dropincc.impl.runtime.impl.Lexer;
 public abstract class Parser {
 
     protected Lexer lexer;
-    protected Object arg;
 
     /**
      * Parse the input and return the evaluated value, if any(AST or evaluated
@@ -21,7 +20,7 @@ public abstract class Parser {
      * 
      * @return
      */
-    public abstract <T> T parse();
+    public abstract <T> T parse(Object arg);
 
     /**
      * Set the lexer for this parser
@@ -30,15 +29,6 @@ public abstract class Parser {
      */
     public void setLexer(Lexer lexer) {
         this.lexer = lexer;
-    }
-
-    /**
-     * Set the argument for this parser.
-     * 
-     * @param arg
-     */
-    public void setArg(Object arg) {
-        this.arg = arg;
     }
 
     protected Object match(TokenType type) {

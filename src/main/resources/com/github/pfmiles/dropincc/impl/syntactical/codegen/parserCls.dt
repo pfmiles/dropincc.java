@@ -2,6 +2,8 @@ package com.github.pfmiles.dropincc.impl.runtime.gen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.github.pfmiles.dropincc.Action;
 import com.github.pfmiles.dropincc.DropinccException;
@@ -9,6 +11,7 @@ import com.github.pfmiles.dropincc.ParamedAction;
 import com.github.pfmiles.dropincc.Predicate;
 import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.runtime.Parser;
+import com.github.pfmiles.dropincc.impl.runtime.impl.RunningDfaState;
 
 /**
  * Auto generated parser class by dropincc.java
@@ -26,22 +29,71 @@ public class {0} extends Parser '{'
     // semantic predicates start
     {3}
     // semantic predicates end
+    
+    // rule predicting dfa start
+    {4}
+    // rule predicting dfa end
+    
+    // kleene predicting dfa start
+    {5}
+    // kleene predicting dfa end
 
     // parse method
-    public <T> T parse() '{'
-        return (T) {4}();
+    public <T> T parse(Object arg) '{'
+        return (T) {6}(arg);
     '}'
 
     // rule methods start
-    {5}
-    // rule methods end
-
-    // rule alts predicting methods start
-    {6}
-    // rule alts predicting methods end
-
-    // kleene predicting methods start
     {7}
-    // kleene predicting methods end
+    // rule methods end
+    
+    // rule alts predicting method
+    private int rulePredict(RunningDfaState start, Object arg, String ruleName) '{'
+        RunningDfaState s = start;
+        int ahead = 1;
+        while (true) '{'
+            if (s.isFinal) '{'
+                return s.alt;
+            '}' else if (s.isPredTransitionState) '{'
+                for (Map.Entry<Predicate, RunningDfaState> pt : s.predTrans.entrySet()) '{'
+                    Predicate pred = pt.getKey();
+                    if (pred.pred(arg, lexer)) '{'
+                        return pt.getValue().alt;
+                    '}'
+                '}'
+                throw new DropinccException("No viable alternative found in rule: " + ruleName + ", at position: " + lexer.getCurrentPosition() + ", upcoming sequence: "
+                        + lexer.getAheadTokensRepr() + "... Tried all predicates, but cannot determine any viable alternative production.");
+            '}' else '{'
+                TokenType t = lexer.LA(ahead);
+                if (s.transitions.containsKey(t)) '{'
+                    s = s.transitions.get(t);
+                '}' else '{'
+                    throw new DropinccException("No viable alternative found in rule: " + ruleName + ", at position: " + lexer.getCurrentPosition()
+                            + ", upcoming sequence: " + lexer.getAheadTokensRepr() + "...");
+                '}'
+                ahead++;
+            '}'
+        '}'
+    '}'
+
+    // kleene predicting method
+    private boolean kleenePredicting(RunningDfaState start, String ruleName) '{'
+        RunningDfaState s = start;
+        int ahead = 1;
+        while (true) '{'
+            if (s.isFinal) '{'
+                return s.alt == 0;
+            '}' else '{'
+                TokenType t = lexer.LA(ahead);
+                if (s.transitions.containsKey(t)) '{'
+                    s = s.transitions.get(t);
+                '}' else '{'
+                    throw new DropinccException("Cannot continue parsing in kleene node matching, can't determine whether to go on matching this kleene node. Rule: "
+                            + ruleName + ", at position: " + lexer.getCurrentPosition() + ", upcoming sequence: " + lexer.getAheadTokensRepr() + "...");
+                '}'
+            '}'
+            ahead++;
+        '}'
+    '}'
 
 '}'

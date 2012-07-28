@@ -21,7 +21,7 @@ public class GruleType extends EleType {
      * @return
      */
     public String toCodeGenStr() {
-        return "R" + this.defIndex;
+        return "r" + this.defIndex;
     }
 
 }

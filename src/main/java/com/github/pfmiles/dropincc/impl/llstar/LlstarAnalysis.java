@@ -21,6 +21,7 @@ import com.github.pfmiles.dropincc.impl.kleene.KleeneCrossType;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneStarType;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 import com.github.pfmiles.dropincc.impl.kleene.OptionalType;
+import com.github.pfmiles.dropincc.impl.syntactical.ParserCompiler;
 import com.github.pfmiles.dropincc.impl.util.Pair;
 import com.github.pfmiles.dropincc.impl.util.Util;
 
@@ -42,8 +43,12 @@ public class LlstarAnalysis {
     // the whole ATN network for the analyzing grammar
     private Atn atn;
 
-    // the resulting grule to look-ahead dfa mapping
+    // the resulting grule to look-ahead dfa mapping(include the generated
+    // kleene node grules')
     private Map<GruleType, LookAheadDfa> gruleDfaMapping = new HashMap<GruleType, LookAheadDfa>();
+
+    // the resulting kleene node to look-ahead dfa mapping
+    private Map<KleeneType, LookAheadDfa> kleenDfaMapping = new HashMap<KleeneType, LookAheadDfa>();
 
     /**
      * Do analysis
@@ -51,7 +56,18 @@ public class LlstarAnalysis {
      * @param ruleTypeToAlts
      * @param kleeneTypeToNode
      */
-    public LlstarAnalysis(Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+    public LlstarAnalysis(Map<GruleType, List<CAlternative>> ruleTypeToAltsOriginal, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+        Map<GruleType, List<CAlternative>> ruleTypeToAlts = new HashMap<GruleType, List<CAlternative>>(ruleTypeToAltsOriginal);
+        // generate grules for every kleene node, add them to the
+        // 'ruleTypeToAlts' mapping
+        Pair<Map<GruleType, List<CAlternative>>, Map<KleeneType, GenedKleeneGruleType>> genedGruleAndMapping = ParserCompiler.genAnalyzingGrulesForKleenes(
+                kleeneTypeToNode, ruleTypeToAltsOriginal.size());
+        // all gruleType -> alts mapping including gened kleene gruleTypes
+        ruleTypeToAlts.putAll(genedGruleAndMapping.getLeft());
+        // kleeneType -> genedGruleType
+        Map<KleeneType, GenedKleeneGruleType> kleeneGenedGruleMapping = genedGruleAndMapping.getRight();
+        // kleeneType -> kleene circle's 'contact point' on ATN
+        Map<KleeneType, AtnState> contactPoints = new HashMap<KleeneType, AtnState>();
         this.atn = new Atn();
         // process rules one by one to create a whole ATN network
         for (Map.Entry<GruleType, List<CAlternative>> e : ruleTypeToAlts.entrySet()) {
@@ -79,19 +95,22 @@ public class LlstarAnalysis {
                             curState.addTransition(edge, nextState);
                             curState = nextState;
                         } else if (edge instanceof KleeneStarType) {
-                            this.atn.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) edge).getContents(), curState, grule, kleeneTypeToNode);
+                            this.atn.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) edge).getContents(), curState, grule, kleeneTypeToNode, contactPoints);
+                            contactPoints.put((KleeneStarType) edge, curState);
                         } else if (edge instanceof KleeneCrossType) {
                             List<EleType> contents = kleeneTypeToNode.get((KleeneCrossType) edge).getContents();
                             AtnState nextState = this.atn.newAtnState(grule);
-                            this.atn.genTransitions(curState, contents, nextState, grule, kleeneTypeToNode);
+                            this.atn.genTransitions(curState, contents, nextState, grule, kleeneTypeToNode, contactPoints);
                             curState = nextState;
-                            this.atn.genTransitions(curState, contents, curState, grule, kleeneTypeToNode);
+                            this.atn.genTransitions(curState, contents, curState, grule, kleeneTypeToNode, contactPoints);
+                            contactPoints.put((KleeneCrossType) edge, curState);
                         } else if (edge instanceof OptionalType) {
                             List<EleType> contents = kleeneTypeToNode.get((OptionalType) edge).getContents();
                             AtnState nextState = this.atn.newAtnState(grule);
-                            this.atn.genTransitions(curState, contents, nextState, grule, kleeneTypeToNode);
+                            this.atn.genTransitions(curState, contents, nextState, grule, kleeneTypeToNode, contactPoints);
                             curState.addTransition(Constants.epsilon, nextState);
                             curState = nextState;
+                            contactPoints.put((OptionalType) edge, curState);
                         } else {
                             throw new DropinccException("Illegal transition edge of ATN: " + edge);
                         }
@@ -102,6 +121,8 @@ public class LlstarAnalysis {
                 }
             }
         }
+        // set the contact point mapping for generated kleene grule types
+        this.atn.setContactPointMapping(resolveContactPointMapping(contactPoints, kleeneGenedGruleMapping));
         // create look-ahead DFAs
         for (Map.Entry<GruleType, List<CAlternative>> e : ruleTypeToAlts.entrySet()) {
             if (e.getValue().size() > 1) {
@@ -150,6 +171,19 @@ public class LlstarAnalysis {
             if (dfa.getStart() == null)
                 throw new DropinccException("No start state found for look ahead dfa of grule: " + grule + ", error!");
         }
+        // build dfa mapping for generated kleene grule types.
+        for (Map.Entry<KleeneType, GenedKleeneGruleType> e : kleeneGenedGruleMapping.entrySet()) {
+            this.kleenDfaMapping.put(e.getKey(), this.gruleDfaMapping.get(e.getValue()));
+        }
+    }
+
+    private Map<GenedKleeneGruleType, AtnState> resolveContactPointMapping(Map<KleeneType, AtnState> contactPoints,
+            Map<KleeneType, GenedKleeneGruleType> kleeneGenedGruleMapping) {
+        Map<GenedKleeneGruleType, AtnState> ret = new HashMap<GenedKleeneGruleType, AtnState>();
+        for (Map.Entry<KleeneType, GenedKleeneGruleType> e : kleeneGenedGruleMapping.entrySet()) {
+            ret.put(e.getValue(), contactPoints.get(e.getKey()));
+        }
+        return ret;
     }
 
     /**
@@ -464,5 +498,14 @@ public class LlstarAnalysis {
      */
     public LookAheadDfa getLookAheadDfa(GruleType grule) {
         return this.gruleDfaMapping.get(grule);
+    }
+
+    /**
+     * Ge the generated look-ahead dfa for all kleene nodes
+     * 
+     * @return
+     */
+    public Map<KleeneType, LookAheadDfa> getKleenDfaMapping() {
+        return kleenDfaMapping;
     }
 }

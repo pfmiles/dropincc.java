@@ -23,7 +23,6 @@ public class ClassBasedParserPrototype implements ParserPrototype {
             throw new DropinccException(e);
         }
         p.setLexer(lexer);
-        p.setArg(arg);
         return p;
     }
 

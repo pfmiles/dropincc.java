@@ -12,6 +12,8 @@ import com.github.pfmiles.dropincc.impl.syntactical.codegen.CodeGenContext;
 import com.github.pfmiles.dropincc.impl.util.Pair;
 
 /**
+ * Responsible for kleene node code generation.
+ * 
  * @author pf-miles
  * 
  */
@@ -34,29 +36,18 @@ public class KleeneEleGen extends CodeGen {
     // returns [varName, code]
     @SuppressWarnings("unchecked")
     public Pair<String, String> render(CodeGenContext context) {
+        String varName = "p" + context.varSeq.next();
+        String kName = ele.toCodeGenStr();
+        Pair<String, String> varAndCode = new ElementsCodeGen(context.kleeneTypeToNode.get(ele).getContents()).render(context);
         if (this.ele instanceof KleeneStarType) {
-            return genKleeneStarCode((KleeneStarType) this.ele);
+            return new Pair<String, String>(varName, ksFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft() }));
         } else if (this.ele instanceof KleeneCrossType) {
-            return genKleeneCrossCode((KleeneCrossType) this.ele);
+            return new Pair<String, String>(varName, kcFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft() }));
         } else if (this.ele instanceof OptionalType) {
-            return genOptionalCode((OptionalType) this.ele);
+            return new Pair<String, String>(varName, opFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft() }));
         } else {
             throw new DropinccException("Unhandled code generation kleene node type: " + this.ele);
         }
     }
 
-    private Pair<String, String> genOptionalCode(OptionalType ele) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    private Pair<String, String> genKleeneCrossCode(KleeneCrossType ele) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    private Pair<String, String> genKleeneStarCode(KleeneStarType ele) {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }
