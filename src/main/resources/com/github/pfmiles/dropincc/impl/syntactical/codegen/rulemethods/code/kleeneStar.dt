@@ -1,5 +1,5 @@
 Object {0} = new ArrayList<Object>();
-while (kleenePredicting({1}PredSet)) '{'
+while (kleenePredicting({1}DfaStart, "{4}")) '{'
 	{2}
     ((List<Object>) {0}).add({3});
 '}'

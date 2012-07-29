@@ -9,7 +9,7 @@ import com.github.pfmiles.dropincc.impl.GruleType;
  * @author pf-miles
  * 
  */
-final class GenedGruleType extends GruleType {
+public final class GenedGruleType extends GruleType {
 
     GenedGruleType(int index) {
         super(index);

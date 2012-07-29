@@ -19,7 +19,7 @@ public class ParserClsGen extends CodeGen {
     private AltsActionsGen actions;// {2}
     private PredsGen preds;// {3}
     private RuleDfasGen ruleAltsPredictingDfa; // {4}
-    private KleenePredsGen kleenePreds;
+    private KleeneDfasGen kleenePreds;
     private GruleType startRule;// {6}
     private RuleMethodsGen ruleMethods;// {7}
 
@@ -36,7 +36,7 @@ public class ParserClsGen extends CodeGen {
      * @param kleenePredictingMethods
      */
     public ParserClsGen(String parserClsName, TokenTypesGen tokenTypes, AltsActionsGen actions, PredsGen preds, RuleDfasGen ruleAltsPredictingDfa,
-            KleenePredsGen kleenePreds, GruleType startRule, RuleMethodsGen ruleMethods) {
+            KleeneDfasGen kleenePreds, GruleType startRule, RuleMethodsGen ruleMethods) {
         super();
         this.parserClsName = parserClsName;
         this.tokenTypes = tokenTypes;

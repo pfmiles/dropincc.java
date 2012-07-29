@@ -2,5 +2,5 @@ Object {0} = new ArrayList<Object>();
 do '{'
     {2}
     ((List<Object>) {0}).add({3});
-'}' while (kleenePredicting({1}PredSet));
+'}' while (kleenePredicting({1}DfaStart, "{4}"));
 {0} = ((List<Object>) {0}).toArray();

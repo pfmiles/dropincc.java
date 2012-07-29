@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.github.pfmiles.dropincc.Predicate;
+import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
@@ -44,9 +45,20 @@ public class CodeGenContext {
     public Map<String, RunningDfaState> fieldRuleDfaMapping = new HashMap<String, RunningDfaState>();
 
     /**
+     * generated parser class field's name to kleene nodes' look ahead dfa
+     * mapping
+     */
+    public Map<String, RunningDfaState> fieldKleeneDfaMapping = new HashMap<String, RunningDfaState>();
+
+    /**
      * variable sequence generator for method local variables
      */
     public SeqGen varSeq;
+
+    /**
+     * current grule type which is generating code for
+     */
+    public GruleType curGrule;
 
     /**
      * alts' action obj to generated parser class field's name mapping

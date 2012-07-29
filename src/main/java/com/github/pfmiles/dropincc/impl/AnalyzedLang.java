@@ -1,11 +1,14 @@
 package com.github.pfmiles.dropincc.impl;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.github.pfmiles.dropincc.CC;
+import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.TokenDef;
@@ -15,6 +18,7 @@ import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneCompiler;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 import com.github.pfmiles.dropincc.impl.lexical.LexerCompiler;
+import com.github.pfmiles.dropincc.impl.llstar.GenedKleeneGruleType;
 import com.github.pfmiles.dropincc.impl.llstar.LookAheadDfa;
 import com.github.pfmiles.dropincc.impl.runtime.Parser;
 import com.github.pfmiles.dropincc.impl.runtime.impl.ClassBasedParserPrototype;
@@ -22,6 +26,7 @@ import com.github.pfmiles.dropincc.impl.runtime.impl.Lexer;
 import com.github.pfmiles.dropincc.impl.runtime.impl.LexerPrototype;
 import com.github.pfmiles.dropincc.impl.runtime.impl.ParserPrototype;
 import com.github.pfmiles.dropincc.impl.runtime.impl.PreWrittenStringLexerPrototype;
+import com.github.pfmiles.dropincc.impl.syntactical.GenedGruleType;
 import com.github.pfmiles.dropincc.impl.syntactical.ParserCompiler;
 import com.github.pfmiles.dropincc.impl.util.Pair;
 
@@ -37,6 +42,7 @@ public class AnalyzedLang {
     private String langName;
     private List<TokenDef> tokens;
     private List<Grule> grules;
+    private GruleType startRuleType;
     private Map<TokenDef, TokenType> tokenTypeMapping;
     // grule -> gruleType mapping, inited when AnalyzedLang obj creating,
     // completed after sub-rule rewriting
@@ -115,6 +121,9 @@ public class AnalyzedLang {
         // KleeneType mapping (built when traverse and register kleene nodes)
         this.kleeneTypeToNode = KleeneCompiler.buildKleeneTypeToNode(typeMappingParam);
 
+        // resolve start grule
+        this.startRuleType = resolveStartGruleType(ruleTypeToAlts, kleeneTypeToNode);
+
         // 3.check or simplify & compute grammar rules
         // detect and report left-recursion, LL parsing needed
         ParserCompiler.checkAndReportLeftRecursions(this.ruleTypeToAlts, this.kleeneTypeToNode);
@@ -127,10 +136,50 @@ public class AnalyzedLang {
         // should support stream tokenizing in the future)
         this.lexerPrototype = new PreWrittenStringLexerPrototype(this.groupNumToType, this.tokenPatterns, this.whitespaceSensitive);
         // 6.parser code gen
-        this.parserCode = ParserCompiler.genParserCode(this.langName, this.predGrules, tokenTypeMapping.values(), this.kleeneTypeToNode, this.kleeneTypeToDfa);
+        this.parserCode = ParserCompiler.genParserCode(this.langName, this.startRuleType, this.predGrules, this.kleeneTypeToDfa, tokenTypeMapping.values(),
+                this.kleeneTypeToNode);
         this.parserPrototype = new ClassBasedParserPrototype(HotCompileUtil.<Parser> compile(this.parserCode));
 
         // TODO 7.compile and maintain the code in a separate classloader
+    }
+
+    // a grammar rule is the start rule if no other rules invokes it
+    private GruleType resolveStartGruleType(Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+        Set<GruleType> allGs = new HashSet<GruleType>();
+        for (GruleType t : ruleTypeToAlts.keySet()) {
+            if (!(t instanceof GenedGruleType) && !(t instanceof GenedKleeneGruleType))
+                allGs.add(t);
+        }
+        for (List<CAlternative> alts : ruleTypeToAlts.values()) {
+            for (CAlternative alt : alts) {
+                filterOutInvokedGrule(alt.getMatchSequence(), allGs, ruleTypeToAlts, kleeneTypeToNode);
+            }
+        }
+        if (allGs.isEmpty())
+            throw new DropinccException("No start rule found, please check your grammar rules.");
+        if (allGs.size() > 1)
+            throw new DropinccException(
+                    "More than one suspected start rule found in the grammar, dangling rules may exist, please check your grammar rules. These rules are not invoked by others: "
+                            + allGs);
+        return allGs.iterator().next();
+    }
+
+    private void filterOutInvokedGrule(List<EleType> matchSequence, Set<GruleType> allGs, Map<GruleType, List<CAlternative>> ruleTypeToAlts,
+            Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+        for (EleType ele : matchSequence) {
+            if (ele instanceof TokenType) {
+                continue;
+            } else if (ele instanceof GruleType) {
+                allGs.remove((GruleType) ele);
+                for (CAlternative alt : ruleTypeToAlts.get((GruleType) ele)) {
+                    filterOutInvokedGrule(alt.getMatchSequence(), allGs, ruleTypeToAlts, kleeneTypeToNode);
+                }
+            } else if (ele instanceof KleeneType) {
+                filterOutInvokedGrule(kleeneTypeToNode.get((KleeneType) ele).getContents(), allGs, ruleTypeToAlts, kleeneTypeToNode);
+            } else {
+                throw new DropinccException("Unhandled element type when finding start rule: " + ele);
+            }
+        }
     }
 
     /**

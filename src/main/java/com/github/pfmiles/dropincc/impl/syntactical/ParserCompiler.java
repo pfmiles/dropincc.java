@@ -29,13 +29,15 @@ import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.TypeMappingParam;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
+import com.github.pfmiles.dropincc.impl.kleene.KleeneStarType;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
+import com.github.pfmiles.dropincc.impl.kleene.OptionalType;
 import com.github.pfmiles.dropincc.impl.llstar.GenedKleeneGruleType;
 import com.github.pfmiles.dropincc.impl.llstar.LlstarAnalysis;
 import com.github.pfmiles.dropincc.impl.llstar.LookAheadDfa;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.AltsActionsGen;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.CodeGenContext;
-import com.github.pfmiles.dropincc.impl.syntactical.codegen.KleenePredsGen;
+import com.github.pfmiles.dropincc.impl.syntactical.codegen.KleeneDfasGen;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.ParserClsGen;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.PredsGen;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.RuleDfasGen;
@@ -192,15 +194,21 @@ public class ParserCompiler {
                 path.push((GruleType) t);
                 List<CAlternative> alts = ruleTypeToAlts.get(t);
                 for (CAlternative a : alts) {
-                    // only the first eleType need to be checked for each
-                    // alternative
-                    examineEleType(a.getMatchSequence().get(0), path, ruleTypeToAlts, kleeneTypeToNode);
+                    for (EleType ele : a.getMatchSequence()) {
+                        examineEleType(ele, path, ruleTypeToAlts, kleeneTypeToNode);
+                        if (!(ele instanceof KleeneStarType || ele instanceof OptionalType))
+                            break;
+                    }
                 }
                 path.pop();
             }
         } else if (t instanceof KleeneType) {
             CKleeneNode knode = kleeneTypeToNode.get(t);
-            examineEleType(knode.getContents().get(0), path, ruleTypeToAlts, kleeneTypeToNode);
+            for (EleType ele : knode.getContents()) {
+                examineEleType(ele, path, ruleTypeToAlts, kleeneTypeToNode);
+                if (!(ele instanceof KleeneStarType || ele instanceof OptionalType))
+                    break;
+            }
         } else {
             throw new DropinccException("Unhandled element type: " + t);
         }
@@ -231,9 +239,8 @@ public class ParserCompiler {
      * @param predGrules
      * @return
      */
-    public static String genParserCode(String parserName, List<PredictingGrule> predGrules, Collection<TokenType> tokenTypes,
-            Map<KleeneType, CKleeneNode> kleeneTypeToNode, Map<KleeneType, LookAheadDfa> kleenTypeToDfa) {
-        // TODO
+    public static String genParserCode(String parserName, GruleType startRule, List<PredictingGrule> predGrules, Map<KleeneType, LookAheadDfa> kleenTypeToDfa,
+            Collection<TokenType> tokenTypes, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
         TokenTypesGen tokenTypesGen = new TokenTypesGen(tokenTypes);
         // list([grule, altIndex, actionObj])
         List<Object[]> actionInfos = new ArrayList<Object[]>();
@@ -254,15 +261,10 @@ public class ParserCompiler {
         AltsActionsGen actionsGen = new AltsActionsGen(actionInfos);
         PredsGen predsGen = new PredsGen(predInfos);
         RuleDfasGen ruleDfaGen = new RuleDfasGen(predGrules);
-        KleenePredsGen kleenePreds = new KleenePredsGen(kleenTypeToDfa);
-        GruleType startRule = resolveStartRule(predGrules);
+        KleeneDfasGen kleeneDfas = new KleeneDfasGen(kleenTypeToDfa);
         RuleMethodsGen ruleMethodsGen = new RuleMethodsGen(predGrules);
-        ParserClsGen parserGen = new ParserClsGen(parserName, tokenTypesGen, actionsGen, predsGen, ruleDfaGen, kleenePreds, startRule, ruleMethodsGen);
+        ParserClsGen parserGen = new ParserClsGen(parserName, tokenTypesGen, actionsGen, predsGen, ruleDfaGen, kleeneDfas, startRule, ruleMethodsGen);
         return parserGen.render(new CodeGenContext(kleeneTypeToNode));
-    }
-
-    private static GruleType resolveStartRule(List<PredictingGrule> predGrules) {
-        return new GruleType(0); // TODO should be analyzed earlier
     }
 
     /**

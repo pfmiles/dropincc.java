@@ -226,7 +226,7 @@ public class ParserCompilerTest extends TestCase {
         ll1.defineGrule(A, CC.EOF);
         A.define(a, CC.ks(c)).alt(b, CC.ks(c));
         AnalyzedLangForTest al = TestHelper.resolveAnalyzedLangForTest(ll1);
-        List<PredictingGrule> ps = ParserCompiler.computePredictingGrules(al.ruleTypeToAlts, al.kleeneTypeToNode);
+        List<PredictingGrule> ps = ParserCompiler.computePredictingGrules(al.ruleTypeToAlts, al.kleeneTypeToNode).getLeft();
         // System.out.println(ps);
         assertTrue(ps.size() == 2);
     }
@@ -250,7 +250,7 @@ public class ParserCompilerTest extends TestCase {
         D.define("i", "j", "k", "l").alt("i", "j", "k", "m");
 
         AnalyzedLangForTest al = TestHelper.resolveAnalyzedLangForTest(ll3);
-        List<PredictingGrule> ps = ParserCompiler.computePredictingGrules(al.ruleTypeToAlts, al.kleeneTypeToNode);
+        List<PredictingGrule> ps = ParserCompiler.computePredictingGrules(al.ruleTypeToAlts, al.kleeneTypeToNode).getLeft();
         // System.out.println(ps);
         assertTrue(ps.size() == 5);
     }

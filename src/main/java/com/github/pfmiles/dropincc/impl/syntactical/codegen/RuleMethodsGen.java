@@ -48,6 +48,7 @@ public class RuleMethodsGen extends CodeGen {
         for (PredictingGrule p : pgs) {
             // the 'varSeq' is method scoped
             context.varSeq = new SeqGen();
+            context.curGrule = p.getGruleType();
             String ruleName = p.getGruleType().toCodeGenStr();
             if (p.getAlts().size() == 1) {
                 // only one alt, need not predict
