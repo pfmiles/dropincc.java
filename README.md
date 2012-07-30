@@ -13,5 +13,6 @@ dropincc.java
 
 * TokenTypes in runtime lexing & parsing should be simplified to a 'hashCode & equals-efficient' type(int).
 * Bootstrap "longest match" lexer regex engine.
+* Backtrack when "non-LL Regular"
 * Allow user to name each element for pretty printing.
 

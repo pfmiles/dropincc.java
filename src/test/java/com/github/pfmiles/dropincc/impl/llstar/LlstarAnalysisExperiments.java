@@ -8,6 +8,7 @@ import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.automataview.DotAdaptors;
 import com.github.pfmiles.dropincc.impl.automataview.DotGenerator;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
+import com.github.pfmiles.dropincc.impl.syntactical.GenedGruleType;
 import com.github.pfmiles.dropincc.impl.util.TestUtil;
 import com.github.pfmiles.dropincc.testhelper.AnalyzedLangForTest;
 import com.github.pfmiles.dropincc.testhelper.TestHelper;
@@ -21,8 +22,8 @@ public class LlstarAnalysisExperiments {
     public static void main(String... args) throws Throwable {
         /*
          * S ::= L $
-         * L ::= (A (+|-))* A
-         * A ::= (F (*|/))* F
+         * L ::= A ((+|-) A)*
+         * A ::= F ((*|/) F)* 
          * F ::= '(' L ')'
          *     | '[0-9]'+
          */
@@ -31,10 +32,10 @@ public class LlstarAnalysisExperiments {
         TokenDef a = lang.newToken("\\+");
         lang.defineGrule(L, CC.EOF);
         Grule A = lang.newGrule();
-        L.define(CC.ks(A, a.or("\\-")), A);
+        L.define(A, CC.ks(a.or("\\-"), A));
         TokenDef m = lang.newToken("\\*");
         Grule F = lang.newGrule();
-        A.define(CC.ks(F, m.or("/")), F);
+        A.define(F, CC.ks(m.or("/"), F));
         F.define("\\(", L, "\\)")
         .alt("[0-9]+");
         
@@ -52,7 +53,9 @@ public class LlstarAnalysisExperiments {
             LookAheadDfa dfa = llstar.getLookAheadDfa(g);
             if (dfa != null) {
                 DotGenerator dfaDot = new DotGenerator(DotAdaptors.adaptLookAheadDfaStates(dfa.getStates()));
-                TestUtil.createPng(dfaDot, "R" + g.getDefIndex() + "_dfa");
+                String namePrefix = "R";
+                if(g instanceof GenedGruleType) namePrefix = "GR";
+                TestUtil.createPng(dfaDot, namePrefix + g.getDefIndex() + "_dfa");
             }
         }
         for (KleeneType k : al.kleeneTypeToNode.keySet()) {

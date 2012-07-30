@@ -2,7 +2,6 @@ package com.github.pfmiles.dropincc.impl;
 
 import java.util.List;
 
-import com.github.pfmiles.dropincc.Action;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
@@ -53,7 +52,7 @@ public class ConstructingGrule implements Element {
      * @param action
      * @return
      */
-    public ConstructingGrule action(Action action) {
+    public ConstructingGrule action(Object action) {
         List<Alternative> alts = this.grule.getAlts();
         Alternative alt = alts.get(alts.size() - 1);
         if (alt.getAction() != null)

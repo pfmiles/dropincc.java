@@ -21,7 +21,7 @@ public final class GenedGruleType extends GruleType {
     }
 
     public String toCodeGenStr() {
-        return "GR" + this.defIndex;
+        return "gr" + this.defIndex;
     }
 
 }

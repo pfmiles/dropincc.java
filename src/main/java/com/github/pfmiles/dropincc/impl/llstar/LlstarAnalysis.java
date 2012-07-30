@@ -50,9 +50,6 @@ public class LlstarAnalysis {
     // the resulting kleene node to look-ahead dfa mapping
     private Map<KleeneType, LookAheadDfa> kleenDfaMapping = new HashMap<KleeneType, LookAheadDfa>();
 
-    // TODO if doing LL-regular check
-    private boolean llRegularCheck = true;
-
     /**
      * Do analysis
      * 
@@ -346,7 +343,7 @@ public class LlstarAnalysis {
                 int depth = y.computeRecurseDepth(s);
                 if (depth == 1) {
                     state.addRecursiveAlt(i);
-                    if (state.getRecursiveAlts().size() > 1 && this.llRegularCheck) {
+                    if (state.getRecursiveAlts().size() > 1) {
                         throw new DropinccException("Likely non-LL regular grammar, recursive alts: " + state.getRecursiveAlts() + ", rule: "
                                 + this.atn.getGruleTypeByAtnState(p));
                     }
@@ -518,10 +515,4 @@ public class LlstarAnalysis {
         return kleenDfaMapping;
     }
 
-    /**
-     * TODO disable LL-regular checking while closuring
-     */
-    public void disableLLRegularCheck() {
-        this.llRegularCheck = false;
-    }
 }

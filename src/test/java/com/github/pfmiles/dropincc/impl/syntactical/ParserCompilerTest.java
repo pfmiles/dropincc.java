@@ -5,12 +5,14 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import com.github.pfmiles.dropincc.Action;
 import com.github.pfmiles.dropincc.CC;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Exe;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
+import com.github.pfmiles.dropincc.ParamedAction;
 import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.Alternative;
 import com.github.pfmiles.dropincc.impl.AnalyzedLang;
@@ -256,24 +258,48 @@ public class ParserCompilerTest extends TestCase {
     }
 
     public void testParserCodeGen() {
-        Lang ll3 = new Lang();
-        Grule A = ll3.newGrule();
+        Lang lang = new Lang("Calculator");
+        Grule L = lang.newGrule();
+        TokenDef a = lang.newToken("\\+");
+        lang.defineGrule(L, CC.EOF).action(new Action() {
+            public Object act(Object matched) {
+                Object[] ms = (Object[]) matched;
+                System.out.println("Total result, length(2 exp): " + ms.length);
+                return ms;
+            }
+        });
+        Grule A = lang.newGrule();
+        L.define(A, CC.ks(a.or("\\-"), A)).action(new Action() {
+            public Object act(Object matched) {
+                Object[] ms = (Object[]) matched;
+                System.out.println("L result, length(2 exp): " + ms.length);
+                return ms;
+            }
+        });
+        TokenDef m = lang.newToken("\\*");
+        Grule F = lang.newGrule();
+        A.define(F, CC.ks(m.or("/"), F)).action(new Action() {
+            public Object act(Object matched) {
+                Object[] ms = (Object[]) matched;
+                System.out.println("A result, length(2 exp): " + ms.length);
+                return ms;
+            }
+        });
+        F.define("\\(", L, "\\)").action(new Action() {
+            public Object act(Object matched) {
+                Object[] ms = (Object[]) matched;
+                System.out.println("F result, length(3 exp): " + ms.length);
+                return ms;
+            }
+        }).alt("[0-9]+").action(new ParamedAction() {
+            public Object act(Object arg, Object matched) {
+                Object[] ms = (Object[]) matched;
+                System.out.println("F result, length(1 exp): " + ms.length);
+                return ms;
+            }
+        });
 
-        ll3.defineGrule(A, CC.EOF);
-
-        Grule B = ll3.newGrule();
-        Grule C = ll3.newGrule();
-        Grule D = ll3.newGrule();
-
-        A.define(B, CC.ks("a")).alt(C, CC.kc("a")).alt(D, CC.op("a"));
-
-        B.define("a", "b", "c", C).alt("a", "b", "c", D).alt("d");
-
-        C.define("e", "f", "g", D).alt("e", "f", "g", "h");
-
-        D.define("i", "j", "k", "l").alt("i", "j", "k", "m");
-
-        Exe exe = ll3.compile();
+        Exe exe = lang.compile();
         AnalyzedLang al = TestHelper.priField(exe, "al");
         System.out.println(TestHelper.priField(al, "parserCode"));
     }
