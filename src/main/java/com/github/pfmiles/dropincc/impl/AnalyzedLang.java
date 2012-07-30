@@ -150,9 +150,15 @@ public class AnalyzedLang {
             if (!(t instanceof GenedGruleType) && !(t instanceof GenedKleeneGruleType))
                 allGs.add(t);
         }
-        for (List<CAlternative> alts : ruleTypeToAlts.values()) {
-            for (CAlternative alt : alts) {
-                filterOutInvokedGrule(alt.getMatchSequence(), allGs, ruleTypeToAlts, kleeneTypeToNode);
+        Set<GruleType> enteredGrule = new HashSet<GruleType>();
+        for (Map.Entry<GruleType, List<CAlternative>> e : ruleTypeToAlts.entrySet()) {
+            GruleType g = e.getKey();
+            List<CAlternative> alts = e.getValue();
+            if (!enteredGrule.contains(g)) {
+                enteredGrule.add(g);
+                for (CAlternative alt : alts) {
+                    filterOutInvokedGrule(alt.getMatchSequence(), allGs, ruleTypeToAlts, kleeneTypeToNode, enteredGrule);
+                }
             }
         }
         if (allGs.isEmpty())
@@ -165,17 +171,20 @@ public class AnalyzedLang {
     }
 
     private void filterOutInvokedGrule(List<EleType> matchSequence, Set<GruleType> allGs, Map<GruleType, List<CAlternative>> ruleTypeToAlts,
-            Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+            Map<KleeneType, CKleeneNode> kleeneTypeToNode, Set<GruleType> enteredGrule) {
         for (EleType ele : matchSequence) {
             if (ele instanceof TokenType) {
                 continue;
             } else if (ele instanceof GruleType) {
                 allGs.remove((GruleType) ele);
-                for (CAlternative alt : ruleTypeToAlts.get((GruleType) ele)) {
-                    filterOutInvokedGrule(alt.getMatchSequence(), allGs, ruleTypeToAlts, kleeneTypeToNode);
+                if (!enteredGrule.contains((GruleType) ele)) {
+                    enteredGrule.add((GruleType) ele);
+                    for (CAlternative alt : ruleTypeToAlts.get((GruleType) ele)) {
+                        filterOutInvokedGrule(alt.getMatchSequence(), allGs, ruleTypeToAlts, kleeneTypeToNode, enteredGrule);
+                    }
                 }
             } else if (ele instanceof KleeneType) {
-                filterOutInvokedGrule(kleeneTypeToNode.get((KleeneType) ele).getContents(), allGs, ruleTypeToAlts, kleeneTypeToNode);
+                filterOutInvokedGrule(kleeneTypeToNode.get((KleeneType) ele).getContents(), allGs, ruleTypeToAlts, kleeneTypeToNode, enteredGrule);
             } else {
                 throw new DropinccException("Unhandled element type when finding start rule: " + ele);
             }

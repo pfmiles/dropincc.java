@@ -50,6 +50,9 @@ public class LlstarAnalysis {
     // the resulting kleene node to look-ahead dfa mapping
     private Map<KleeneType, LookAheadDfa> kleenDfaMapping = new HashMap<KleeneType, LookAheadDfa>();
 
+    // TODO if doing LL-regular check
+    private boolean llRegularCheck = true;
+
     /**
      * Do analysis
      * 
@@ -96,6 +99,9 @@ public class LlstarAnalysis {
                             curState = nextState;
                         } else if (edge instanceof KleeneStarType) {
                             this.atn.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) edge).getContents(), curState, grule, kleeneTypeToNode, contactPoints);
+                            AtnState nextState = this.atn.newAtnState(grule);
+                            curState.addTransition(Constants.epsilon, nextState);
+                            curState = nextState;
                             contactPoints.put((KleeneStarType) edge, curState);
                         } else if (edge instanceof KleeneCrossType) {
                             List<EleType> contents = kleeneTypeToNode.get((KleeneCrossType) edge).getContents();
@@ -103,6 +109,9 @@ public class LlstarAnalysis {
                             this.atn.genTransitions(curState, contents, nextState, grule, kleeneTypeToNode, contactPoints);
                             curState = nextState;
                             this.atn.genTransitions(curState, contents, curState, grule, kleeneTypeToNode, contactPoints);
+                            nextState = this.atn.newAtnState(grule);
+                            curState.addTransition(Constants.epsilon, nextState);
+                            curState = nextState;
                             contactPoints.put((KleeneCrossType) edge, curState);
                         } else if (edge instanceof OptionalType) {
                             List<EleType> contents = kleeneTypeToNode.get((OptionalType) edge).getContents();
@@ -337,7 +346,7 @@ public class LlstarAnalysis {
                 int depth = y.computeRecurseDepth(s);
                 if (depth == 1) {
                     state.addRecursiveAlt(i);
-                    if (state.getRecursiveAlts().size() > 1) {
+                    if (state.getRecursiveAlts().size() > 1 && this.llRegularCheck) {
                         throw new DropinccException("Likely non-LL regular grammar, recursive alts: " + state.getRecursiveAlts() + ", rule: "
                                 + this.atn.getGruleTypeByAtnState(p));
                     }
@@ -507,5 +516,12 @@ public class LlstarAnalysis {
      */
     public Map<KleeneType, LookAheadDfa> getKleenDfaMapping() {
         return kleenDfaMapping;
+    }
+
+    /**
+     * TODO disable LL-regular checking while closuring
+     */
+    public void disableLLRegularCheck() {
+        this.llRegularCheck = false;
     }
 }

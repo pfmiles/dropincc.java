@@ -6,6 +6,7 @@ package com.github.pfmiles.dropincc.impl.syntactical.codegen;
  */
 public class TestTemplate extends CodeGen {
 
+    @SuppressWarnings("unchecked")
     public String render(CodeGenContext context) {
         return this.getTemplate("testTemp.dt").format(new String[] { "hello", "world" });
     }

@@ -20,20 +20,23 @@ public class LlstarAnalysisExperiments {
     // experiments bench, generate images to see ATN or DFAs
     public static void main(String... args) throws Throwable {
         /*
-         * Calculator
          * S ::= L $
          * L ::= (A (+|-))* A
-         * A ::= (d (*|\))* d
+         * A ::= (F (*|/))* F
+         * F ::= '(' L ')'
+         *     | '[0-9]'+
          */
-        Lang lang = new Lang();
+        Lang lang = new Lang("Calculator");
         Grule L = lang.newGrule();
-        lang.defineGrule(L, CC.EOF);
         TokenDef a = lang.newToken("\\+");
+        lang.defineGrule(L, CC.EOF);
         Grule A = lang.newGrule();
         L.define(CC.ks(A, a.or("\\-")), A);
-        TokenDef d = lang.newToken("[0-9]+");
         TokenDef m = lang.newToken("\\*");
-        A.define(CC.ks(d, m.or("\\\\")), d);
+        Grule F = lang.newGrule();
+        A.define(CC.ks(F, m.or("/")), F);
+        F.define("\\(", L, "\\)")
+        .alt("[0-9]+");
         
         genImages(lang);
     }
