@@ -1,5 +1,6 @@
 package com.github.pfmiles.dropincc.impl.hotcompile;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
@@ -25,13 +26,13 @@ import com.github.pfmiles.dropincc.DropinccException;
  */
 public class HotCompileUtil {
 
-    private static final String cp = System.getProperty("java.class.path");
-    private static final String tempDir = System.getProperty("java.io.tmpdir");
-
     public static CompilationResult compile(String qualifiedName, String parserCode) {
         JavaStringSource source = new JavaStringSource(qualifiedName, parserCode);
         List<JavaStringSource> ss = Arrays.asList(source);
-        List<String> options = Arrays.asList("-d", tempDir, "-classpath", cp);
+        File dir = new File(HotCompileConstants.TARGETDIR);
+        if (!dir.exists())
+            dir.mkdirs();
+        List<String> options = Arrays.asList("-d", HotCompileConstants.TARGETDIR, "-classpath", HotCompileConstants.CLASSPATH);
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         StandardJavaFileManager fileManager = null;
         try {
@@ -44,7 +45,7 @@ public class HotCompileUtil {
                 for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
                     out.append("Error on line " + diagnostic.getLineNumber() + " in " + diagnostic).append('\n');
                 }
-                return new CompilationResult(false, out.toString());
+                return new CompilationResult(out.toString());
             }
         } finally {
             try {
@@ -53,6 +54,14 @@ public class HotCompileUtil {
                 throw new DropinccException(e);
             }
         }
-        return null;
+        // every parser class should be loaded by a new specific class loader
+        HotCompileClassLoader loader = new HotCompileClassLoader(HotCompileUtil.class.getClassLoader());
+        Class<?> cls = null;
+        try {
+            cls = loader.loadClass(qualifiedName);
+        } catch (ClassNotFoundException e) {
+            throw new DropinccException(e);
+        }
+        return new CompilationResult(cls, loader);
     }
 }

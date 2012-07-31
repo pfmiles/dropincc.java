@@ -12,6 +12,7 @@ import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.TokenDef;
+import com.github.pfmiles.dropincc.impl.hotcompile.CompilationResult;
 import com.github.pfmiles.dropincc.impl.hotcompile.HotCompileUtil;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
@@ -21,13 +22,14 @@ import com.github.pfmiles.dropincc.impl.lexical.LexerCompiler;
 import com.github.pfmiles.dropincc.impl.llstar.GenedKleeneGruleType;
 import com.github.pfmiles.dropincc.impl.llstar.LookAheadDfa;
 import com.github.pfmiles.dropincc.impl.runtime.Parser;
-import com.github.pfmiles.dropincc.impl.runtime.impl.ClassBasedParserPrototype;
 import com.github.pfmiles.dropincc.impl.runtime.impl.Lexer;
 import com.github.pfmiles.dropincc.impl.runtime.impl.LexerPrototype;
 import com.github.pfmiles.dropincc.impl.runtime.impl.ParserPrototype;
 import com.github.pfmiles.dropincc.impl.runtime.impl.PreWrittenStringLexerPrototype;
+import com.github.pfmiles.dropincc.impl.runtime.impl.StatelessParserPrototype;
 import com.github.pfmiles.dropincc.impl.syntactical.GenedGruleType;
 import com.github.pfmiles.dropincc.impl.syntactical.ParserCompiler;
+import com.github.pfmiles.dropincc.impl.syntactical.codegen.ParserCodeGenResult;
 import com.github.pfmiles.dropincc.impl.util.Pair;
 
 /**
@@ -127,20 +129,28 @@ public class AnalyzedLang {
         // 3.check or simplify & compute grammar rules
         // detect and report left-recursion, LL parsing needed
         ParserCompiler.checkAndReportLeftRecursions(this.ruleTypeToAlts, this.kleeneTypeToNode);
+
         // 4.compute predicts, LL(*), detect and report rule conflicts
         Pair<List<PredictingGrule>, Map<KleeneType, LookAheadDfa>> gruleAndKleeneDfas = ParserCompiler
                 .computePredictingGrules(this.ruleTypeToAlts, this.kleeneTypeToNode);
         this.predGrules = gruleAndKleeneDfas.getLeft();
         this.kleeneTypeToDfa = gruleAndKleeneDfas.getRight();
+
         // 5.lexer code gen(TODO using pre-written template code currently,
         // should support stream tokenizing in the future)
         this.lexerPrototype = new PreWrittenStringLexerPrototype(this.groupNumToType, this.tokenPatterns, this.whitespaceSensitive);
-        // 6.parser code gen
-        this.parserCode = ParserCompiler.genParserCode(this.langName, this.startRuleType, this.predGrules, this.kleeneTypeToDfa, tokenTypeMapping.values(),
-                this.kleeneTypeToNode);
-        this.parserPrototype = new ClassBasedParserPrototype(HotCompileUtil.<Parser> compile(this.parserCode));
 
-        // TODO 7.compile and maintain the code in a separate classloader
+        // 6.parser code gen
+        ParserCodeGenResult parserCodeGenResult = ParserCompiler.genParserCode(this.langName, this.startRuleType, this.predGrules, this.kleeneTypeToDfa,
+                tokenTypeMapping.values(), this.kleeneTypeToNode);
+        this.parserCode = parserCodeGenResult.getCode();
+
+        // 7.compile and maintain the code in a separate classloader
+        CompilationResult result = HotCompileUtil.compile("com.github.pfmiles.dropincc.impl.runtime.gen." + this.langName, this.parserCode);
+        if (!result.isSucceed()) {
+            throw new DropinccException("Parser code compilation failed. Reason: " + result.getErrMsg());
+        }
+        this.parserPrototype = new StatelessParserPrototype(result.<Parser> getCls(), parserCodeGenResult);
     }
 
     // a grammar rule is the start rule if no other rules invokes it
@@ -201,12 +211,13 @@ public class AnalyzedLang {
     }
 
     /**
+     * Create a new parser instance
+     * 
      * @param lexer
-     * @param arg
      * @return
      */
-    public Parser newParser(Lexer lexer, Object arg) {
-        return this.parserPrototype.create(lexer, arg);
+    public Parser newParser(Lexer lexer) {
+        return this.parserPrototype.create(lexer);
     }
 
     public Map<TokenDef, TokenType> getTokenTypeMapping() {

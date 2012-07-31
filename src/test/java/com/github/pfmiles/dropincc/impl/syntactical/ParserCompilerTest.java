@@ -15,7 +15,6 @@ import com.github.pfmiles.dropincc.Lang;
 import com.github.pfmiles.dropincc.ParamedAction;
 import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.Alternative;
-import com.github.pfmiles.dropincc.impl.AnalyzedLang;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.PredictingGrule;
 import com.github.pfmiles.dropincc.testhelper.AnalyzedLangForTest;
@@ -293,14 +292,13 @@ public class ParserCompilerTest extends TestCase {
             }
         }).alt("[0-9]+").action(new ParamedAction() {
             public Object act(Object arg, Object matched) {
-                Object[] ms = (Object[]) matched;
-                System.out.println("F result, length(1 exp): " + ms.length);
-                return ms;
+                String m = (String) matched;
+                System.out.println("F result, single value: " + m + ", arg: " + arg);
+                return m;
             }
         });
 
         Exe exe = lang.compile();
-        AnalyzedLang al = TestHelper.priField(exe, "al");
-        System.out.println(TestHelper.priField(al, "parserCode"));
+        assertTrue(exe.eval("1+2", "hello") != null);
     }
 }

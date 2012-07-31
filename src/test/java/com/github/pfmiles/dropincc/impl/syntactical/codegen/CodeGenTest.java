@@ -15,7 +15,7 @@ public class CodeGenTest extends TestCase {
     public void testParserClsRender() {
         ParserClsTemplate t = new ParserClsTemplate();
         String rst = t.render(null);
-        System.out.println(rst);
+        // System.out.println(rst);
         assertTrue(rst != null);
     }
 }

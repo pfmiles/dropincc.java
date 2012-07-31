@@ -35,7 +35,7 @@ public class Exe {
      */
     public <T> T eval(String code, Object arg) {
         Lexer lexer = al.newLexer(code);
-        Parser p = al.newParser(lexer, arg);
+        Parser p = al.newParser(lexer);
         return p.parse(arg);
     }
 

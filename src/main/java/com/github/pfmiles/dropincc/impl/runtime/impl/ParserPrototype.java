@@ -17,5 +17,5 @@ public interface ParserPrototype {
      * @param arg
      * @return
      */
-    Parser create(Lexer lexer, Object arg);
+    Parser create(Lexer lexer);
 }

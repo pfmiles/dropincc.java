@@ -71,6 +71,7 @@ public class AnalyzedLangTest extends TestCase {
         assertTrue(cl.getGruleTypeMapping().size() == 6);
     }
 
+    @SuppressWarnings("unused")
     public void testResolveParserAst() {
         Lang calculator = new Lang();
         TokenDef DIGIT = calculator.newToken("\\d+");

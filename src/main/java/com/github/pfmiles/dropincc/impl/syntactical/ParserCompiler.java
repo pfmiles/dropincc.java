@@ -37,6 +37,7 @@ import com.github.pfmiles.dropincc.impl.llstar.LlstarAnalysis;
 import com.github.pfmiles.dropincc.impl.llstar.LookAheadDfa;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.AltsActionsGen;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.CodeGenContext;
+import com.github.pfmiles.dropincc.impl.syntactical.codegen.ParserCodeGenResult;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.KleeneDfasGen;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.ParserClsGen;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.PredsGen;
@@ -239,7 +240,7 @@ public class ParserCompiler {
      * @param predGrules
      * @return
      */
-    public static String genParserCode(String parserName, GruleType startRule, List<PredictingGrule> predGrules, Map<KleeneType, LookAheadDfa> kleenTypeToDfa,
+    public static ParserCodeGenResult genParserCode(String parserName, GruleType startRule, List<PredictingGrule> predGrules, Map<KleeneType, LookAheadDfa> kleenTypeToDfa,
             Collection<TokenType> tokenTypes, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
         TokenTypesGen tokenTypesGen = new TokenTypesGen(tokenTypes);
         // list([grule, altIndex, actionObj])
@@ -264,7 +265,9 @@ public class ParserCompiler {
         KleeneDfasGen kleeneDfas = new KleeneDfasGen(kleenTypeToDfa);
         RuleMethodsGen ruleMethodsGen = new RuleMethodsGen(predGrules);
         ParserClsGen parserGen = new ParserClsGen(parserName, tokenTypesGen, actionsGen, predsGen, ruleDfaGen, kleeneDfas, startRule, ruleMethodsGen);
-        return parserGen.render(new CodeGenContext(kleeneTypeToNode));
+
+        CodeGenContext ctx = new CodeGenContext(kleeneTypeToNode);
+        return new ParserCodeGenResult(parserGen.render(ctx), ctx);
     }
 
     /**

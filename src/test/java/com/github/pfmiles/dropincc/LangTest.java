@@ -13,7 +13,6 @@ package com.github.pfmiles.dropincc;
 import junit.framework.TestCase;
 
 /**
- * TODO make this run...
  * 
  * @author pf-miles
  * 
@@ -21,90 +20,69 @@ import junit.framework.TestCase;
 public class LangTest extends TestCase {
     /**
      * <pre>
-     * left recursion version: 
-     * expr ::= addition EOF;
-     * addition ::= addend
-     *            | addition (ADD | SUB) addend;
-     * addend ::= factor
-     *          | addend (MUL | DIV) factor;
-     * factor ::= DIGIT
-     *          | LEFTPAREN addition RIGHTPAREN;
-     * 
-     * kleene closure version: 
-     * expr ::= addition EOF;
-     * addition ::= addend ((AND | SUB) addend)*;
-     * addend ::= factor ((MUL | DIV) factor)*;
-     * factor ::= DIGIT
-     * 			| LEFTPAREN addition RIGHTPAREN;
+     * calc ::= expr $
+     * expr ::= addend (('+'|'-') addend)*
+     * addend ::= factor (('*'|'/') factor)*
+     * factor ::= '(' expr ')'
+     *          | '\\d+(\\.\\d+)?'
      * </pre>
      */
     public void testCalculator() {
-        // 3.define lexical rules
-        Lang calculator = new Lang();
-        TokenDef DIGIT = calculator.newToken("\\d+");
-        TokenDef ADD = calculator.newToken("\\+");
-        TokenDef SUB = calculator.newToken("\\-");
-        TokenDef MUL = calculator.newToken("\\*");
-        TokenDef DIV = calculator.newToken("/");
-        TokenDef LEFTPAREN = calculator.newToken("\\(");
-        TokenDef RIGHTPAREN = calculator.newToken("\\)");
-        // 2.define grammar rules and corresponding actions
-        Grule addition = calculator.newGrule();
-        Grule addend = calculator.newGrule();
-        Grule factor = calculator.newGrule();
-        Element expr = calculator.defineGrule(addition, CC.EOF).action(new Action() {
-            public Object act(Object matched) {
-                return ((Object[]) matched)[0];
+        Lang calc = new Lang("Calculator");
+        Grule expr = calc.newGrule();
+        calc.defineGrule(expr, CC.EOF).action(new Action() {
+            public Double act(Object matched) {
+                return (Double) ((Object[]) matched)[0];
             }
         });
-        addition.define(addend, CC.ks((ADD.or(SUB)), addend)).action(new Action() {
-            public Object act(Object matched) {
-                Object[] params = (Object[]) matched;
-                double leftMost = (Double) params[0];
-                Object[] opAndOther = (Object[]) params[1];
-                for (int i = 0; i < opAndOther.length; i++) {
-                    Object[] opAndOne = (Object[]) opAndOther[i];
-                    if ("+".equals(opAndOne[0])) {
-                        leftMost += (Double) opAndOne[1];
-                    } else if ("-".equals(opAndOne[1])) {
-                        leftMost -= (Double) opAndOne[1];
+        TokenDef a = calc.newToken("\\+");
+        Grule addend = calc.newGrule();
+        expr.define(addend, CC.ks(a.or("\\-"), addend)).action(new Action() {
+            public Double act(Object matched) {
+                Object[] ms = (Object[]) matched;
+                Double a0 = (Double) ms[0];
+                Object[] aPairs = (Object[]) ms[1];
+                for (Object p : aPairs) {
+                    String op = (String) ((Object[]) p)[0];
+                    Double a = (Double) ((Object[]) p)[1];
+                    if ("+".equals(op)) {
+                        a0 += a;
                     } else {
-                        throw new RuntimeException("Invalid operator: " + opAndOne[0]);
+                        a0 -= a;
                     }
                 }
-                return leftMost;
+                return a0;
             }
         });
-        addend.define(factor, CC.ks(MUL.or(DIV), factor)).action(new Action() {
-            public Object act(Object matched) {
-                Object[] params = (Object[]) matched;
-                double leftMost = (Double) params[0];
-                Object[] opAndOthers = (Object[]) params[1];
-                for (int i = 0; i < opAndOthers.length; i++) {
-                    Object[] opAndOther = (Object[]) opAndOthers[i];
-                    if ("*".equals(opAndOthers[0])) {
-                        leftMost *= (Double) opAndOthers[1];
-                    } else if ("/".equals(opAndOthers[0])) {
-                        leftMost /= (Double) opAndOthers[1];
+        TokenDef m = calc.newToken("\\*");
+        Grule factor = calc.newGrule();
+        addend.define(factor, CC.ks(m.or("/"), factor)).action(new Action() {
+            public Double act(Object matched) {
+                Object[] ms = (Object[]) matched;
+                Double f0 = (Double) ms[0];
+                Object[] fPairs = (Object[]) ms[1];
+                for (Object p : fPairs) {
+                    String op = (String) ((Object[]) p)[0];
+                    Double f = (Double) ((Object[]) p)[1];
+                    if ("*".equals(op)) {
+                        f0 *= f;
                     } else {
-                        throw new RuntimeException("Invalid operator: " + opAndOther[0]);
+                        f0 /= f;
                     }
                 }
-                return leftMost;
+                return f0;
             }
         });
-        factor.define(DIGIT).action(new Action() {
-            public Object act(Object matched) {
-                return Double.parseDouble((String) matched);
-            }
-        }).alt(LEFTPAREN, addition, RIGHTPAREN).action(new Action() {
-            public Object act(Object matched) {
+        factor.define("\\(", expr, "\\)").action(new Action() {
+            public Double act(Object matched) {
                 return (Double) ((Object[]) matched)[1];
             }
+        }).alt("\\d+(\\.\\d+)?").action(new Action() {
+            public Double act(Object matched) {
+                return Double.parseDouble((String) matched);
+            }
         });
-        // 1.compile it!
-        Exe exe = calculator.compile();
-        // 0.FIRE!!!
-        // System.out.println(exe.eval("1+2+3+(4+5*6*7*(64/8/2/(2/1)/1)*8+9)+10"));
+        Exe exe = calc.compile();
+        assertTrue(3389 == exe.<Double> eval("1+2+3+(4+5*6*7*(64/8/2/(2/1)/1)*8+9)+10"));
     }
 }
