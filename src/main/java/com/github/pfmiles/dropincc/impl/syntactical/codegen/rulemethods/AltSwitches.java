@@ -58,12 +58,12 @@ public class AltSwitches extends CodeGen {
                 Object action = alt.getAction();
                 String actionName = context.actionFieldMapping.get(action);
                 if (action instanceof Action) {
-                    retVal = actIvk.format(new String[] { actionName, retVal });
+                    retVal = actIvk.format(new String[] { actionName, retVal == null ? "null" : retVal });
                 } else if (action instanceof ParamedAction) {
-                    retVal = actIvkWithArg.format(new String[] { actionName, retVal });
+                    retVal = actIvkWithArg.format(new String[] { actionName, retVal == null ? "null" : retVal });
                 }
             }
-            sb.append(caseFmt.format(new String[] { String.valueOf(caseNum), varAndCode.getRight(), retVal })).append('\n');
+            sb.append(caseFmt.format(new String[] { String.valueOf(caseNum), varAndCode.getRight(), retVal == null ? "null" : retVal })).append('\n');
         }
         return sb.toString();
     }

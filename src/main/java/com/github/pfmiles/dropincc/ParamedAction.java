@@ -25,5 +25,5 @@ public interface ParamedAction {
      * @see com.github.pfmiles.dropincc.Action#act(Object)
      * @return
      */
-    public <T> Object act(T arg, Object matched);
+    public Object act(Object arg, Object matched);
 }

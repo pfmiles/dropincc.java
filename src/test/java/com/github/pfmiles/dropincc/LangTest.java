@@ -47,4 +47,61 @@ public class LangTest extends TestCase {
             assertTrue(true);
         }
     }
+
+    /**
+     * <pre>
+     * S ::= A $
+     * A ::= a
+     *     |
+     * </pre>
+     */
+    public void testEmptyAlternative() {
+        // normal empty alt
+        Lang lang = new Lang();
+        Grule A = lang.newGrule();
+        lang.defineGrule(A, CC.EOF);
+        A.define("a").alt(CC.NOTHING);
+        Exe exe = lang.compile();
+        assertTrue("a".equals(((Object[]) exe.eval("a"))[0]));
+
+        // empty single alt
+        lang = new Lang();
+        A = lang.newGrule();
+        lang.defineGrule(A, CC.EOF);
+        A.define(CC.NOTHING);
+        exe = lang.compile();
+        assertTrue(((Object[]) exe.eval(""))[0] == null);
+
+        // with action
+        // empty single alt
+        lang = new Lang();
+        A = lang.newGrule();
+        lang.defineGrule(A, CC.EOF);
+        A.define(CC.NOTHING).action(new Action() {
+            public Object act(Object matched) {
+                assertTrue(matched == null);
+                return matched;
+            }
+        });
+        exe = lang.compile();
+        assertTrue(((Object[]) exe.eval(""))[0] == null);
+
+        // normal empty alt
+        lang = new Lang();
+        A = lang.newGrule();
+        lang.defineGrule(A, CC.EOF);
+        A.define("a").action(new Action() {
+            public Object act(Object matched) {
+                assertTrue("a".equals(matched));
+                return matched;
+            }
+        }).alt(CC.NOTHING).action(new ParamedAction() {
+            public Object act(Object arg, Object matched) {
+                assertTrue(matched == null);
+                return matched;
+            }
+        });
+        exe = lang.compile();
+        assertTrue("a".equals(((Object[]) exe.eval("a"))[0]));
+    }
 }

@@ -70,12 +70,12 @@ public class RuleMethodsGen extends CodeGen {
                     Object action = alt.getAction();
                     String actionName = context.actionFieldMapping.get(action);
                     if (action instanceof Action) {
-                        retVal = actIvk.format(new String[] { actionName, retVal });
+                        retVal = actIvk.format(new String[] { actionName, retVal == null ? "null" : retVal });
                     } else if (action instanceof ParamedAction) {
-                        retVal = actIvkWithArg.format(new String[] { actionName, retVal });
+                        retVal = actIvkWithArg.format(new String[] { actionName, retVal == null ? "null" : retVal });
                     }
                 }
-                sb.append(fmtSingleAlt.format(new String[] { ruleName, varAndCode.getRight(), retVal }));
+                sb.append(fmtSingleAlt.format(new String[] { ruleName, varAndCode.getRight(), retVal == null ? "null" : retVal }));
             } else {
                 sb.append(fmt.format(new String[] { ruleName, new AltSwitches(p.getAlts()).render(context) })).append('\n');
             }

@@ -48,8 +48,8 @@ public class Alternative {
     }
 
     /*
-     * 切克闹... Returns 0 if all elements are null; 1 if some of them are, 2 if
-     * none of them...
+     * Returns 0 if all elements are null; 1 if some of them are, 2 if none of
+     * them...
      */
     private int checkNull(Element[] eles) {
         int nullCount = 0;

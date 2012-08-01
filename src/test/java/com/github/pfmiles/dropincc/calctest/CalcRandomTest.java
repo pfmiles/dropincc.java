@@ -40,8 +40,8 @@ public class CalcRandomTest extends TestCase {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        System.out.println("Random test with " + threads + " threads, " + countPerThread + " tests per thread completed in milliseconds: "
-                + (System.currentTimeMillis() - time));
+        System.out.println("Random code generation and test with " + threads + " threads, " + countPerThread
+                + " generates and tests per thread completed in milliseconds: " + (System.currentTimeMillis() - time));
     }
 
     public void testEval() {
