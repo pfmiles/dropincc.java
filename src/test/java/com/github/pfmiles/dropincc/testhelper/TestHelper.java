@@ -115,4 +115,15 @@ public class TestHelper {
         ret.ruleTypeToAlts = ParserCompiler.buildRuleTypeToAlts(typeMappingParam);
         return ret;
     }
+
+    /**
+     * generates a random integer value from 0 to (range-1)
+     * 
+     * @param range
+     * @return
+     */
+    public static int randInt(int range) {
+        return (int) (Math.random() * range);
+    }
+
 }
