@@ -61,14 +61,14 @@ public class {0} extends Parser '{'
                         return pt.getValue().alt;
                     '}'
                 '}'
-                throw new DropinccException("No viable alternative found in rule: " + ruleName + ", at position: " + lexer.getCurrentPosition() + ", upcoming sequence: "
+                throw new DropinccException("Syntax error! No viable alternative found in rule: " + ruleName + ", at position: " + lexer.getCurrentPosition() + ", upcoming sequence: "
                         + lexer.getAheadTokensRepr() + "... Tried all predicates, but cannot determine any viable alternative production.");
             '}' else '{'
                 TokenType t = lexer.LA(ahead);
                 if (s.transitions.containsKey(t)) '{'
                     s = s.transitions.get(t);
                 '}' else '{'
-                    throw new DropinccException("No viable alternative found in rule: " + ruleName + ", at position: " + lexer.getCurrentPosition()
+                    throw new DropinccException("Syntax error! No viable alternative found in rule: " + ruleName + ", at position: " + lexer.getCurrentPosition()
                             + ", upcoming sequence: " + lexer.getAheadTokensRepr() + "...");
                 '}'
                 ahead++;

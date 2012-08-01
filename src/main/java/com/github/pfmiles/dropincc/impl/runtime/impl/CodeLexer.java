@@ -56,19 +56,22 @@ public class CodeLexer extends Lexer {
         if (!this.lookAheadBuf.isEmpty()) {
             return this.lookAheadBuf.remove(0);
         } else {
-            return realNextFiltered();
+            return realNext();
         }
     }
 
-    private Token realNextFiltered() {
-        Token t = this.realNext();
+    /**
+     * Real next implementation with whitespace sensitive option
+     */
+    protected Token realNext() {
+        Token t = this._realNext();
         if (!this.whiteSpaceSensitive)
             while (t != null && t.getType().equals(TokenType.WHITESPACE))
-                t = this.realNext();
+                t = this._realNext();
         return t;
     }
 
-    protected Token realNext() {
+    private Token _realNext() {
         if (currentPos < code.length()) {
             if (this.matcher.find(currentPos)) {
                 // XXX find a more efficient named-capturing group

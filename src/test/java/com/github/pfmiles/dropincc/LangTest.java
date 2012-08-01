@@ -25,6 +25,26 @@ public class LangTest extends TestCase {
      * 
      */
     public void testCalculator() {
-        assertTrue(3389 == Calculator.compute("1+2+3+(4+5*6*7*(64/8/2/(2/1)/1)*8+9)+10"));
+        assertTrue(3389 == Calculator.compute("1   +2+3+(4   +5*6*7*(64/8/2/(2/1   )/1)*8   +9  )+   10"));
+    }
+
+    public void testIllegalToken() {
+        try {
+            Calculator.compute("1 +2+3^4");
+            assertTrue(false);
+        } catch (DropinccException e) {
+            System.out.println("Error msg for test: " + e);
+            assertTrue(true);
+        }
+    }
+
+    public void testSyntaxErr() {
+        try {
+            Calculator.compute("1+2* \n (5+10.2 * + 7)*4");
+            assertTrue(false);
+        } catch (DropinccException e) {
+            System.out.println("Error msg for test: " + e);
+            assertTrue(true);
+        }
     }
 }
