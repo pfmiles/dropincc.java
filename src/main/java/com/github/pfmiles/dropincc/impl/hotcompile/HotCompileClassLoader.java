@@ -36,7 +36,7 @@ public class HotCompileClassLoader extends ClassLoader {
 
     // read class data from default hot compilation directory
     private byte[] loadClassData(String name) {
-        File src = new File(HotCompileConstants.TARGETDIR + File.separator + name.replaceAll("\\.", File.separator) + ".class");
+        File src = new File(HotCompileConstants.TARGETDIR + File.separator + name.replace(".", File.separator) + ".class");
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(src);
