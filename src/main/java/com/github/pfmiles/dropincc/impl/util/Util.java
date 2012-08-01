@@ -10,6 +10,7 @@
  ******************************************************************************/
 package com.github.pfmiles.dropincc.impl.util;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -217,4 +218,16 @@ public class Util {
         return sb.toString();
     }
 
+    /**
+     * Get the platform dependent temporary directory path, with 'file
+     * separator' suffix('/' on linux platform, '\' on windows).
+     * 
+     * @return
+     */
+    public static String getTempDirWithFileSeparatorSuffix() {
+        String p = System.getProperty("java.io.tmpdir");
+        if (p.endsWith(File.separator))
+            return p;
+        return p + File.separator;
+    }
 }

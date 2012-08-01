@@ -10,7 +10,7 @@
  ******************************************************************************/
 package com.github.pfmiles.dropincc.impl.hotcompile;
 
-import java.io.File;
+import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
  * @author pf-miles
@@ -26,5 +26,5 @@ public interface HotCompileConstants {
     /**
      * hot compilation target directory
      */
-    String TARGETDIR = System.getProperty("java.io.tmpdir") + File.separator + "dcHotCompile";
+    String TARGETDIR = Util.getTempDirWithFileSeparatorSuffix() + "dcHotCompile";
 }
