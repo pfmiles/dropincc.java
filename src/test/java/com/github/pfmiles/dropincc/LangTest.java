@@ -95,7 +95,7 @@ public class LangTest extends TestCase {
                 assertTrue("a".equals(matched));
                 return matched;
             }
-        }).alt(CC.NOTHING).action(new ParamedAction() {
+        }).alt(CC.NOTHING).action(new ParamedAction<Object>() {
             public Object act(Object arg, Object matched) {
                 assertTrue(matched == null);
                 return matched;

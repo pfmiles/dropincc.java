@@ -300,7 +300,7 @@ public class ParserCompilerTest extends TestCase {
                 System.out.println("F result, length(3 exp): " + ms.length);
                 return ms;
             }
-        }).alt("[0-9]+").action(new ParamedAction() {
+        }).alt("[0-9]+").action(new ParamedAction<Object>() {
             public Object act(Object arg, Object matched) {
                 String m = (String) matched;
                 System.out.println("F result, single value: " + m + ", arg: " + arg);

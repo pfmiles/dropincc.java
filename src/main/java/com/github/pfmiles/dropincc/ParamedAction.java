@@ -11,10 +11,14 @@
 package com.github.pfmiles.dropincc;
 
 /**
+ * Parameterized action, it could receive the parameter passed from the outside.
+ * 
  * @author pf-miles
  * 
+ * @param <T>
+ *            the type of the parameter
  */
-public interface ParamedAction {
+public interface ParamedAction<T> {
     /**
      * The same as the 'act' metod in com.github.pfmiles.dropincc.Action
      * interface, except that there is an additional 'arg' argument which is
@@ -25,5 +29,5 @@ public interface ParamedAction {
      * @see com.github.pfmiles.dropincc.Action#act(Object)
      * @return
      */
-    public Object act(Object arg, Object matched);
+    public Object act(T arg, Object matched);
 }
