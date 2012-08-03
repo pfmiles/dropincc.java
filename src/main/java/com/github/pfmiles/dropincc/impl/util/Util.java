@@ -230,4 +230,24 @@ public class Util {
             return p;
         return p + File.separator;
     }
+
+    /**
+     * build the classpath using all properties with suffix 'class.path'; to
+     * make some software setting its own class path variables happy(like
+     * maven-surfire plugin).
+     * 
+     * @return
+     */
+    public static String getClassPath() {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<Object, Object> e : System.getProperties().entrySet()) {
+            String k = (String) e.getKey();
+            if (k.endsWith("class.path")) {
+                if (sb.length() != 0)
+                    sb.append(File.pathSeparator);
+                sb.append(e.getValue());
+            }
+        }
+        return sb.toString();
+    }
 }

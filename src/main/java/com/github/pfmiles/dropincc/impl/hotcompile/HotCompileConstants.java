@@ -21,7 +21,7 @@ public interface HotCompileConstants {
     /**
      * classpath string of this java process
      */
-    String CLASSPATH = System.getProperty("java.class.path");
+    String CLASSPATH = Util.getClassPath();
 
     /**
      * hot compilation target directory
