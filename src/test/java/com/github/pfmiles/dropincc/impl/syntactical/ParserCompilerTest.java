@@ -38,7 +38,7 @@ public class ParserCompilerTest extends TestCase {
 
     @SuppressWarnings("unchecked")
     public void testOrSubRuleRewrite() {
-        Lang calculator = new Lang();
+        Lang calculator = new Lang("Test");
         TokenDef DIGIT = calculator.newToken("\\d+");
         TokenDef ADD = calculator.newToken("\\+");
         TokenDef SUB = calculator.newToken("\\-");
@@ -79,7 +79,7 @@ public class ParserCompilerTest extends TestCase {
      */
     @SuppressWarnings("unchecked")
     public void testSubRuleRewriteOrCascadingAnd() {
-        Lang calculator = new Lang();
+        Lang calculator = new Lang("Test");
         TokenDef DIGIT = calculator.newToken("\\d+");
         TokenDef ADD = calculator.newToken("\\+");
         TokenDef SUB = calculator.newToken("\\-");
@@ -158,7 +158,7 @@ public class ParserCompilerTest extends TestCase {
      */
     public void testCheckAndReportLeftRecursions() {
         // direct left recursion
-        Lang testLang = new Lang();
+        Lang testLang = new Lang("Test");
         TokenDef gt = testLang.newToken("\\>");
         TokenDef zero = testLang.newToken("0");
         Grule L = testLang.newGrule();
@@ -173,7 +173,7 @@ public class ParserCompilerTest extends TestCase {
         }
 
         // chained left recursion
-        testLang = new Lang();
+        testLang = new Lang("Test");
         TokenDef leftParen = testLang.newToken("\\(");
         TokenDef rightParen = testLang.newToken("\\)");
         TokenDef rightBracket = testLang.newToken("\\]");
@@ -196,7 +196,7 @@ public class ParserCompilerTest extends TestCase {
         }
 
         // left recursion in kleene nodes
-        testLang = new Lang();
+        testLang = new Lang("Test");
         leftParen = testLang.newToken("\\(");
         rightParen = testLang.newToken("\\)");
         rightBracket = testLang.newToken("\\]");
@@ -229,7 +229,7 @@ public class ParserCompilerTest extends TestCase {
      * </pre>
      */
     public void testComputePredictingGrules() {
-        Lang ll1 = new Lang();
+        Lang ll1 = new Lang("Test");
         Element a = ll1.newToken("a");
         Element b = ll1.newToken("b");
         Element c = ll1.newToken("c");
@@ -243,7 +243,7 @@ public class ParserCompilerTest extends TestCase {
     }
 
     public void testComputePredictingGrulesWithInstantTokens() {
-        Lang ll3 = new Lang();
+        Lang ll3 = new Lang("Test");
         Grule A = ll3.newGrule();
 
         ll3.defineGrule(A, CC.EOF);

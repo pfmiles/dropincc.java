@@ -32,7 +32,7 @@ import com.github.pfmiles.dropincc.testhelper.TestHelper;
 @SuppressWarnings("unchecked")
 public class LexerCompilerTest extends TestCase {
     public void testCheckAndCompileTokenRulesInvalidTokens() {
-        Lang dl = new Lang();
+        Lang dl = new Lang("Test");
         List<TokenDef> tokens = new ArrayList<TokenDef>();
         // null token test
         tokens.add(dl.newToken(null));
@@ -67,7 +67,7 @@ public class LexerCompilerTest extends TestCase {
     }
 
     public void testCombinedTokenRulesGroupNums() {
-        Lang dl = new Lang();
+        Lang dl = new Lang("Test");
         List<TokenDef> tokens = new ArrayList<TokenDef>();
         tokens.add(dl.newToken("aaa"));
         tokens.add(dl.newToken("bb(c(d))"));
@@ -91,7 +91,7 @@ public class LexerCompilerTest extends TestCase {
     }
 
     public void testBuildTokenTypeMappingWhiteSpaceSensitive() {
-        Lang dl = new Lang();
+        Lang dl = new Lang("Test");
         List<TokenDef> tokens = new ArrayList<TokenDef>();
         tokens.add(dl.newToken("aaa"));
         tokens.add(dl.newToken("bb(c(d))"));
@@ -114,7 +114,7 @@ public class LexerCompilerTest extends TestCase {
     }
 
     public void testAddSameTokens() {
-        Lang l = new Lang();
+        Lang l = new Lang("Test");
         l.newToken("a");
         l.newToken("b");
         l.newToken("c");

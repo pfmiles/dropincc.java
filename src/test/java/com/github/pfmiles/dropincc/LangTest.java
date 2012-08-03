@@ -57,7 +57,7 @@ public class LangTest extends TestCase {
      */
     public void testEmptyAlternative() {
         // normal empty alt
-        Lang lang = new Lang();
+        Lang lang = new Lang("Test");
         Grule A = lang.newGrule();
         lang.defineGrule(A, CC.EOF);
         A.define("a").alt(CC.NOTHING);
@@ -65,7 +65,7 @@ public class LangTest extends TestCase {
         assertTrue("a".equals(((Object[]) exe.eval("a"))[0]));
 
         // empty single alt
-        lang = new Lang();
+        lang = new Lang("Test");
         A = lang.newGrule();
         lang.defineGrule(A, CC.EOF);
         A.define(CC.NOTHING);
@@ -74,7 +74,7 @@ public class LangTest extends TestCase {
 
         // with action
         // empty single alt
-        lang = new Lang();
+        lang = new Lang("Test");
         A = lang.newGrule();
         lang.defineGrule(A, CC.EOF);
         A.define(CC.NOTHING).action(new Action() {
@@ -87,7 +87,7 @@ public class LangTest extends TestCase {
         assertTrue(((Object[]) exe.eval(""))[0] == null);
 
         // normal empty alt
-        lang = new Lang();
+        lang = new Lang("Test");
         A = lang.newGrule();
         lang.defineGrule(A, CC.EOF);
         A.define("a").action(new Action() {
@@ -104,4 +104,5 @@ public class LangTest extends TestCase {
         exe = lang.compile();
         assertTrue("a".equals(((Object[]) exe.eval("a"))[0]));
     }
+
 }

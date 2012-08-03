@@ -45,7 +45,7 @@ public class AnalyzedLangTest extends TestCase {
      */
     @SuppressWarnings({ "unused", "unchecked" })
     public void testSubRuleRewriteWithKleeneNodes() {
-        Lang calculator = new Lang();
+        Lang calculator = new Lang("Test");
         TokenDef DIGIT = calculator.newToken("\\d+");
         TokenDef ADD = calculator.newToken("\\+");
         TokenDef SUB = calculator.newToken("\\-");
@@ -83,7 +83,7 @@ public class AnalyzedLangTest extends TestCase {
 
     @SuppressWarnings("unused")
     public void testResolveParserAst() {
-        Lang calculator = new Lang();
+        Lang calculator = new Lang("Test");
         TokenDef DIGIT = calculator.newToken("\\d+");
         TokenDef ADD = calculator.newToken("\\+");
         TokenDef SUB = calculator.newToken("\\-");

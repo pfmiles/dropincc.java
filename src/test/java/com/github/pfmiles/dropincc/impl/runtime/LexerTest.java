@@ -31,7 +31,7 @@ import com.github.pfmiles.dropincc.testhelper.TestHelper;
 public class LexerTest extends TestCase {
 
     public void testBasicLex1() {
-        Lang lang = new Lang();
+        Lang lang = new Lang("Test");
         Element a = lang.newToken("a");
         Element b = lang.newToken("b");
         Element c = lang.newToken("c");
@@ -48,7 +48,7 @@ public class LexerTest extends TestCase {
     // public void testBasicInstantTokens()
 
     public void testJavaTokens() {
-        Lang lang = new Lang();
+        Lang lang = new Lang("Test");
         // these keywords tokens must be defined before the identifier token in
         // the initial version of dropincc.java, because it could not do
         // 'longest' match, the later versions of dropincc.java should solve the
@@ -82,7 +82,7 @@ public class LexerTest extends TestCase {
     }
 
     public void testJavaRegexAnnoyingTokens() {
-        Lang lang = new Lang();
+        Lang lang = new Lang("Test");
         Grule A = lang.newGrule();
         lang.defineGrule(A, CC.EOF);
         A.define("\\(", A, "\\)").alt("\\\\G");
@@ -91,7 +91,7 @@ public class LexerTest extends TestCase {
     }
 
     public void testWhitespaceSensitive() {
-        Lang lang = new Lang();
+        Lang lang = new Lang("Test");
         Grule A = lang.newGrule();
         lang.defineGrule(A, CC.EOF);
         A.define(" \\(", A, "\\) ").alt(" \\\\G ");
@@ -102,7 +102,7 @@ public class LexerTest extends TestCase {
     }
 
     public void testLaLt() {
-        Lang lang = new Lang();
+        Lang lang = new Lang("Test");
         Grule A = lang.newGrule();
         lang.defineGrule(A, CC.EOF);
         A.define(" \\(", A, "\\) ").alt(" \\\\G ");

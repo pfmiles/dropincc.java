@@ -13,6 +13,7 @@ package com.github.pfmiles.dropincc;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.github.pfmiles.dropincc.impl.Alternative;
 import com.github.pfmiles.dropincc.impl.AnalyzedLang;
@@ -31,6 +32,7 @@ public class Lang implements Serializable {
     private static final long serialVersionUID = 631738160652653120L;
 
     private String name;
+    private Pattern langNamePattern = Pattern.compile("^[a-zA-Z]\\w*$");
 
     /*
      * if true, the lexer generator won't add a whitespace token automatically
@@ -47,12 +49,18 @@ public class Lang implements Serializable {
     private List<TokenDef> tokens = new ArrayList<TokenDef>();
     private List<Grule> grules = new ArrayList<Grule>();
 
-    public Lang() {
-        this.name = "Lang" + System.currentTimeMillis();
-    }
-
+    /**
+     * Create language object with a name
+     * 
+     * @param name
+     */
     public Lang(String name) {
-        this.name = name;// TODO name could only be a valid java class name
+        if (name == null)
+            throw new DropinccException("Language name could not be null.");
+        if (!langNamePattern.matcher(name).matches())
+            throw new DropinccException(
+                    "Language name should be a valid identifier name in java(Start by a character, followed by arbitrary numbers of digit or character).");
+        this.name = name;
     }
 
     /**
