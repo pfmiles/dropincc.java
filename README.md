@@ -122,6 +122,7 @@ Then, translate the EBNF **line-by-line** using dropincc.java API:
 It's a very straightforward step. Just need a little explaination:  
 
 * Basic grammar elements are 'TokenDef'(terminal) and 'Grule'(non-terminal), and you are not restricted to define TokenDefs in prior to all other elements, you can just define TokenDefs instantly, as regular expression strings, while you defining structure of your grammar. Like `expr.define(addend, CC.ks(a.or("\\-"), addend));`, the `"\\-"` is a regex string, it defines a TokenDef on-the-fly.
+* Currently use built-in java regular expression to define token schemes.
 * Elements concatenations are expressed in comma separated sequences, `expr, CC.EOF` means `expr $` for example.
 * Alternative productions are expressed as a `alt` method call, for example, the `factor` rule has two alternative productions, the second one is defined as `.alt("\\d+(\\.\\d+)?");`.
 * Inline alternatives are expressed as a `or` method call on elements. See `a.or("\\-")` or `m.or("/")` in above definitions.  
@@ -161,13 +162,14 @@ There lies many staff of complexity in the implementation of dropincc.java, but 
 
 That's it, dropincc.java, a new parser generator which you have never seen. It is not just 'yet another compiler compiler', because there is already a whole bunch of tools to do such kind of general purposed parser generation. It is aimed to help you create DSLs in java. Which is a neglected topic in java community. 
 
-Oops.. I almost forgot, in order to make the example code above run, all you need to do is put the dropincc.java's jar file in your classpath, no other dependencies. 
+Oops.. I almost forgot, in order to make the example code above run, all you need to do is put the dropincc.java's [jar file](https://github.com/downloads/pfmiles/dropincc.java/dropincc.java-0.1.0.jar) in your classpath, no other dependencies. 
 
 More examples and documentation coming soon... You could explore the [wiki page](https://github.com/pfmiles/dropincc.java/wiki) or my [blog](http://pfmiles.github.com/blog/category/dropincc/) to find more information.
 
 ### Mail list and discussion forum
 
 * [Dropincc Forum](http://dropincc-java.1068093.n5.nabble.com/). Click "Options > Post by email..." when you entered the forum to get the email address of our mailing list.
+* Feel free to discuss about dropincc.java and I'll reply ASAP.
 
 ### NOTES
 
