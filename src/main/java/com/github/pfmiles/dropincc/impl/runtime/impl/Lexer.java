@@ -10,7 +10,9 @@
  ******************************************************************************/
 package com.github.pfmiles.dropincc.impl.runtime.impl;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -27,6 +29,12 @@ public abstract class Lexer implements Enumeration<Token> {
 
     protected List<Token> lookAheadBuf = new ArrayList<Token>();
 
+    // def index stack of grule, indicates which rule sets the save point
+    private Deque<Integer> savePoints = new ArrayDeque<Integer>();
+
+    // matched token backup when any save point is set
+    private List<Token> backUp = new ArrayList<Token>();
+
     /**
      * check if this lexer has more token to get
      */
@@ -35,7 +43,18 @@ public abstract class Lexer implements Enumeration<Token> {
     /**
      * get next token(may get from buffer)
      */
-    public abstract Token nextElement();
+    public Token nextElement() {
+        Token ret = null;
+        if (!this.lookAheadBuf.isEmpty()) {
+            ret = this.lookAheadBuf.remove(0);
+        } else {
+            ret = realNext();
+        }
+        if (!this.savePoints.isEmpty()) {
+            this.backUp.add(ret);
+        }
+        return ret;
+    }
 
     /**
      * the real get next token logic according to the underlying lexer
@@ -58,7 +77,15 @@ public abstract class Lexer implements Enumeration<Token> {
      * 
      * @return
      */
-    public abstract String getAheadTokensRepr();
+    public String getAheadTokensRepr() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= 3; i++) {
+            if (sb.length() != 0)
+                sb.append(", ");
+            sb.append("'").append(this.LT(i).getLexeme()).append("'");
+        }
+        return sb.toString();
+    }
 
     /**
      * look ahead token type
@@ -84,6 +111,38 @@ public abstract class Lexer implements Enumeration<Token> {
             this.lookAheadBuf.add(t);
         }
         return this.lookAheadBuf.get(i - 1);
+    }
+
+    /**
+     * Set a save point. Pushing the rule number to the top of the save point
+     * stack. Save points could be nested.
+     * 
+     * @param ruleNum
+     */
+    public void setSavePoint(int ruleNum) {
+        this.savePoints.push(ruleNum);
+    }
+
+    /**
+     * Release the save point at the top of the save point stack. If the rule
+     * number of the stack top is not equal to the specified one, report error.
+     * If the released save point the the last save point: 1) if not success,
+     * push back the back-upped tokens into the token buffer. 2) if success,
+     * clear both save point and back ups.
+     * 
+     * @param ruleNum
+     * @param success
+     *            if is a successful match
+     */
+    public void releaseSavePoint(int ruleNum, boolean success) {
+        if (this.savePoints.pop() != ruleNum)
+            throw new RuntimeException("Fatal Error! Rule number doesn't match when releasing save point!");
+        if (this.savePoints.isEmpty()) {
+            if (!success) {
+                this.lookAheadBuf.addAll(this.backUp);
+            }
+            this.backUp.clear();
+        }
     }
 
 }

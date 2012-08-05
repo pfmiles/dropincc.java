@@ -32,7 +32,8 @@ public class CodeLexer extends Lexer {
     // scanning code
     private String code = null;
     private Matcher matcher = null;
-    private int currentPos = 0;
+    // current position in the input sequence
+    private int currentRealPos = 0;
     private boolean eofReturned = false;
     // does the user care about white spaces?
     private boolean whiteSpaceSensitive;
@@ -45,19 +46,11 @@ public class CodeLexer extends Lexer {
     }
 
     public boolean hasMoreElements() {
-        if (!this.lookAheadBuf.isEmpty() || currentPos < code.length())
+        if (!this.lookAheadBuf.isEmpty() || currentRealPos < code.length())
             return true;
         if (!this.eofReturned)
             return true;
         return false;
-    }
-
-    public Token nextElement() {
-        if (!this.lookAheadBuf.isEmpty()) {
-            return this.lookAheadBuf.remove(0);
-        } else {
-            return realNext();
-        }
     }
 
     /**
@@ -72,8 +65,8 @@ public class CodeLexer extends Lexer {
     }
 
     private Token _realNext() {
-        if (currentPos < code.length()) {
-            if (this.matcher.find(currentPos)) {
+        if (currentRealPos < code.length()) {
+            if (this.matcher.find(currentRealPos)) {
                 // XXX find a more efficient named-capturing group
                 // implementation here(planned to bootstrap the regex engine)
                 for (Map.Entry<Integer, TokenType> e : this.groupNumToType.entrySet()) {
@@ -81,14 +74,14 @@ public class CodeLexer extends Lexer {
                     if (gnum != -1) {
                         String txt = this.matcher.group(gnum);
                         if (txt != null) {
-                            this.currentPos += this.matcher.end() - this.matcher.start();
+                            this.currentRealPos += this.matcher.end() - this.matcher.start();
                             return new Token(e.getValue(), txt);
                         }
                     }
                 }
-                throw new DropinccException("No token matched at position: " + this.currentPos + ", subsequent char: '" + this.code.charAt(currentPos) + "'");
+                throw new DropinccException("No token matched at position: " + this.currentRealPos + ", subsequent char: '" + this.code.charAt(currentRealPos) + "'");
             } else {
-                throw new DropinccException("Unexpected char: '" + this.code.charAt(currentPos) + "' at position: " + this.currentPos);
+                throw new DropinccException("Unexpected char: '" + this.code.charAt(currentRealPos) + "' at position: " + this.currentRealPos);
             }
         } else if (!this.eofReturned) {
             this.eofReturned = true;
@@ -99,17 +92,7 @@ public class CodeLexer extends Lexer {
     }
 
     public int getCurrentPosition() {
-        return this.currentPos - this.lookAheadBuf.size();
-    }
-
-    public String getAheadTokensRepr() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 1; i <= 3; i++) {
-            if (sb.length() != 0)
-                sb.append(", ");
-            sb.append("'").append(this.LT(i).getLexeme()).append("'");
-        }
-        return sb.toString();
+        return this.currentRealPos - this.lookAheadBuf.size();
     }
 
 }
