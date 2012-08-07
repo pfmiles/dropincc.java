@@ -12,12 +12,13 @@ package com.github.pfmiles.dropincc.impl.syntactical.codegen;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.github.pfmiles.dropincc.impl.TokenType;
-import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 import com.github.pfmiles.dropincc.impl.llstar.DfaState;
 import com.github.pfmiles.dropincc.impl.llstar.LookAheadDfa;
+import com.github.pfmiles.dropincc.impl.llstar.PredictingKleene;
 import com.github.pfmiles.dropincc.impl.runtime.impl.RunningDfaState;
 import com.github.pfmiles.dropincc.impl.util.SeqGen;
 
@@ -30,19 +31,19 @@ public class KleeneDfasGen extends CodeGen {
     // kleene name {0}
     private static final MessageFormat fmt = new MessageFormat("public RunningDfaState {0}DfaStart;");
 
-    private Map<KleeneType, LookAheadDfa> kleeneTypeToDfa;
+    private List<PredictingKleene> pks;
 
-    public KleeneDfasGen(Map<KleeneType, LookAheadDfa> kleeneTypeToDfa) {
-        this.kleeneTypeToDfa = kleeneTypeToDfa;
+    public KleeneDfasGen(List<PredictingKleene> kleeneTypeToDfa) {
+        this.pks = kleeneTypeToDfa;
     }
 
     @SuppressWarnings("unchecked")
     public String render(CodeGenContext context) {
         StringBuilder sb = new StringBuilder();
-        for (Map.Entry<KleeneType, LookAheadDfa> e : this.kleeneTypeToDfa.entrySet()) {
-            sb.append(fmt.format(new String[] { e.getKey().toCodeGenStr() })).append('\n');
-            String fieldName = e.getKey().toCodeGenStr() + "DfaStart";
-            context.fieldKleeneDfaMapping.put(fieldName, toPredictingDfa(e.getValue()));
+        for (PredictingKleene pk : this.pks) {
+            sb.append(fmt.format(new String[] { pk.getKleeneType().toCodeGenStr() })).append('\n');
+            String fieldName = pk.getKleeneType().toCodeGenStr() + "DfaStart";
+            context.fieldKleeneDfaMapping.put(fieldName, toPredictingDfa(pk.getDfa()));
         }
         return sb.toString();
     }

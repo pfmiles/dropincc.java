@@ -31,11 +31,8 @@ public class LlstarAnalysisExperiments {
     // experiments bench, generate images to see ATN or DFAs
     public static void main(String... args) throws Throwable {
         /*
-         * S ::= L $
-         * L ::= A ((+|-) A)*
-         * A ::= F ((*|/) F)* 
-         * F ::= '(' L ')'
-         *     | '[0-9]'+
+         * S ::= L $ L ::= A ((+|-) A)* A ::= F ((*|/) F)* F ::= '(' L ')' |
+         * '[0-9]'+
          */
         Lang lang = new Lang("Calculator");
         Grule L = lang.newGrule();
@@ -46,9 +43,8 @@ public class LlstarAnalysisExperiments {
         TokenDef m = lang.newToken("\\*");
         Grule F = lang.newGrule();
         A.define(F, CC.ks(m.or("/"), F));
-        F.define("\\(", L, "\\)")
-        .alt("[0-9]+");
-        
+        F.define("\\(", L, "\\)").alt("[0-9]+");
+
         genImages(lang);
     }
 
@@ -56,6 +52,7 @@ public class LlstarAnalysisExperiments {
         AnalyzedLangForTest al = TestHelper.resolveAnalyzedLangForTest(lang);
         LlstarAnalysis llstar = new LlstarAnalysis(al.ruleTypeToAlts, al.kleeneTypeToNode);
         System.out.println(llstar.getWarnings());
+        System.out.println(llstar.getDebugMsg());
         DotGenerator dotGen = new DotGenerator(DotAdaptors.adaptAtnStates(llstar.getAtn().getStates()));
         TestUtil.createPng(dotGen, "atn");
 
@@ -64,7 +61,8 @@ public class LlstarAnalysisExperiments {
             if (dfa != null) {
                 DotGenerator dfaDot = new DotGenerator(DotAdaptors.adaptLookAheadDfaStates(dfa.getStates()));
                 String namePrefix = "R";
-                if(g instanceof GenedGruleType) namePrefix = "GR";
+                if (g instanceof GenedGruleType)
+                    namePrefix = "GR";
                 TestUtil.createPng(dfaDot, namePrefix + g.getDefIndex() + "_dfa");
             }
         }

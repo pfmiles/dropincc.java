@@ -49,7 +49,7 @@ public class KleeneEleGen extends CodeGen {
     public Pair<String, String> render(CodeGenContext context) {
         String varName = "p" + context.varSeq.next();
         String kName = ele.toCodeGenStr();
-        Pair<String, String> varAndCode = new ElementsCodeGen(context.kleeneTypeToNode.get(ele).getContents()).render(context);
+        Pair<String, String> varAndCode = new ElementsCodeGen(context.kleeneTypeToNode.get(ele)).render(context);
         if (this.ele instanceof KleeneStarType) {
             return new Pair<String, String>(varName, ksFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
                     context.curGrule.toCodeGenStr() }));

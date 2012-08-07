@@ -1,0 +1,10 @@
+try '{'
+    this.lexer.setSavePoint({0});
+
+    {1}
+
+    this.lexer.releaseSavePoint({2}, true);
+    return {3};
+'}' catch (DropinccException e) '{'
+    this.lexer.releaseSavePoint({2}, false);
+'}'

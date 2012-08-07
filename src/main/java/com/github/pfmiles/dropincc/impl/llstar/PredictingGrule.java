@@ -8,11 +8,12 @@
  * Contributors:
  *     pf_miles - initial API and implementation
  ******************************************************************************/
-package com.github.pfmiles.dropincc.impl;
+package com.github.pfmiles.dropincc.impl.llstar;
 
 import java.util.List;
 
-import com.github.pfmiles.dropincc.impl.llstar.LookAheadDfa;
+import com.github.pfmiles.dropincc.impl.CAlternative;
+import com.github.pfmiles.dropincc.impl.GruleType;
 
 /**
  * Grammar rule with lookAhead DFA and alternatives.
@@ -28,11 +29,35 @@ public class PredictingGrule {
     // all alternative productions
     private List<CAlternative> alts;
 
+    // Non LL-regular grammar, no valid look-ahead dfa found, fallback to back
+    // tracking
+    private boolean backtrack;
+
+    /**
+     * Create a predicting grule with look-ahead DFA
+     * 
+     * @param gruleType
+     * @param dfa
+     * @param alts
+     */
     public PredictingGrule(GruleType gruleType, LookAheadDfa dfa, List<CAlternative> alts) {
         super();
         this.gruleType = gruleType;
         this.dfa = dfa;
         this.alts = alts;
+    }
+
+    /**
+     * Create a non-LL regular predicting grule, this kind of rule would do
+     * backtracking at runtime
+     * 
+     * @param grule
+     * @param alts
+     */
+    public PredictingGrule(GruleType grule, List<CAlternative> alts) {
+        this.gruleType = grule;
+        this.alts = alts;
+        this.backtrack = true;
     }
 
     public GruleType getGruleType() {
@@ -58,4 +83,9 @@ public class PredictingGrule {
     public void setAlts(List<CAlternative> alts) {
         this.alts = alts;
     }
+
+    public boolean isBacktrack() {
+        return backtrack;
+    }
+
 }

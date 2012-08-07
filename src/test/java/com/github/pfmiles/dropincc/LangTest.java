@@ -105,4 +105,11 @@ public class LangTest extends TestCase {
         assertTrue("a".equals(((Object[]) exe.eval("a"))[0]));
     }
 
+    /**
+     * Non LL-regular rule test
+     */
+    public void testNonLLRegularRule() {
+        // TODO
+    }
+
 }

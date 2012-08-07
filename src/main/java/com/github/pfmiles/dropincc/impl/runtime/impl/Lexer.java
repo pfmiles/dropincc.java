@@ -18,6 +18,7 @@ import java.util.List;
 
 import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.runtime.Token;
+import com.github.pfmiles.dropincc.impl.util.Pair;
 
 /**
  * Common super class for all generated lexer.
@@ -29,11 +30,12 @@ public abstract class Lexer implements Enumeration<Token> {
 
     protected List<Token> lookAheadBuf = new ArrayList<Token>();
 
-    // def index stack of grule, indicates which rule sets the save point
-    private Deque<Integer> savePoints = new ArrayDeque<Integer>();
+    // def index stack of grule, indicates which rule sets the save point, and
+    // the corresponding backup start index
+    private Deque<Pair<Integer, Integer>> savePoints = new ArrayDeque<Pair<Integer, Integer>>();
 
     // matched token backup when any save point is set
-    private List<Token> backUp = new ArrayList<Token>();
+    private ArrayList<Token> backUp = new ArrayList<Token>();
 
     /**
      * check if this lexer has more token to get
@@ -51,6 +53,7 @@ public abstract class Lexer implements Enumeration<Token> {
             ret = realNext();
         }
         if (!this.savePoints.isEmpty()) {
+            // backtracking enabled
             this.backUp.add(ret);
         }
         return ret;
@@ -120,7 +123,7 @@ public abstract class Lexer implements Enumeration<Token> {
      * @param ruleNum
      */
     public void setSavePoint(int ruleNum) {
-        this.savePoints.push(ruleNum);
+        this.savePoints.push(new Pair<Integer, Integer>(ruleNum, this.backUp.size()));
     }
 
     /**
@@ -135,14 +138,14 @@ public abstract class Lexer implements Enumeration<Token> {
      *            if is a successful match
      */
     public void releaseSavePoint(int ruleNum, boolean success) {
-        if (this.savePoints.pop() != ruleNum)
+        Pair<Integer, Integer> top = this.savePoints.pop();
+        if (top.getLeft() != ruleNum)
             throw new RuntimeException("Fatal Error! Rule number doesn't match when releasing save point!");
-        if (this.savePoints.isEmpty()) {
-            if (!success) {
-                this.lookAheadBuf.addAll(this.backUp);
-            }
-            this.backUp.clear();
-        }
-    }
 
+        List<Token> backOfThisSavePoint = this.backUp.subList(top.getRight(), this.backUp.size());
+        if (!success) {
+            this.lookAheadBuf.addAll(backOfThisSavePoint);
+        }
+        backOfThisSavePoint.clear();
+    }
 }

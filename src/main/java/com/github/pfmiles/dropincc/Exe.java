@@ -26,6 +26,7 @@ import com.github.pfmiles.dropincc.impl.runtime.impl.Lexer;
  * @author pf-miles
  * 
  */
+@SuppressWarnings("unchecked")
 public class Exe {
 
     private AnalyzedLang al;
@@ -46,7 +47,7 @@ public class Exe {
     public <T> T eval(String code, Object arg) {
         Lexer lexer = al.newLexer(code);
         Parser p = al.newParser(lexer);
-        return p.parse(arg);
+        return (T) p.parse(arg);
     }
 
     /**
@@ -57,7 +58,7 @@ public class Exe {
      * @return the execution return value of the inputed code, if any
      */
     public <T> T eval(String code) {
-        return this.eval(code, null);
+        return (T) this.eval(code, null);
     }
 
     /**

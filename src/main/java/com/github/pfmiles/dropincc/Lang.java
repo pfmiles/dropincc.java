@@ -49,6 +49,11 @@ public class Lang implements Serializable {
     private List<TokenDef> tokens = new ArrayList<TokenDef>();
     private List<Grule> grules = new ArrayList<Grule>();
 
+    // debug messages generated while analyzing
+    private String debugMsgs;
+    // warn messages generated while analyzing
+    private String warnings;
+
     /**
      * Create language object with a name
      * 
@@ -98,11 +103,14 @@ public class Lang implements Serializable {
     }
 
     /**
-     * compile the rules to an more efficient form and ready for code gen.
+     * Compile the grammar and return the executable object. The returned object
+     * could be used for interpreting the newly defined language.
      */
     public Exe compile() {
         AnalyzedLang cl = new AnalyzedLang(this.name, this.tokens, this.grules, this.whiteSpaceSensitive);
         cl.compile();
+        this.debugMsgs = cl.getDebugMsgs();
+        this.warnings = cl.getWarnings();
         return new Exe(cl);
     }
 
@@ -156,6 +164,26 @@ public class Lang implements Serializable {
     // same equals method as Object.class needed
     public boolean equals(Object obj) {
         return super.equals(obj);
+    }
+
+    /**
+     * Get debug messages generated while grammar analyzing. Should be called
+     * after 'compile'.
+     * 
+     * @return
+     */
+    public String getDebugMsgs() {
+        return debugMsgs;
+    }
+
+    /**
+     * Get warnings generated while grammar analyzing. Should be called after
+     * 'compile'.
+     * 
+     * @return
+     */
+    public String getWarnings() {
+        return warnings;
     }
 
 }

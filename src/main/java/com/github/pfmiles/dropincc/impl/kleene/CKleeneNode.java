@@ -15,7 +15,6 @@ import java.util.List;
 
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.impl.EleType;
-import com.github.pfmiles.dropincc.impl.llstar.LookAheadDfa;
 
 /**
  * @author pf-miles
@@ -25,8 +24,6 @@ public class CKleeneNode implements Serializable {
 
     private static final long serialVersionUID = 2432393334358498343L;
     private List<EleType> contents;
-    // the LL(*) look-ahead DFA for kleene node predicting
-    private LookAheadDfa dfa;
 
     public CKleeneNode(List<EleType> contents) {
         if (contents == null || contents.isEmpty()) {
@@ -37,10 +34,6 @@ public class CKleeneNode implements Serializable {
 
     public List<EleType> getContents() {
         return contents;
-    }
-
-    public LookAheadDfa getDfa() {
-        return dfa;
     }
 
     // this class requires the same hashCode method to the Object class

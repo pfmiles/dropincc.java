@@ -83,7 +83,7 @@ Here is this resulting _Hello World_ example in dropincc.java:
     }
 
 As you can see, these dozens of lines of pure java code defined a non-trivial calculator which supports parentheses operation.  
-You can run the code above to get the output: `3389.0`. You can check this answer in the calculator app shipped along with your operation system.  
+You can run the code above to get the output: `3389.0`. You can check this answer in the calculator app shipped along with your operating system.  
 
 ### How to build such a Calculator? Step by step:
 First, write down the grammar rules as [EBNF](http://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form):   
@@ -166,7 +166,7 @@ Oops.. I almost forgot, in order to make the example code above run, all you nee
 
 More examples and documentation coming soon... You could explore the [wiki page](https://github.com/pfmiles/dropincc.java/wiki) or my [blog](http://pfmiles.github.com/blog/category/dropincc/) to find more information.
 
-### Mail list and discussion forum
+### Mailing list and discussion forum
 
 * [Dropincc Forum](http://dropincc-java.1068093.n5.nabble.com/). Click "Options > Post by email..." when you entered the forum to get the email address of our mailing list.
 * Feel free to discuss about dropincc.java and I'll reply ASAP.

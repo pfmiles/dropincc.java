@@ -33,23 +33,22 @@ import com.github.pfmiles.dropincc.impl.ConstructingGrule;
 import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.OrSubRule;
-import com.github.pfmiles.dropincc.impl.PredictingGrule;
 import com.github.pfmiles.dropincc.impl.SpecialType;
 import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.TypeMappingParam;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
-import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneStarType;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 import com.github.pfmiles.dropincc.impl.kleene.OptionalType;
 import com.github.pfmiles.dropincc.impl.llstar.GenedKleeneGruleType;
 import com.github.pfmiles.dropincc.impl.llstar.LlstarAnalysis;
-import com.github.pfmiles.dropincc.impl.llstar.LookAheadDfa;
+import com.github.pfmiles.dropincc.impl.llstar.PredictingGrule;
+import com.github.pfmiles.dropincc.impl.llstar.PredictingKleene;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.AltsActionsGen;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.CodeGenContext;
-import com.github.pfmiles.dropincc.impl.syntactical.codegen.ParserCodeGenResult;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.KleeneDfasGen;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.ParserClsGen;
+import com.github.pfmiles.dropincc.impl.syntactical.codegen.ParserCodeGenResult;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.PredsGen;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.RuleDfasGen;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.RuleMethodsGen;
@@ -186,14 +185,14 @@ public class ParserCompiler {
      * Detect left-recursions, which is not allowed in LL parsing
      * 
      */
-    public static void checkAndReportLeftRecursions(Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+    public static void checkAndReportLeftRecursions(Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, List<EleType>> kleeneTypeToNode) {
         SetStack<GruleType> path = new SetStack<GruleType>();
         for (Map.Entry<GruleType, List<CAlternative>> e : ruleTypeToAlts.entrySet())
             examineEleType(e.getKey(), path, ruleTypeToAlts, kleeneTypeToNode);
     }
 
     private static void examineEleType(EleType t, SetStack<GruleType> path, Map<GruleType, List<CAlternative>> ruleTypeToAlts,
-            Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+            Map<KleeneType, List<EleType>> kleeneTypeToNode) {
         if (t instanceof SpecialType) {
             return;
         } else if (t instanceof TokenType) {
@@ -214,8 +213,8 @@ public class ParserCompiler {
                 path.pop();
             }
         } else if (t instanceof KleeneType) {
-            CKleeneNode knode = kleeneTypeToNode.get(t);
-            for (EleType ele : knode.getContents()) {
+            List<EleType> knode = kleeneTypeToNode.get(t);
+            for (EleType ele : knode) {
                 examineEleType(ele, path, ruleTypeToAlts, kleeneTypeToNode);
                 if (!(ele instanceof KleeneStarType || ele instanceof OptionalType))
                     break;
@@ -233,15 +232,28 @@ public class ParserCompiler {
      * @param kleeneTypeToNode
      * @return
      */
-    public static Pair<List<PredictingGrule>, Map<KleeneType, LookAheadDfa>> computePredictingGrules(Map<GruleType, List<CAlternative>> ruleTypeToAlts,
-            Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+    public static PredictingResult computePredictingGrules(Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, List<EleType>> kleeneTypeToNode) {
         List<PredictingGrule> pgs = new ArrayList<PredictingGrule>();
         LlstarAnalysis a = new LlstarAnalysis(ruleTypeToAlts, kleeneTypeToNode);
+        Set<GruleType> nonLLRegularGrules = a.getNonLLRegularGrules();
+        Set<KleeneType> nonLLRegularKleenes = a.getNonLLRegularKleenes();
         for (Map.Entry<GruleType, List<CAlternative>> e : ruleTypeToAlts.entrySet()) {
             GruleType grule = e.getKey();
-            pgs.add(new PredictingGrule(grule, a.getLookAheadDfa(grule), e.getValue()));
+            if (nonLLRegularGrules.contains(grule)) {
+                pgs.add(new PredictingGrule(grule, e.getValue()));
+            } else {
+                pgs.add(new PredictingGrule(grule, a.getLookAheadDfa(grule), e.getValue()));
+            }
         }
-        return new Pair<List<PredictingGrule>, Map<KleeneType, LookAheadDfa>>(pgs, a.getKleenDfaMapping());
+        List<PredictingKleene> pks = new ArrayList<PredictingKleene>();
+        for (KleeneType ktype : kleeneTypeToNode.keySet()) {
+            if (nonLLRegularKleenes.contains(ktype)) {
+                pks.add(new PredictingKleene(ktype));
+            } else {
+                pks.add(new PredictingKleene(ktype, a.getKleenDfaMapping().get(ktype)));
+            }
+        }
+        return new PredictingResult(pgs, pks, a.getDebugMsg(), a.getWarnings());
     }
 
     /**
@@ -250,8 +262,8 @@ public class ParserCompiler {
      * @param predGrules
      * @return
      */
-    public static ParserCodeGenResult genParserCode(String parserName, GruleType startRule, List<PredictingGrule> predGrules, Map<KleeneType, LookAheadDfa> kleenTypeToDfa,
-            Collection<TokenType> tokenTypes, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+    public static ParserCodeGenResult genParserCode(String parserName, GruleType startRule, List<PredictingGrule> predGrules, List<PredictingKleene> pks,
+            Collection<TokenType> tokenTypes, Map<KleeneType, List<EleType>> kleeneTypeToNode) {
         TokenTypesGen tokenTypesGen = new TokenTypesGen(tokenTypes);
         // list([grule, altIndex, actionObj])
         List<Object[]> actionInfos = new ArrayList<Object[]>();
@@ -272,7 +284,7 @@ public class ParserCompiler {
         AltsActionsGen actionsGen = new AltsActionsGen(actionInfos);
         PredsGen predsGen = new PredsGen(predInfos);
         RuleDfasGen ruleDfaGen = new RuleDfasGen(predGrules);
-        KleeneDfasGen kleeneDfas = new KleeneDfasGen(kleenTypeToDfa);
+        KleeneDfasGen kleeneDfas = new KleeneDfasGen(pks);
         RuleMethodsGen ruleMethodsGen = new RuleMethodsGen(predGrules);
         ParserClsGen parserGen = new ParserClsGen(parserName, tokenTypesGen, actionsGen, predsGen, ruleDfaGen, kleeneDfas, startRule, ruleMethodsGen);
 
@@ -290,13 +302,13 @@ public class ParserCompiler {
      * @return
      */
     public static Pair<Map<GruleType, List<CAlternative>>, Map<KleeneType, GenedKleeneGruleType>> genAnalyzingGrulesForKleenes(
-            Map<KleeneType, CKleeneNode> kleeneTypeToNode, int base) {
+            Map<KleeneType, List<EleType>> kleeneTypeToNode, int base) {
         Map<GruleType, List<CAlternative>> genedGrules = new HashMap<GruleType, List<CAlternative>>();
         Map<KleeneType, GenedKleeneGruleType> kleeneToGenedGrule = new HashMap<KleeneType, GenedKleeneGruleType>();
         SeqGen seq = new SeqGen(base);
-        for (Map.Entry<KleeneType, CKleeneNode> e : kleeneTypeToNode.entrySet()) {
+        for (Map.Entry<KleeneType, List<EleType>> e : kleeneTypeToNode.entrySet()) {
             List<CAlternative> alts = new ArrayList<CAlternative>();
-            alts.add(new CAlternative(e.getValue().getContents(), null, null));
+            alts.add(new CAlternative(e.getValue(), null, null));
             alts.add(new CAlternative(Collections.<EleType> emptyList(), null, null));
             GenedKleeneGruleType gt = new GenedKleeneGruleType(seq.next());
             genedGrules.put(gt, alts);

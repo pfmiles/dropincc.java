@@ -16,7 +16,8 @@ import java.util.List;
 import com.github.pfmiles.dropincc.Action;
 import com.github.pfmiles.dropincc.ParamedAction;
 import com.github.pfmiles.dropincc.impl.CAlternative;
-import com.github.pfmiles.dropincc.impl.PredictingGrule;
+import com.github.pfmiles.dropincc.impl.llstar.PredictingGrule;
+import com.github.pfmiles.dropincc.impl.syntactical.codegen.rulemethods.AltBacktracks;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.rulemethods.AltSwitches;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.rulemethods.code.ElementsCodeGen;
 import com.github.pfmiles.dropincc.impl.util.Pair;
@@ -43,6 +44,10 @@ public class RuleMethodsGen extends CodeGen {
     // actionName {0}
     // paramName {1}
     private MessageFormat actIvkWithArg = new MessageFormat("{0}.act(arg, {1})");
+
+    // gruleName {0}
+    // altBackTracks {1}
+    private MessageFormat fmtBackTrack = this.getTemplate("ruleMethodBackTrack.dt");
 
     private List<PredictingGrule> pgs;
 
@@ -75,7 +80,9 @@ public class RuleMethodsGen extends CodeGen {
                         retVal = actIvkWithArg.format(new String[] { actionName, retVal == null ? "null" : retVal });
                     }
                 }
-                sb.append(fmtSingleAlt.format(new String[] { ruleName, varAndCode.getRight(), retVal == null ? "null" : retVal }));
+                sb.append(fmtSingleAlt.format(new String[] { ruleName, varAndCode.getRight(), retVal == null ? "null" : retVal })).append('\n');
+            } else if (p.isBacktrack()) {
+                sb.append(fmtBackTrack.format(new String[] { ruleName, new AltBacktracks(p.getAlts()).render(context) })).append('\n');
             } else {
                 sb.append(fmt.format(new String[] { ruleName, new AltSwitches(p.getAlts()).render(context) })).append('\n');
             }

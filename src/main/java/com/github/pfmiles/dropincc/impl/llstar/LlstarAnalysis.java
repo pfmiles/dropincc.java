@@ -26,7 +26,6 @@ import com.github.pfmiles.dropincc.impl.CAlternative;
 import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.TokenType;
-import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneCrossType;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneStarType;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
@@ -50,6 +49,9 @@ public class LlstarAnalysis {
     // warning messages generated while analyzing
     private StringBuilder warnings = new StringBuilder();
 
+    // debug messages generated while analyzing
+    private StringBuilder debugMsg = new StringBuilder();
+
     // the whole ATN network for the analyzing grammar
     private Atn atn;
 
@@ -60,13 +62,19 @@ public class LlstarAnalysis {
     // the resulting kleene node to look-ahead dfa mapping
     private Map<KleeneType, LookAheadDfa> kleenDfaMapping = new HashMap<KleeneType, LookAheadDfa>();
 
+    // grules which is not a LL(*) grammar
+    private Set<GruleType> nonLLRegularGrules = new HashSet<GruleType>();
+
+    // kleenes which is not LL-regular
+    private Set<KleeneType> nonLLRegularKleenes = new HashSet<KleeneType>();
+
     /**
      * Do analysis
      * 
      * @param ruleTypeToAlts
      * @param kleeneTypeToNode
      */
-    public LlstarAnalysis(Map<GruleType, List<CAlternative>> ruleTypeToAltsOriginal, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+    public LlstarAnalysis(Map<GruleType, List<CAlternative>> ruleTypeToAltsOriginal, Map<KleeneType, List<EleType>> kleeneTypeToNode) {
         Map<GruleType, List<CAlternative>> ruleTypeToAlts = new HashMap<GruleType, List<CAlternative>>(ruleTypeToAltsOriginal);
         // generate grules for every kleene node, add them to the
         // 'ruleTypeToAlts' mapping
@@ -105,13 +113,13 @@ public class LlstarAnalysis {
                             curState.addTransition(edge, nextState);
                             curState = nextState;
                         } else if (edge instanceof KleeneStarType) {
-                            this.atn.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) edge).getContents(), curState, grule, kleeneTypeToNode, contactPoints);
+                            this.atn.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) edge), curState, grule, kleeneTypeToNode, contactPoints);
                             AtnState nextState = this.atn.newAtnState(grule);
                             curState.addTransition(Constants.epsilon, nextState);
                             curState = nextState;
                             contactPoints.put((KleeneStarType) edge, curState);
                         } else if (edge instanceof KleeneCrossType) {
-                            List<EleType> contents = kleeneTypeToNode.get((KleeneCrossType) edge).getContents();
+                            List<EleType> contents = kleeneTypeToNode.get((KleeneCrossType) edge);
                             AtnState nextState = this.atn.newAtnState(grule);
                             this.atn.genTransitions(curState, contents, nextState, grule, kleeneTypeToNode, contactPoints);
                             curState = nextState;
@@ -121,7 +129,7 @@ public class LlstarAnalysis {
                             curState = nextState;
                             contactPoints.put((KleeneCrossType) edge, curState);
                         } else if (edge instanceof OptionalType) {
-                            List<EleType> contents = kleeneTypeToNode.get((OptionalType) edge).getContents();
+                            List<EleType> contents = kleeneTypeToNode.get((OptionalType) edge);
                             AtnState nextState = this.atn.newAtnState(grule);
                             this.atn.genTransitions(curState, contents, nextState, grule, kleeneTypeToNode, contactPoints);
                             curState.addTransition(Constants.epsilon, nextState);
@@ -145,7 +153,15 @@ public class LlstarAnalysis {
                 // there's no need to compute look-ahead dfa for a rule which
                 // has only one single alternative production
                 GruleType grule = e.getKey();
-                LookAheadDfa dfa = this.createAfa(this.atn.getStartState(grule), grule);
+                LookAheadDfa dfa = null;
+                try {
+                    dfa = this.createAfa(this.atn.getStartState(grule), grule);
+                } catch (NonLlRegularException ex) {
+                    this.nonLLRegularGrules.add(grule);
+                    continue;
+                }
+                if (dfa == null)
+                    throw new DropinccException("No look-ahead DFA found for a LL-regular rule: " + grule);
                 this.gruleDfaMapping.put(grule, dfa);
             }
         }
@@ -182,14 +198,22 @@ public class LlstarAnalysis {
             }
             allAlts.removeAll(finaledAlts);
             if (!allAlts.isEmpty()) {
-                this.warnings.append("WARNING: Alternative productions: ").append(allAlts).append(" would never be matched, ").append(" grule: ").append(grule);
+                this.warnings.append("WARNING: Alternative productions: ").append(allAlts).append(" would never be matched, ").append("grule: ").append(grule);
             }
             if (dfa.getStart() == null)
                 throw new DropinccException("No start state found for look ahead dfa of grule: " + grule + ", error!");
         }
         // build dfa mapping for generated kleene grule types.
         for (Map.Entry<KleeneType, GenedKleeneGruleType> e : kleeneGenedGruleMapping.entrySet()) {
-            this.kleenDfaMapping.put(e.getKey(), this.gruleDfaMapping.get(e.getValue()));
+            KleeneType ktype = e.getKey();
+            GenedKleeneGruleType gtype = e.getValue();
+            if (this.nonLLRegularGrules.contains(gtype)) {
+                this.nonLLRegularKleenes.add(ktype);
+            } else {
+                if (!this.gruleDfaMapping.containsKey(gtype))
+                    throw new DropinccException("No look-ahead DFA found for a LL-regular rule: " + gtype);
+                this.kleenDfaMapping.put(ktype, this.gruleDfaMapping.get(gtype));
+            }
         }
     }
 
@@ -251,7 +275,7 @@ public class LlstarAnalysis {
             if (c.getAlt() != minAlt)
                 iter.remove();
         }
-        this.warnings.append("State: ").append(stateStr)
+        this.debugMsg.append("State: ").append(stateStr)
                 .append(" overflowed, resolved by removing all competing alternatives except the one defined first, remaining alt: ").append(minAlt).append(". Grule: ")
                 .append(grule).append('\n');
     }
@@ -304,7 +328,7 @@ public class LlstarAnalysis {
             if (c.getAlt() != minAlt)
                 iter.remove();
         }
-        this.warnings.append("State: ").append(stateStr).append(" has conflict predicting alternatives: ").append(allPredictingAlts)
+        this.debugMsg.append("State: ").append(stateStr).append(" has conflict predicting alternatives: ").append(allPredictingAlts)
                 .append(", resolved by selecting the first alt: ").append(minAlt).append(". Grule: ").append(grule).append('\n');
     }
 
@@ -317,8 +341,11 @@ public class LlstarAnalysis {
      *            the destination atn config of the previous transition
      * @return set containing the specified conf and all its epsilon/subrule
      *         closure confs
+     * @throws NonLlRegularException
+     *             thrown when the analysis algorithm detectes the analyzing
+     *             grammar rule is not LL-regular
      */
-    public Set<AtnConfig> closure(DfaState state, AtnConfig conf) {
+    public Set<AtnConfig> closure(DfaState state, AtnConfig conf, GruleType grule) throws NonLlRegularException {
         if (state.inBusy(conf)) {
             return Collections.emptySet();
         } else {
@@ -335,10 +362,10 @@ public class LlstarAnalysis {
         if (p.isFinal()) {
             if (y.isEmpty()) {
                 for (AtnState p2 : this.atn.getAllDestinationsOf(this.atn.getGruleTypeByAtnState(p)))
-                    ret.addAll(closure(state, new AtnConfig(p2, i, new CallStack(), pi)));
+                    ret.addAll(closure(state, new AtnConfig(p2, i, new CallStack(), pi), grule));
             } else {
                 Pair<AtnState, CallStack> ss = y.copyAndPop();
-                ret.addAll(closure(state, new AtnConfig(ss.getLeft(), i, ss.getRight(), pi)));
+                ret.addAll(closure(state, new AtnConfig(ss.getLeft(), i, ss.getRight(), pi), grule));
             }
         }
         for (Pair<Object, AtnState> transPairs : p.getTransitionsAsPairs()) {
@@ -354,8 +381,8 @@ public class LlstarAnalysis {
                 if (depth == 1) {
                     state.addRecursiveAlt(i);
                     if (state.getRecursiveAlts().size() > 1) {
-                        throw new DropinccException("Likely non-LL regular grammar, recursive alts: " + state.getRecursiveAlts() + ", rule: "
-                                + this.atn.getGruleTypeByAtnState(p));
+                        this.warnings.append("Likely non-LL regular grammar, recursive alts: " + state.getRecursiveAlts() + ", rule: " + grule);
+                        throw new NonLlRegularException();
                     }
                 }
                 if (depth >= Constants.MAX_REC_DEPTH) {
@@ -366,16 +393,27 @@ public class LlstarAnalysis {
                 // closure with the starting state of edge(a grule type)
                 CallStack stk = y.clone();
                 stk.push(s);
-                ret.addAll(closure(state, new AtnConfig(this.atn.getStartState((GruleType) edge), i, stk, pi)));
+                ret.addAll(closure(state, new AtnConfig(this.atn.getStartState((GruleType) edge), i, stk, pi), grule));
             } else if (edge instanceof Predicate || edge.equals(Constants.epsilon)) {
                 // is predicate or epsilon transition
-                ret.addAll(closure(state, new AtnConfig(s, i, y.clone(), pi)));
+                ret.addAll(closure(state, new AtnConfig(s, i, y.clone(), pi), grule));
             }
         }
         return ret;
     }
 
-    public LookAheadDfa createAfa(AtnState atnStartState, GruleType gruleType) {
+    /**
+     * The main algorithm of LL(*) analysis
+     * 
+     * @param atnStartState
+     *            the start state of the analyzing rule's ATN
+     * @param gruleType
+     *            the analyzing rule's type
+     * @return the look-ahead DFA generated for the analyzing rule
+     * @throws NonLlRegularException
+     *             thrown when the analyzing rule is not a LL(*) grammar rule
+     */
+    public LookAheadDfa createAfa(AtnState atnStartState, GruleType gruleType) throws NonLlRegularException {
         LookAheadDfa ret = new LookAheadDfa();
         Deque<DfaState> work = new ArrayDeque<DfaState>();
         DfaState D0 = new DfaState();
@@ -390,7 +428,7 @@ public class LlstarAnalysis {
             Object first_t = pa_i.getTransitions().entrySet().iterator().next().getKey();
             if (first_t instanceof Predicate)
                 pi = (Predicate) first_t;
-            D0.addAllConfs(closure(D0, new AtnConfig(pa_i, extractAltFromAltState(pa_i), new CallStack(), pi)));
+            D0.addAllConfs(closure(D0, new AtnConfig(pa_i, extractAltFromAltState(pa_i), new CallStack(), pi), gruleType));
             D0.releaseBusy();
         }
         work.push(D0);
@@ -409,7 +447,7 @@ public class LlstarAnalysis {
                 // move & closure
                 DfaState newState = new DfaState();
                 for (AtnConfig conf : state.move(a)) {
-                    newState.addAllConfs(closure(state, conf));
+                    newState.addAllConfs(closure(state, conf, gruleType));
                     state.releaseBusy();
                     // state may be marked overflowed while closuring, so it
                     // must be resolved
@@ -498,8 +536,22 @@ public class LlstarAnalysis {
         return Integer.parseInt(name.substring(name.indexOf('_') + 1));
     }
 
+    /**
+     * Get warnings generated while analyzing
+     * 
+     * @return
+     */
     public String getWarnings() {
         return warnings.toString();
+    }
+
+    /**
+     * Get debug messages generated while analyzing
+     * 
+     * @return
+     */
+    public String getDebugMsg() {
+        return debugMsg.toString();
     }
 
     public Atn getAtn() {
@@ -523,6 +575,24 @@ public class LlstarAnalysis {
      */
     public Map<KleeneType, LookAheadDfa> getKleenDfaMapping() {
         return kleenDfaMapping;
+    }
+
+    /**
+     * Get grules which is non-LL regular
+     * 
+     * @return
+     */
+    public Set<GruleType> getNonLLRegularGrules() {
+        return nonLLRegularGrules;
+    }
+
+    /**
+     * Get kleene types which is not LL-regular
+     * 
+     * @return
+     */
+    public Set<KleeneType> getNonLLRegularKleenes() {
+        return nonLLRegularKleenes;
     }
 
 }

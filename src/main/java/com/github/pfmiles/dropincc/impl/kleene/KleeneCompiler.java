@@ -108,10 +108,10 @@ public class KleeneCompiler {
      * @param typeMappingParam
      * @return
      */
-    public static Map<KleeneType, CKleeneNode> buildKleeneTypeToNode(TypeMappingParam param) {
-        Map<KleeneType, CKleeneNode> kleeneTypeToNode = new HashMap<KleeneType, CKleeneNode>();
+    public static Map<KleeneType, List<EleType>> buildKleeneTypeToNode(TypeMappingParam param) {
+        Map<KleeneType, List<EleType>> kleeneTypeToNode = new HashMap<KleeneType, List<EleType>>();
         for (Map.Entry<AbstractKleeneNode, KleeneType> entry : param.getKleeneTypeMapping().entrySet()) {
-            kleeneTypeToNode.put(entry.getValue(), new CKleeneNode(resolveCKleeneNode(entry.getKey(), param)));
+            kleeneTypeToNode.put(entry.getValue(), resolveCKleeneNode(entry.getKey(), param));
         }
         return kleeneTypeToNode;
     }

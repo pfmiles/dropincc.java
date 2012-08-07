@@ -22,7 +22,6 @@ import com.github.pfmiles.dropincc.Exe;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
 import com.github.pfmiles.dropincc.TokenDef;
-import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneStarNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneStarType;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
@@ -209,10 +208,10 @@ public class AnalyzedLangTest extends TestCase {
                 assertTrue(false);// error num of grules
             }
         }
-        Map<KleeneType, CKleeneNode> kleeneTypeToNode = alang.getKleeneTypeToNode();
+        Map<KleeneType, List<EleType>> kleeneTypeToNode = alang.getKleeneTypeToNode();
         assertTrue(kleeneTypeToNode.size() == 2);
-        for (Map.Entry<KleeneType, CKleeneNode> entry : kleeneTypeToNode.entrySet()) {
-            List<EleType> matchSeq = entry.getValue().getContents();
+        for (Map.Entry<KleeneType, List<EleType>> entry : kleeneTypeToNode.entrySet()) {
+            List<EleType> matchSeq = entry.getValue();
             switch (entry.getKey().getDefIndex()) {
             case 0:
                 assertTrue(matchSeq.size() == 2);

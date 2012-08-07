@@ -20,7 +20,6 @@ import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.TokenType;
-import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneCrossType;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneStarType;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
@@ -171,7 +170,7 @@ public class Atn {
      * @param kleeneTypeToNode
      * @param contactPoints
      */
-    public void genTransitions(AtnState start, List<EleType> edges, AtnState end, GruleType grule, Map<KleeneType, CKleeneNode> kleeneTypeToNode,
+    public void genTransitions(AtnState start, List<EleType> edges, AtnState end, GruleType grule, Map<KleeneType, List<EleType>> kleeneTypeToNode,
             Map<KleeneType, AtnState> contactPoints) {
         AtnState curState = start;
         EleType lastEdge = edges.get(edges.size() - 1);
@@ -183,13 +182,13 @@ public class Atn {
                 curState.addTransition(edge, nextState);
                 curState = nextState;
             } else if (edge instanceof KleeneStarType) {
-                this.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) edge).getContents(), curState, grule, kleeneTypeToNode, contactPoints);
+                this.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) edge), curState, grule, kleeneTypeToNode, contactPoints);
                 AtnState nextState = this.newAtnState(grule);
                 curState.addTransition(Constants.epsilon, nextState);
                 curState = nextState;
                 contactPoints.put((KleeneStarType) edge, curState);
             } else if (edge instanceof KleeneCrossType) {
-                List<EleType> content = kleeneTypeToNode.get((KleeneCrossType) edge).getContents();
+                List<EleType> content = kleeneTypeToNode.get((KleeneCrossType) edge);
                 AtnState nextState = this.newAtnState(grule);
                 this.genTransitions(curState, content, nextState, grule, kleeneTypeToNode, contactPoints);
                 curState = nextState;
@@ -199,7 +198,7 @@ public class Atn {
                 curState = nextState;
                 contactPoints.put((KleeneCrossType) edge, curState);
             } else if (edge instanceof OptionalType) {
-                List<EleType> contents = kleeneTypeToNode.get((OptionalType) edge).getContents();
+                List<EleType> contents = kleeneTypeToNode.get((OptionalType) edge);
                 AtnState nextState = this.newAtnState(grule);
                 this.genTransitions(curState, contents, nextState, grule, kleeneTypeToNode, contactPoints);
                 curState.addTransition(Constants.epsilon, nextState);
@@ -213,11 +212,11 @@ public class Atn {
         if (lastEdge instanceof TokenType || lastEdge instanceof GruleType) {
             curState.addTransition(lastEdge, end);
         } else if (lastEdge instanceof KleeneStarType) {
-            this.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) lastEdge).getContents(), curState, grule, kleeneTypeToNode, contactPoints);
+            this.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) lastEdge), curState, grule, kleeneTypeToNode, contactPoints);
             curState.addTransition(Constants.epsilon, end);
             contactPoints.put((KleeneStarType) lastEdge, end);
         } else if (lastEdge instanceof KleeneCrossType) {
-            List<EleType> content = kleeneTypeToNode.get((KleeneCrossType) lastEdge).getContents();
+            List<EleType> content = kleeneTypeToNode.get((KleeneCrossType) lastEdge);
             AtnState nextState = this.newAtnState(grule);
             this.genTransitions(curState, content, nextState, grule, kleeneTypeToNode, contactPoints);
             curState = nextState;
@@ -225,7 +224,7 @@ public class Atn {
             curState.addTransition(Constants.epsilon, end);
             contactPoints.put((KleeneCrossType) lastEdge, end);
         } else if (lastEdge instanceof OptionalType) {
-            List<EleType> contents = kleeneTypeToNode.get((OptionalType) lastEdge).getContents();
+            List<EleType> contents = kleeneTypeToNode.get((OptionalType) lastEdge);
             this.genTransitions(curState, contents, end, grule, kleeneTypeToNode, contactPoints);
             curState.addTransition(Constants.epsilon, end);
             contactPoints.put((OptionalType) lastEdge, end);

@@ -11,12 +11,13 @@
 package com.github.pfmiles.dropincc.impl.syntactical.codegen;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.github.pfmiles.dropincc.Predicate;
+import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.GruleType;
 import com.github.pfmiles.dropincc.impl.TokenType;
-import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 import com.github.pfmiles.dropincc.impl.runtime.impl.RunningDfaState;
 import com.github.pfmiles.dropincc.impl.util.SeqGen;
@@ -29,7 +30,7 @@ import com.github.pfmiles.dropincc.impl.util.SeqGen;
  */
 public class CodeGenContext {
 
-    public CodeGenContext(Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+    public CodeGenContext(Map<KleeneType, List<EleType>> kleeneTypeToNode) {
         this.kleeneTypeToNode = kleeneTypeToNode;
     }
 
@@ -78,6 +79,6 @@ public class CodeGenContext {
     /**
      * KleeneType to kleene node mapping
      */
-    public Map<KleeneType, CKleeneNode> kleeneTypeToNode;
+    public Map<KleeneType, List<EleType>> kleeneTypeToNode;
 
 }

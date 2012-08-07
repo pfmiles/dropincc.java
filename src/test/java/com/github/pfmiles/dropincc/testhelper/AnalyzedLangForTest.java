@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.pfmiles.dropincc.impl.CAlternative;
+import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.GruleType;
-import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 
 /**
@@ -24,7 +24,7 @@ import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
  */
 public class AnalyzedLangForTest {
 
-    public Map<KleeneType, CKleeneNode> kleeneTypeToNode;
+    public Map<KleeneType, List<EleType>> kleeneTypeToNode;
     public Map<GruleType, List<CAlternative>> ruleTypeToAlts;
 
 }

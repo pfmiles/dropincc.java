@@ -25,12 +25,12 @@ import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.hotcompile.CompilationResult;
 import com.github.pfmiles.dropincc.impl.hotcompile.HotCompileUtil;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
-import com.github.pfmiles.dropincc.impl.kleene.CKleeneNode;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneCompiler;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 import com.github.pfmiles.dropincc.impl.lexical.LexerCompiler;
 import com.github.pfmiles.dropincc.impl.llstar.GenedKleeneGruleType;
-import com.github.pfmiles.dropincc.impl.llstar.LookAheadDfa;
+import com.github.pfmiles.dropincc.impl.llstar.PredictingGrule;
+import com.github.pfmiles.dropincc.impl.llstar.PredictingKleene;
 import com.github.pfmiles.dropincc.impl.runtime.Parser;
 import com.github.pfmiles.dropincc.impl.runtime.impl.Lexer;
 import com.github.pfmiles.dropincc.impl.runtime.impl.LexerPrototype;
@@ -39,6 +39,7 @@ import com.github.pfmiles.dropincc.impl.runtime.impl.PreWrittenStringLexerProtot
 import com.github.pfmiles.dropincc.impl.runtime.impl.StatelessParserPrototype;
 import com.github.pfmiles.dropincc.impl.syntactical.GenedGruleType;
 import com.github.pfmiles.dropincc.impl.syntactical.ParserCompiler;
+import com.github.pfmiles.dropincc.impl.syntactical.PredictingResult;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.ParserCodeGenResult;
 import com.github.pfmiles.dropincc.impl.util.Pair;
 
@@ -79,14 +80,14 @@ public class AnalyzedLang {
     // 'gruleTypeMapping' immidiatelly
     private Map<AbstractKleeneNode, KleeneType> kleeneTypeMapping;
 
-    // kleene node Type -> 'compiled' kleene node mapping, built while
+    // kleene node Type -> match sequence mapping, built while
     // 'AnalyzedLang' compiling(resolveParserAst). For later analysis & code gen
-    private Map<KleeneType, CKleeneNode> kleeneTypeToNode;
+    private Map<KleeneType, List<EleType>> kleeneTypeToNode;
 
     // grules along with look-ahead dfas, about to generate code
     private List<PredictingGrule> predGrules;
-    // kleene type to its look ahead dfa mapping
-    private Map<KleeneType, LookAheadDfa> kleeneTypeToDfa;
+    // kleenes along with its look-ahead dfas
+    private List<PredictingKleene> predKleenes;
 
     // the compiled lexer prototype
     private LexerPrototype lexerPrototype;
@@ -94,6 +95,9 @@ public class AnalyzedLang {
     private String parserCode;
     // the compiled parser prototype
     private ParserPrototype parserPrototype;
+
+    private String debugMsgs;
+    private String warnings;
 
     public AnalyzedLang(String name, List<TokenDef> tokens, List<Grule> grules, boolean whitespaceSensitive) {
         this.langName = name;
@@ -141,17 +145,18 @@ public class AnalyzedLang {
         ParserCompiler.checkAndReportLeftRecursions(this.ruleTypeToAlts, this.kleeneTypeToNode);
 
         // 4.compute predicts, LL(*), detect and report rule conflicts
-        Pair<List<PredictingGrule>, Map<KleeneType, LookAheadDfa>> gruleAndKleeneDfas = ParserCompiler
-                .computePredictingGrules(this.ruleTypeToAlts, this.kleeneTypeToNode);
-        this.predGrules = gruleAndKleeneDfas.getLeft();
-        this.kleeneTypeToDfa = gruleAndKleeneDfas.getRight();
+        PredictingResult predResults = ParserCompiler.computePredictingGrules(this.ruleTypeToAlts, this.kleeneTypeToNode);
+        this.predGrules = predResults.getPgs();
+        this.predKleenes = predResults.getPks();
+        this.debugMsgs = predResults.getDebugMsgs();
+        this.warnings = predResults.getWarnings();
 
         // 5.lexer code gen(TODO using pre-written template code currently,
         // should support stream tokenizing in the future)
         this.lexerPrototype = new PreWrittenStringLexerPrototype(this.groupNumToType, this.tokenPatterns, this.whitespaceSensitive);
 
         // 6.parser code gen
-        ParserCodeGenResult parserCodeGenResult = ParserCompiler.genParserCode(this.langName, this.startRuleType, this.predGrules, this.kleeneTypeToDfa,
+        ParserCodeGenResult parserCodeGenResult = ParserCompiler.genParserCode(this.langName, this.startRuleType, this.predGrules, this.predKleenes,
                 tokenTypeMapping.values(), this.kleeneTypeToNode);
         this.parserCode = parserCodeGenResult.getCode();
 
@@ -164,7 +169,7 @@ public class AnalyzedLang {
     }
 
     // a grammar rule is the start rule if no other rules invokes it
-    private GruleType resolveStartGruleType(Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, CKleeneNode> kleeneTypeToNode) {
+    private GruleType resolveStartGruleType(Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, List<EleType>> kleeneTypeToNode) {
         Set<GruleType> allGs = new HashSet<GruleType>();
         for (GruleType t : ruleTypeToAlts.keySet()) {
             if (!(t instanceof GenedGruleType) && !(t instanceof GenedKleeneGruleType))
@@ -191,7 +196,7 @@ public class AnalyzedLang {
     }
 
     private void filterOutInvokedGrule(List<EleType> matchSequence, Set<GruleType> allGs, Map<GruleType, List<CAlternative>> ruleTypeToAlts,
-            Map<KleeneType, CKleeneNode> kleeneTypeToNode, Set<GruleType> enteredGrule) {
+            Map<KleeneType, List<EleType>> kleeneTypeToNode, Set<GruleType> enteredGrule) {
         for (EleType ele : matchSequence) {
             if (ele instanceof TokenType) {
                 continue;
@@ -204,7 +209,7 @@ public class AnalyzedLang {
                     }
                 }
             } else if (ele instanceof KleeneType) {
-                filterOutInvokedGrule(kleeneTypeToNode.get((KleeneType) ele).getContents(), allGs, ruleTypeToAlts, kleeneTypeToNode, enteredGrule);
+                filterOutInvokedGrule(kleeneTypeToNode.get((KleeneType) ele), allGs, ruleTypeToAlts, kleeneTypeToNode, enteredGrule);
             } else {
                 throw new DropinccException("Unhandled element type when finding start rule: " + ele);
             }
@@ -238,7 +243,7 @@ public class AnalyzedLang {
         return gruleTypeMapping;
     }
 
-    public Map<KleeneType, CKleeneNode> getKleeneTypeToNode() {
+    public Map<KleeneType, List<EleType>> getKleeneTypeToNode() {
         return kleeneTypeToNode;
     }
 
@@ -252,6 +257,14 @@ public class AnalyzedLang {
 
     public Pattern getTokenPatterns() {
         return tokenPatterns;
+    }
+
+    public String getDebugMsgs() {
+        return debugMsgs;
+    }
+
+    public String getWarnings() {
+        return warnings;
     }
 
 }

@@ -26,7 +26,7 @@ import com.github.pfmiles.dropincc.ParamedAction;
 import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.Alternative;
 import com.github.pfmiles.dropincc.impl.GruleType;
-import com.github.pfmiles.dropincc.impl.PredictingGrule;
+import com.github.pfmiles.dropincc.impl.llstar.PredictingGrule;
 import com.github.pfmiles.dropincc.testhelper.AnalyzedLangForTest;
 import com.github.pfmiles.dropincc.testhelper.TestHelper;
 
@@ -237,7 +237,7 @@ public class ParserCompilerTest extends TestCase {
         ll1.defineGrule(A, CC.EOF);
         A.define(a, CC.ks(c)).alt(b, CC.ks(c));
         AnalyzedLangForTest al = TestHelper.resolveAnalyzedLangForTest(ll1);
-        List<PredictingGrule> ps = ParserCompiler.computePredictingGrules(al.ruleTypeToAlts, al.kleeneTypeToNode).getLeft();
+        List<PredictingGrule> ps = ParserCompiler.computePredictingGrules(al.ruleTypeToAlts, al.kleeneTypeToNode).getPgs();
         // System.out.println(ps);
         assertTrue(ps.size() == 2);
     }
@@ -261,7 +261,7 @@ public class ParserCompilerTest extends TestCase {
         D.define("i", "j", "k", "l").alt("i", "j", "k", "m");
 
         AnalyzedLangForTest al = TestHelper.resolveAnalyzedLangForTest(ll3);
-        List<PredictingGrule> ps = ParserCompiler.computePredictingGrules(al.ruleTypeToAlts, al.kleeneTypeToNode).getLeft();
+        List<PredictingGrule> ps = ParserCompiler.computePredictingGrules(al.ruleTypeToAlts, al.kleeneTypeToNode).getPgs();
         // System.out.println(ps);
         assertTrue(ps.size() == 5);
     }
@@ -310,5 +310,24 @@ public class ParserCompilerTest extends TestCase {
 
         Exe exe = lang.compile();
         assertTrue(exe.eval("1+2", "hello") != null);
+    }
+
+    /**
+     * <pre>
+     * S ::= A $
+     * A ::= a b c
+     *     | a b c
+     * </pre>
+     */
+    public void testDebugAndWarningsMsgs() {
+        Lang lang = new Lang("Test");
+        Grule A = lang.newGrule();
+        lang.defineGrule(A, CC.EOF);
+        A.define("a", "b", "c").alt("a", "b", "c");
+        lang.compile();
+        // System.out.println(lang.getDebugMsgs());
+        assertTrue(lang.getDebugMsgs() != null);
+        // System.out.println(lang.getWarnings());
+        assertTrue(lang.getWarnings() != null);
     }
 }
