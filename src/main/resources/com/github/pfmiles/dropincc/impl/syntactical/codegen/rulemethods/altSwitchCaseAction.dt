@@ -1,0 +1,8 @@
+case {0}:
+
+    {1}
+    if (lexer.isBacktracking()) '{'
+        return new DelayedAction({3}, {4});
+	'}' else '{'
+		return {2};
+	'}'

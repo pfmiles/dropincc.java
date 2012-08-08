@@ -3,4 +3,8 @@ while (kleenePredicting({1}DfaStart, "{4}")) '{'
 	{2}
     ((List<Object>) {0}).add({3});
 '}'
-{0} = ((List<Object>) {0}).toArray();
+if (lexer.isBacktracking()) '{'
+    {0} = new DelayedAction(null, ((List<Object>) {0}).toArray());
+'}' else '{'
+    {0} = ((List<Object>) {0}).toArray();
+'}'

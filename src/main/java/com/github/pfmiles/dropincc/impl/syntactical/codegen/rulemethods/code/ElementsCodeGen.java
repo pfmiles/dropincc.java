@@ -33,7 +33,7 @@ public class ElementsCodeGen extends CodeGen {
 
     // varName {0}
     // varContent {1}
-    private static final MessageFormat multiVarFmt = new MessageFormat("Object[] {0} = new Object[] '{' {1} '}';");
+    private final MessageFormat multiVarFmt = this.getTemplate("multiVar.dt");
 
     // varName {0}
     // tokenTypeName {1}

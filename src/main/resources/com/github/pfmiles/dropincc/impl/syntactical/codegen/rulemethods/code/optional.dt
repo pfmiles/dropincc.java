@@ -1,5 +1,5 @@
 Object {0} = null;
 if (kleenePredicting({1}DfaStart, "{4}")) '{'
     {2}
-    {0} = {3};
+	{0} = {3};
 '}'

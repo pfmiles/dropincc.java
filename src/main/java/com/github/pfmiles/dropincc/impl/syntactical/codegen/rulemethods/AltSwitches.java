@@ -32,9 +32,14 @@ public class AltSwitches extends CodeGen {
     // case number {0}
     // code {1}
     // retval {2} (with action invoke)
-    // actoinName {3}
-    // rawRetVal {4} (without action invoke)
     private MessageFormat caseFmt = this.getTemplate("altSwitchCase.dt");
+
+    // case number {0}
+    // code {1}
+    // retval {2} (with action invoke)
+    // actionName {3}
+    // rawValName {4}
+    private MessageFormat caseFmtAction = this.getTemplate("altSwitchCaseAction.dt");
 
     // actionName {0}
     // paramName {1}
@@ -66,10 +71,12 @@ public class AltSwitches extends CodeGen {
                 } else if (action instanceof ParamedAction) {
                     retVal = actIvkWithArg.format(new String[] { actionName, retVal == null ? "null" : retVal });
                 }
+                sb.append(
+                        caseFmtAction.format(new String[] { String.valueOf(caseNum), varAndCode.getRight(), retVal == null ? "null" : retVal, actionName,
+                                rawRetVal == null ? "null" : rawRetVal })).append('\n');
+            } else {
+                sb.append(caseFmt.format(new String[] { String.valueOf(caseNum), varAndCode.getRight(), retVal == null ? "null" : retVal })).append('\n');
             }
-            sb.append(
-                    caseFmt.format(new String[] { String.valueOf(caseNum), varAndCode.getRight(), retVal == null ? "null" : retVal, actionName,
-                            rawRetVal == null ? "null" : rawRetVal })).append('\n');
         }
         return sb.toString();
     }
