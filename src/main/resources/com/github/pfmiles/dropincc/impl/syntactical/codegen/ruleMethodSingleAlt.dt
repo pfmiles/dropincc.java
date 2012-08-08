@@ -1,4 +1,8 @@
 public Object {0}(Object arg) '{'
     {1}
-    return {2};
+    if (lexer.isBacktracking()) '{'
+        return new DelayedAction({3}, {4});
+    '}' else '{'
+        return {2};
+    '}'
 '}'

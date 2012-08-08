@@ -35,7 +35,9 @@ public class RuleMethodsGen extends CodeGen {
     private final MessageFormat fmt = this.getTemplate("ruleMethod.dt");
     // ruleName {0}
     // matchCode {1}
-    // retVar {2}
+    // retVar {2} (with action invoke)
+    // actionName {3}
+    // rawRetVar {4} (without actoin invoke)
     private final MessageFormat fmtSingleAlt = this.getTemplate("ruleMethodSingleAlt.dt");
     // actionName {0}
     // paramName {1}
@@ -70,17 +72,21 @@ public class RuleMethodsGen extends CodeGen {
                 CAlternative alt = p.getAlts().get(0);
                 Pair<String, String> varAndCode = new ElementsCodeGen(alt.getMatchSequence()).render(context);
                 String retVal = varAndCode.getLeft();
+                String rawRetVal = retVal;
+                String actionName = "null";
                 if (alt.getAction() != null) {
                     // action invocation format
                     Object action = alt.getAction();
-                    String actionName = context.actionFieldMapping.get(action);
+                    actionName = context.actionFieldMapping.get(action);
                     if (action instanceof Action) {
                         retVal = actIvk.format(new String[] { actionName, retVal == null ? "null" : retVal });
                     } else if (action instanceof ParamedAction) {
                         retVal = actIvkWithArg.format(new String[] { actionName, retVal == null ? "null" : retVal });
                     }
                 }
-                sb.append(fmtSingleAlt.format(new String[] { ruleName, varAndCode.getRight(), retVal == null ? "null" : retVal })).append('\n');
+                sb.append(
+                        fmtSingleAlt.format(new String[] { ruleName, varAndCode.getRight(), retVal == null ? "null" : retVal, actionName,
+                                rawRetVal == null ? "null" : rawRetVal })).append('\n');
             } else if (p.isBacktrack()) {
                 sb.append(fmtBackTrack.format(new String[] { ruleName, new AltBacktracks(p.getAlts()).render(context) })).append('\n');
             } else {

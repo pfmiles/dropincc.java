@@ -10,6 +10,9 @@
  ******************************************************************************/
 package com.github.pfmiles.dropincc;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import junit.framework.TestCase;
 
 import com.github.pfmiles.dropincc.calctest.Calculator;
@@ -108,7 +111,7 @@ public class LangTest extends TestCase {
 
     /**
      * Non LL-regular rule test; Test delayed actions and all actions should be
-     * fired only once.
+     * fired only once.(all rules are backtracking)
      * 
      * <pre>
      * S ::= A $
@@ -172,16 +175,155 @@ public class LangTest extends TestCase {
         });
 
         Exe exe = lang.compile();
-        System.out.println(lang.getDebugMsgs());
-        System.out.println(lang.getWarnings());
         assertTrue(lang.getWarnings() != null);
         Pair<String, Integer> gcount = new Pair<String, Integer>("g", 0);
-        System.out.println(exe.eval("ggbfd", gcount));
+        exe.eval("ggbfd", gcount);
         assertTrue(gcount.getRight() == 2);
         gcount.setRight(0);
-        System.out.println(exe.eval("ggggggggggbfd", gcount));
+        exe.eval("ggggggggggbfd", gcount);
         assertTrue(gcount.getRight() == 10);
     }
-    
-    
+
+    /**
+     * <pre>
+     * S ::= A $
+     * A ::= B c
+     *     | B d
+     * B ::= b
+     *     | e B f
+     * </pre>
+     */
+    public void testOneRuleNonLLRegular() {
+        Map<String, Integer> actionCounter = new HashMap<String, Integer>();
+        Lang lang = new Lang("Test");
+        Grule A = lang.newGrule();
+        lang.defineGrule(A, CC.EOF).action(new ParamedAction<Map<String, Integer>>() {
+            public Object act(Map<String, Integer> arg, Object matched) {
+                String k = this.getClass().getName();// 12
+                if (arg.containsKey(k)) {
+                    arg.put(k, arg.get(k) + 1);
+                } else {
+                    arg.put(k, 1);
+                }
+                assertTrue(arg.get(k) <= 1);
+                Object[] ms = (Object[]) matched;
+                return ms[0];
+            }
+        });
+        Grule B = lang.newGrule();
+        A.define(B, "c").action(new ParamedAction<Map<String, Integer>>() {
+            public Object act(Map<String, Integer> arg, Object matched) {
+                assertTrue(false);// would never entered
+                String k = this.getClass().getName();
+                if (arg.containsKey(k)) {
+                    arg.put(k, arg.get(k) + 1);
+                } else {
+                    arg.put(k, 1);
+                }
+                Object[] ms = (Object[]) matched;
+                return (String) ms[0] + (String) ms[1];
+            }
+        }).alt(B, "d").action(new ParamedAction<Map<String, Integer>>() {
+            public Object act(Map<String, Integer> arg, Object matched) {
+                String k = this.getClass().getName();// 14
+                if (arg.containsKey(k)) {
+                    arg.put(k, arg.get(k) + 1);
+                } else {
+                    arg.put(k, 1);
+                }
+                assertTrue(arg.get(k) <= 1);
+                Object[] ms = (Object[]) matched;
+                return (String) ms[0] + (String) ms[1];
+            }
+        });
+        B.define("b").action(new ParamedAction<Map<String, Integer>>() {
+            public Object act(Map<String, Integer> arg, Object matched) {
+                String k = this.getClass().getName();// 15
+                if (arg.containsKey(k)) {
+                    arg.put(k, arg.get(k) + 1);
+                } else {
+                    arg.put(k, 1);
+                }
+                assertTrue(arg.get(k) == 1);
+                return matched;
+            }
+        }).alt("e", B, "f").action(new ParamedAction<Map<String, Integer>>() {
+            public Object act(Map<String, Integer> arg, Object matched) {
+                String k = this.getClass().getName();// 16
+                if (arg.containsKey(k)) {
+                    arg.put(k, arg.get(k) + 1);
+                } else {
+                    arg.put(k, 1);
+                }
+                assertTrue(arg.get(k) <= 2);
+                Object[] ms = (Object[]) matched;
+                return (String) ms[0] + (String) ms[1] + (String) ms[2];
+            }
+        });
+
+        Exe exe = lang.compile();
+        assertTrue(lang.getWarnings() != null);
+        exe.eval("eebffd", actionCounter);
+    }
+
+    /**
+     * Backtracking with an alt empty.
+     * 
+     * <pre>
+     * S ::= A $
+     * A ::= B c
+     *     | B d
+     * B ::= e B f
+     *     |
+     * </pre>
+     */
+    public void testEmptyAltBackTrack() {
+        Lang lang = new Lang("Test");
+        Grule A = lang.newGrule();
+        lang.defineGrule(A, CC.EOF).action(new Action() {
+            private int count = 0;
+
+            public Object act(Object matched) {
+                count++;
+                assertTrue(count == 1);
+                return matched;
+            }
+        });
+        Grule B = lang.newGrule();
+        A.define(B, "c").action(new ParamedAction<Object>() {
+            public Object act(Object arg, Object matched) {
+                assertTrue(false);
+                return matched;
+            }
+        }).alt(B, "d").action(new Action() {
+            private int count;
+
+            public Object act(Object matched) {
+                count++;
+                assertTrue(count == 1);
+                return matched;
+            }
+        });
+        B.define("e", B, "f").action(new Action() {
+            private int count = 0;
+
+            public Object act(Object matched) {
+                count++;
+                assertTrue(count <= 2);
+                return matched;
+            }
+        }).alt(CC.NOTHING).action(new ParamedAction<Object>() {
+            private int count;
+
+            public Object act(Object arg, Object matched) {
+                count++;
+                assertTrue(count == 1);
+                return matched;
+            }
+        });
+
+        Exe exe = lang.compile();
+        assertTrue(lang.getWarnings() != null);
+        exe.eval("eeffd");
+    }
 }

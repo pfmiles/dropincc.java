@@ -29,22 +29,24 @@ public class DelayedAction {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Object act(Object arg) {
         Object input = null;
-        if (matched.getClass().isArray()) {
-            Object[] ms = (Object[]) matched;
-            Object[] is = new Object[ms.length];
-            for (int i = 0; i < ms.length; i++) {
-                if (ms[i] instanceof DelayedAction) {
-                    is[i] = ((DelayedAction) ms[i]).act(arg);
-                } else {
-                    is[i] = ms[i];
+        if (matched != null) {
+            if (matched.getClass().isArray()) {
+                Object[] ms = (Object[]) matched;
+                Object[] is = new Object[ms.length];
+                for (int i = 0; i < ms.length; i++) {
+                    if (ms[i] instanceof DelayedAction) {
+                        is[i] = ((DelayedAction) ms[i]).act(arg);
+                    } else {
+                        is[i] = ms[i];
+                    }
                 }
-            }
-            input = is;
-        } else {
-            if (matched instanceof DelayedAction) {
-                input = ((DelayedAction) matched).act(arg);
+                input = is;
             } else {
-                input = matched;
+                if (matched instanceof DelayedAction) {
+                    input = ((DelayedAction) matched).act(arg);
+                } else {
+                    input = matched;
+                }
             }
         }
         if (this.action == null) {

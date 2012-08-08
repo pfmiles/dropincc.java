@@ -31,7 +31,9 @@ public class AltSwitches extends CodeGen {
 
     // case number {0}
     // code {1}
-    // retval {2}
+    // retval {2} (with action invoke)
+    // actoinName {3}
+    // rawRetVal {4} (without action invoke)
     private MessageFormat caseFmt = this.getTemplate("altSwitchCase.dt");
 
     // actionName {0}
@@ -53,17 +55,21 @@ public class AltSwitches extends CodeGen {
             CAlternative alt = calts.get(caseNum);
             Pair<String, String> varAndCode = new ElementsCodeGen(alt.getMatchSequence()).render(context);
             String retVal = varAndCode.getLeft();
+            String rawRetVal = retVal;
+            String actionName = "null";
             if (alt.getAction() != null) {
                 // action invocation format
                 Object action = alt.getAction();
-                String actionName = context.actionFieldMapping.get(action);
+                actionName = context.actionFieldMapping.get(action);
                 if (action instanceof Action) {
                     retVal = actIvk.format(new String[] { actionName, retVal == null ? "null" : retVal });
                 } else if (action instanceof ParamedAction) {
                     retVal = actIvkWithArg.format(new String[] { actionName, retVal == null ? "null" : retVal });
                 }
             }
-            sb.append(caseFmt.format(new String[] { String.valueOf(caseNum), varAndCode.getRight(), retVal == null ? "null" : retVal })).append('\n');
+            sb.append(
+                    caseFmt.format(new String[] { String.valueOf(caseNum), varAndCode.getRight(), retVal == null ? "null" : retVal, actionName,
+                            rawRetVal == null ? "null" : rawRetVal })).append('\n');
         }
         return sb.toString();
     }

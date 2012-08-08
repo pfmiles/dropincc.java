@@ -160,4 +160,13 @@ public abstract class Lexer implements Enumeration<Token> {
             return false;
         }
     }
+
+    /**
+     * Tells if is backtracking at parsing runtime.
+     * 
+     * @return
+     */
+    public boolean isBacktracking() {
+        return !this.savePoints.isEmpty();
+    }
 }
