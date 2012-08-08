@@ -288,8 +288,17 @@ public class ParserCompiler {
         RuleMethodsGen ruleMethodsGen = new RuleMethodsGen(predGrules);
         ParserClsGen parserGen = new ParserClsGen(parserName, tokenTypesGen, actionsGen, predsGen, ruleDfaGen, kleeneDfas, startRule, ruleMethodsGen);
 
-        CodeGenContext ctx = new CodeGenContext(kleeneTypeToNode);
+        CodeGenContext ctx = new CodeGenContext(kleeneTypeToNode, resolveBacktrackKleeneSet(pks));
         return new ParserCodeGenResult(parserGen.render(ctx), ctx);
+    }
+
+    private static Set<KleeneType> resolveBacktrackKleeneSet(List<PredictingKleene> pks) {
+        Set<KleeneType> ret = new HashSet<KleeneType>();
+        for (PredictingKleene pk : pks) {
+            if (pk.isBacktrack())
+                ret.add(pk.getKleeneType());
+        }
+        return ret;
     }
 
     /**

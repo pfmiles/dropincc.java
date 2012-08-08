@@ -41,6 +41,9 @@ public class KleeneDfasGen extends CodeGen {
     public String render(CodeGenContext context) {
         StringBuilder sb = new StringBuilder();
         for (PredictingKleene pk : this.pks) {
+            // backtrack kleene have no DFA
+            if (pk.isBacktrack())
+                continue;
             sb.append(fmt.format(new String[] { pk.getKleeneType().toCodeGenStr() })).append('\n');
             String fieldName = pk.getKleeneType().toCodeGenStr() + "DfaStart";
             context.fieldKleeneDfaMapping.put(fieldName, toPredictingDfa(pk.getDfa()));

@@ -38,6 +38,12 @@ public class KleeneEleGen extends CodeGen {
     private final MessageFormat kcFmt = this.getTemplate("kleeneCross.dt");
     private final MessageFormat opFmt = this.getTemplate("optional.dt");
 
+    // varName {0}
+    // ksNum {1}
+    // elementsCode {2}
+    // elementVar {3}
+    private MessageFormat ksBackFmt = this.getTemplate("kleeneStarBacktrack.dt");
+
     private KleeneType ele;
 
     public KleeneEleGen(KleeneType ele) {
@@ -49,11 +55,18 @@ public class KleeneEleGen extends CodeGen {
     public Pair<String, String> render(CodeGenContext context) {
         String varName = "p" + context.varSeq.next();
         String kName = ele.toCodeGenStr();
+        // kleene defNum is based from 1000 when code gen, to distinguish from
+        // normal grule's index
+        int knum = ele.getDefIndex() + 1000;
         Pair<String, String> varAndCode = new ElementsCodeGen(context.kleeneTypeToNode.get(ele)).render(context);
         if (this.ele instanceof KleeneStarType) {
-            return new Pair<String, String>(varName, ksFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
-                    context.curGrule.toCodeGenStr() }));
-        } else if (this.ele instanceof KleeneCrossType) {
+            if (context.backtrackKleenes.contains(this.ele)) {
+                return new Pair<String, String>(varName, ksBackFmt.format(new String[] { varName, String.valueOf(knum), varAndCode.getRight(), varAndCode.getLeft() }));
+            } else {
+                return new Pair<String, String>(varName, ksFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
+                        context.curGrule.toCodeGenStr() }));
+            }
+        } else if (this.ele instanceof KleeneCrossType) {// TODO
             return new Pair<String, String>(varName, kcFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
                     context.curGrule.toCodeGenStr() }));
         } else if (this.ele instanceof OptionalType) {

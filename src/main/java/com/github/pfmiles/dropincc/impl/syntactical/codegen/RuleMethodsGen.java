@@ -36,9 +36,13 @@ public class RuleMethodsGen extends CodeGen {
     // ruleName {0}
     // matchCode {1}
     // retVar {2} (with action invoke)
+    private final MessageFormat fmtSingleAlt = this.getTemplate("ruleMethodSingleAlt.dt");
+    // ruleName {0}
+    // matchCode {1}
+    // retVar {2} (with action invoke)
     // actionName {3}
     // rawRetVar {4} (without actoin invoke)
-    private final MessageFormat fmtSingleAlt = this.getTemplate("ruleMethodSingleAlt.dt");
+    private final MessageFormat fmtSingleAltAction = this.getTemplate("ruleMethodSingleAltAction.dt");
     // actionName {0}
     // paramName {1}
     private MessageFormat actIvk = new MessageFormat("{0}.act({1})");
@@ -83,10 +87,12 @@ public class RuleMethodsGen extends CodeGen {
                     } else if (action instanceof ParamedAction) {
                         retVal = actIvkWithArg.format(new String[] { actionName, retVal == null ? "null" : retVal });
                     }
+                    sb.append(
+                            fmtSingleAltAction.format(new String[] { ruleName, varAndCode.getRight(), retVal == null ? "null" : retVal, actionName,
+                                    rawRetVal == null ? "null" : rawRetVal })).append('\n');
+                } else {
+                    sb.append(fmtSingleAlt.format(new String[] { ruleName, varAndCode.getRight(), retVal == null ? "null" : retVal })).append('\n');
                 }
-                sb.append(
-                        fmtSingleAlt.format(new String[] { ruleName, varAndCode.getRight(), retVal == null ? "null" : retVal, actionName,
-                                rawRetVal == null ? "null" : rawRetVal })).append('\n');
             } else if (p.isBacktrack()) {
                 sb.append(fmtBackTrack.format(new String[] { ruleName, new AltBacktracks(p.getAlts()).render(context) })).append('\n');
             } else {

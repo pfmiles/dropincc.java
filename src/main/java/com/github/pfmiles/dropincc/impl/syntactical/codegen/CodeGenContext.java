@@ -13,6 +13,7 @@ package com.github.pfmiles.dropincc.impl.syntactical.codegen;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.github.pfmiles.dropincc.Predicate;
 import com.github.pfmiles.dropincc.impl.EleType;
@@ -30,8 +31,9 @@ import com.github.pfmiles.dropincc.impl.util.SeqGen;
  */
 public class CodeGenContext {
 
-    public CodeGenContext(Map<KleeneType, List<EleType>> kleeneTypeToNode) {
+    public CodeGenContext(Map<KleeneType, List<EleType>> kleeneTypeToNode, Set<KleeneType> backtrackKleenes) {
         this.kleeneTypeToNode = kleeneTypeToNode;
+        this.backtrackKleenes = backtrackKleenes;
     }
 
     // TODO could be removed by make token types static
@@ -80,5 +82,10 @@ public class CodeGenContext {
      * KleeneType to kleene node mapping
      */
     public Map<KleeneType, List<EleType>> kleeneTypeToNode;
+
+    /**
+     * Kleene nodes which needs to backtrack
+     */
+    public Set<KleeneType> backtrackKleenes;
 
 }

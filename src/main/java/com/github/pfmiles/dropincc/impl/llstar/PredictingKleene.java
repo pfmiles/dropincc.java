@@ -56,4 +56,5 @@ public class PredictingKleene {
     public boolean isBacktrack() {
         return backtrack;
     }
+
 }

@@ -29,7 +29,7 @@ public class ParserClsGen extends CodeGen {
     private AltsActionsGen actions;// {2}
     private PredsGen preds;// {3}
     private RuleDfasGen ruleAltsPredictingDfa; // {4}
-    private KleeneDfasGen kleenePreds;
+    private KleeneDfasGen kleenePreds;// {5}
     private GruleType startRule;// {6}
     private RuleMethodsGen ruleMethods;// {7}
 
