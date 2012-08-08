@@ -19,7 +19,6 @@ import java.util.Map;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.Predicate;
 import com.github.pfmiles.dropincc.impl.TokenType;
-import com.github.pfmiles.dropincc.impl.runtime.Parser;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.ParserCodeGenResult;
 
 /**

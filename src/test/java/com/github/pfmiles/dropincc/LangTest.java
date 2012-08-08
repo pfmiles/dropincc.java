@@ -13,6 +13,7 @@ package com.github.pfmiles.dropincc;
 import junit.framework.TestCase;
 
 import com.github.pfmiles.dropincc.calctest.Calculator;
+import com.github.pfmiles.dropincc.impl.util.Pair;
 
 /**
  * 
@@ -106,10 +107,81 @@ public class LangTest extends TestCase {
     }
 
     /**
-     * Non LL-regular rule test
+     * Non LL-regular rule test; Test delayed actions and all actions should be
+     * fired only once.
+     * 
+     * <pre>
+     * S ::= A $
+     * A ::= B c
+     *     | B d
+     * B ::= C B e
+     *     | C B f
+     *     | b
+     * C ::= g C
+     *     | g
+     * </pre>
      */
     public void testNonLLRegularRule() {
-        // TODO
-    }
+        Lang lang = new Lang("Test");
+        Grule A = lang.newGrule();
+        lang.defineGrule(A, CC.EOF).action(new Action() {
+            public Object act(Object matched) {
+                return ((Object[]) matched)[0];
+            }
+        });
+        Grule B = lang.newGrule();
+        A.define(B, "c").action(new Action() {
+            public Object act(Object matched) {
+                Object[] ms = (Object[]) matched;
+                return ((String) ms[0]) + ((String) ms[1]);
+            }
+        }).alt(B, "d").action(new Action() {
+            public Object act(Object matched) {
+                Object[] ms = (Object[]) matched;
+                return ((String) ms[0]) + ((String) ms[1]);
+            }
+        });
+        Grule C = lang.newGrule();
+        B.define(C, B, "e").action(new Action() {
+            public Object act(Object matched) {
+                Object[] ms = (Object[]) matched;
+                return ((String) ms[0]) + ((String) ms[1] + ((String) ms[2]));
+            }
 
+        }).alt(C, B, "f").action(new Action() {
+            public Object act(Object matched) {
+                Object[] ms = (Object[]) matched;
+                return ((String) ms[0]) + ((String) ms[1] + ((String) ms[2]));
+            }
+        }).alt("b").action(new Action() {
+            public Object act(Object matched) {
+                return (String) matched;
+            }
+        });
+        C.define("g", C).action(new ParamedAction<Pair<String, Integer>>() {
+            public Object act(Pair<String, Integer> arg, Object matched) {
+                arg.setRight(arg.getRight() + 1);
+                Object[] ms = (Object[]) matched;
+                return ((String) ms[0]) + ((String) ms[1]);
+            }
+        }).alt("g").action(new ParamedAction<Pair<String, Integer>>() {
+            public Object act(Pair<String, Integer> arg, Object matched) {
+                arg.setRight(arg.getRight() + 1);
+                return matched;
+            }
+        });
+
+        Exe exe = lang.compile();
+        System.out.println(lang.getDebugMsgs());
+        System.out.println(lang.getWarnings());
+        assertTrue(lang.getWarnings() != null);
+        Pair<String, Integer> gcount = new Pair<String, Integer>("g", 0);
+        System.out.println(exe.eval("ggbfd", gcount));
+        assertTrue(gcount.getRight() == 2);
+        gcount.setRight(0);
+        System.out.println(exe.eval("ggggggggggbfd", gcount));
+        assertTrue(gcount.getRight() == 10);
+    }
+    
+    
 }

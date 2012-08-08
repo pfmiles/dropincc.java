@@ -10,7 +10,6 @@
  ******************************************************************************/
 package com.github.pfmiles.dropincc.impl.runtime.impl;
 
-import com.github.pfmiles.dropincc.impl.runtime.Parser;
 
 /**
  * The parser prototype for runtime copy & use.

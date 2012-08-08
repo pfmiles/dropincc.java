@@ -198,7 +198,8 @@ public class LlstarAnalysis {
             }
             allAlts.removeAll(finaledAlts);
             if (!allAlts.isEmpty()) {
-                this.warnings.append("WARNING: Alternative productions: ").append(allAlts).append(" would never be matched, ").append("grule: ").append(grule);
+                this.warnings.append("WARNING: Alternative productions: ").append(allAlts).append(" would never be matched, ").append("grule: ").append(grule)
+                        .append('\n');
             }
             if (dfa.getStart() == null)
                 throw new DropinccException("No start state found for look ahead dfa of grule: " + grule + ", error!");
@@ -381,7 +382,7 @@ public class LlstarAnalysis {
                 if (depth == 1) {
                     state.addRecursiveAlt(i);
                     if (state.getRecursiveAlts().size() > 1) {
-                        this.warnings.append("Likely non-LL regular grammar, recursive alts: " + state.getRecursiveAlts() + ", rule: " + grule);
+                        this.warnings.append("Likely non-LL regular grammar, recursive alts: " + state.getRecursiveAlts() + ", rule: " + grule).append('\n');
                         throw new NonLlRegularException();
                     }
                 }

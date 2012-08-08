@@ -82,7 +82,7 @@ public class ElementsCodeGen extends CodeGen {
                 ctt.append(v);
             }
             retVar = "p" + context.varSeq.next();
-            sb.append(multiVarFmt.format(new String[] { retVar, ctt.toString() }));
+            sb.append(multiVarFmt.format(new String[] { retVar, ctt.toString() })).append('\n');
         }
         return new Pair<String, String>(retVar, sb.toString());
     }

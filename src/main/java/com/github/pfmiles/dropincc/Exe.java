@@ -15,9 +15,9 @@ import java.util.Enumeration;
 import java.util.List;
 
 import com.github.pfmiles.dropincc.impl.AnalyzedLang;
-import com.github.pfmiles.dropincc.impl.runtime.Parser;
 import com.github.pfmiles.dropincc.impl.runtime.Token;
 import com.github.pfmiles.dropincc.impl.runtime.impl.Lexer;
+import com.github.pfmiles.dropincc.impl.runtime.impl.Parser;
 
 /**
  * The compiled representation of the constructing language. It's the main

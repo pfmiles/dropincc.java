@@ -16,6 +16,7 @@ import java.util.Deque;
 import java.util.Enumeration;
 import java.util.List;
 
+import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.runtime.Token;
 import com.github.pfmiles.dropincc.impl.util.Pair;
@@ -28,10 +29,11 @@ import com.github.pfmiles.dropincc.impl.util.Pair;
  */
 public abstract class Lexer implements Enumeration<Token> {
 
+    // TODO test if LinkedList or ArrayDeque is better?
     protected List<Token> lookAheadBuf = new ArrayList<Token>();
 
-    // def index stack of grule, indicates which rule sets the save point, and
-    // the corresponding backup start index
+    // def index stack of grule, indicates which rule sets the save point and at
+    // which point of the backup array it starts to save
     private Deque<Pair<Integer, Integer>> savePoints = new ArrayDeque<Pair<Integer, Integer>>();
 
     // matched token backup when any save point is set
@@ -52,6 +54,8 @@ public abstract class Lexer implements Enumeration<Token> {
         } else {
             ret = realNext();
         }
+        if (ret == null)
+            throw new DropinccException("No more token.");
         if (!this.savePoints.isEmpty()) {
             // backtracking enabled
             this.backUp.add(ret);
@@ -83,6 +87,8 @@ public abstract class Lexer implements Enumeration<Token> {
     public String getAheadTokensRepr() {
         StringBuilder sb = new StringBuilder();
         for (int i = 1; i <= 3; i++) {
+            if (this.LT(i) == null)
+                break;
             if (sb.length() != 0)
                 sb.append(", ");
             sb.append("'").append(this.LT(i).getLexeme()).append("'");
@@ -129,23 +135,29 @@ public abstract class Lexer implements Enumeration<Token> {
     /**
      * Release the save point at the top of the save point stack. If the rule
      * number of the stack top is not equal to the specified one, report error.
-     * If the released save point the the last save point: 1) if not success,
-     * push back the back-upped tokens into the token buffer. 2) if success,
-     * clear both save point and back ups.
+     * If save point is released under a unsuccessful match, pushback the
+     * buffer. If the released save point is the the last save point, clear the
+     * backup.
      * 
      * @param ruleNum
      * @param success
      *            if is a successful match
+     * @return if all save points released
      */
-    public void releaseSavePoint(int ruleNum, boolean success) {
+    public boolean releaseSavePoint(int ruleNum, boolean success) {
         Pair<Integer, Integer> top = this.savePoints.pop();
         if (top.getLeft() != ruleNum)
             throw new RuntimeException("Fatal Error! Rule number doesn't match when releasing save point!");
-
-        List<Token> backOfThisSavePoint = this.backUp.subList(top.getRight(), this.backUp.size());
         if (!success) {
-            this.lookAheadBuf.addAll(backOfThisSavePoint);
+            List<Token> sub = this.backUp.subList(top.getRight(), this.backUp.size());
+            this.lookAheadBuf.addAll(0, sub);
+            sub.clear();
         }
-        backOfThisSavePoint.clear();
+        if (this.savePoints.isEmpty()) {
+            this.backUp.clear();
+            return true;
+        } else {
+            return false;
+        }
     }
 }
