@@ -37,7 +37,6 @@ public class KleeneEleGen extends CodeGen {
     private final MessageFormat ksFmt = this.getTemplate("kleeneStar.dt");
     private final MessageFormat kcFmt = this.getTemplate("kleeneCross.dt");
     private final MessageFormat opFmt = this.getTemplate("optional.dt");
-
     // varName {0}
     // ksNum {1}
     // elementsCode {2}
@@ -50,6 +49,11 @@ public class KleeneEleGen extends CodeGen {
     // elementsCodePlus {4}
     // elementVarPlus {5}
     private MessageFormat kcBackFmt = this.getTemplate("kleeneCrossBacktrack.dt");
+    // varName {0}
+    // ksNum {1}
+    // elementsCode {2}
+    // elementVar {3}
+    private MessageFormat opBackFmt = this.getTemplate("optionalBacktrack.dt");
 
     private KleeneType ele;
 
@@ -82,9 +86,13 @@ public class KleeneEleGen extends CodeGen {
                 return new Pair<String, String>(varName, kcFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
                         context.curGrule.toCodeGenStr() }));
             }
-        } else if (this.ele instanceof OptionalType) {// TODO
-            return new Pair<String, String>(varName, opFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
-                    context.curGrule.toCodeGenStr() }));
+        } else if (this.ele instanceof OptionalType) {
+            if (context.backtrackKleenes.contains(this.ele)) {
+                return new Pair<String, String>(varName, opBackFmt.format(new String[] { varName, String.valueOf(knum), varAndCode.getRight(), varAndCode.getLeft() }));
+            } else {
+                return new Pair<String, String>(varName, opFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
+                        context.curGrule.toCodeGenStr() }));
+            }
         } else {
             throw new DropinccException("Unhandled code generation kleene node type: " + this.ele);
         }
