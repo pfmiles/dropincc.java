@@ -57,4 +57,42 @@ public class BacktrackTest extends TestCase {
         Exe exe = lang.compile();
         exe.eval("eebffceeebfffceeeebffffd");
     }
+
+    /**
+     * <pre>
+     * S ::= A $
+     * A ::= (B c)+ B d
+     * B ::= b
+     *     | e B f
+     * </pre>
+     */
+    public void testBasicBacktrackKc() {
+        Lang lang = new Lang("Test");
+        Grule A = lang.newGrule();
+        lang.defineGrule(A, CC.EOF);
+        Grule B = lang.newGrule();
+        A.define(CC.kc(B, "c"), B, "d");
+        B.define("b").action(new Action() {
+            private int count;
+
+            public Object act(Object matched) {
+                count++;
+                assertTrue(count <= 3);
+                // System.out.println("b count:" + count);
+                return matched;
+            }
+        }).alt("e", B, "f").action(new Action() {
+            private int count;
+
+            public Object act(Object matched) {
+                count++;
+                assertTrue(count <= 9);
+                // System.out.println("ef count:" + count);
+                return matched;
+            }
+        });
+
+        Exe exe = lang.compile();
+        exe.eval("eebffceeebfffceeeebffffd");
+    }
 }

@@ -1,4 +1,6 @@
 Object {0} = new ArrayList<Object>();
+{4}
+((List<Object>) {0}).add({5});
 while (true) '{'
     lexer.setSavePoint({1});
     try '{'

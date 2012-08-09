@@ -43,6 +43,13 @@ public class KleeneEleGen extends CodeGen {
     // elementsCode {2}
     // elementVar {3}
     private MessageFormat ksBackFmt = this.getTemplate("kleeneStarBacktrack.dt");
+    // varName {0}
+    // ksNum {1}
+    // elementsCode {2}
+    // elementVar {3}
+    // elementsCodePlus {4}
+    // elementVarPlus {5}
+    private MessageFormat kcBackFmt = this.getTemplate("kleeneCrossBacktrack.dt");
 
     private KleeneType ele;
 
@@ -66,10 +73,16 @@ public class KleeneEleGen extends CodeGen {
                 return new Pair<String, String>(varName, ksFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
                         context.curGrule.toCodeGenStr() }));
             }
-        } else if (this.ele instanceof KleeneCrossType) {// TODO
-            return new Pair<String, String>(varName, kcFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
-                    context.curGrule.toCodeGenStr() }));
-        } else if (this.ele instanceof OptionalType) {
+        } else if (this.ele instanceof KleeneCrossType) {
+            if (context.backtrackKleenes.contains(this.ele)) {
+                Pair<String, String> varAndCodePlus = new ElementsCodeGen(context.kleeneTypeToNode.get(ele)).render(context);
+                return new Pair<String, String>(varName, kcBackFmt.format(new String[] { varName, String.valueOf(knum), varAndCode.getRight(), varAndCode.getLeft(),
+                        varAndCodePlus.getRight(), varAndCodePlus.getLeft() }));
+            } else {
+                return new Pair<String, String>(varName, kcFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
+                        context.curGrule.toCodeGenStr() }));
+            }
+        } else if (this.ele instanceof OptionalType) {// TODO
             return new Pair<String, String>(varName, opFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
                     context.curGrule.toCodeGenStr() }));
         } else {
