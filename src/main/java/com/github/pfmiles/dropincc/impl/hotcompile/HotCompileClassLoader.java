@@ -12,7 +12,6 @@ package com.github.pfmiles.dropincc.impl.hotcompile;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.impl.util.ByteAppender;
@@ -53,7 +52,7 @@ public class HotCompileClassLoader extends ClassLoader {
         } finally {
             try {
                 fis.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new DropinccException(e);
             }
         }

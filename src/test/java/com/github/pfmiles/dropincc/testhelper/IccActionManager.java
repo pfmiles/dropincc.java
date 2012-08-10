@@ -8,17 +8,27 @@
  * Contributors:
  *     pf_miles - initial API and implementation
  ******************************************************************************/
-package com.github.pfmiles.dropincc.impl.syntactical.codegen;
+package com.github.pfmiles.dropincc.testhelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author pf-miles
  * 
  */
-public class TestTemplate extends CodeGen {
+public class IccActionManager {
+    private List<IvkCountCheckAction> actions = new ArrayList<IvkCountCheckAction>();
 
-    @SuppressWarnings("unchecked")
-    public String render(CodeGenContext context) {
-        return getTemplate("testTemp.dt", TestTemplate.class).format(new String[] { "hello", "world" });
+    public IvkCountCheckAction newCheck(int i) {
+        IvkCountCheckAction check = new IvkCountCheckAction(i);
+        this.actions.add(check);
+        return check;
     }
 
+    public void checkFinalCounts() {
+        for (IvkCountCheckAction a : this.actions) {
+            a.checkFinalCount();
+        }
+    }
 }

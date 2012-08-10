@@ -29,7 +29,8 @@ import com.github.pfmiles.dropincc.impl.util.Pair;
  */
 public abstract class Lexer implements Enumeration<Token> {
 
-    // TODO test if LinkedList or ArrayDeque is better?
+    // TODO test if LinkedList or ArrayDeque is better? or invent a new
+    // implementation to suit for the lexer situation
     protected List<Token> lookAheadBuf = new ArrayList<Token>();
 
     // def index stack of grule, indicates which rule sets the save point and at

@@ -22,7 +22,7 @@ import com.github.pfmiles.dropincc.impl.GruleType;
  */
 public class ParserClsGen extends CodeGen {
 
-    private final MessageFormat fmt = this.getTemplate("parserCls.dt");
+    private static final MessageFormat fmt = getTemplate("parserCls.dt", ParserClsGen.class);
 
     private String parserClsName;// {0}
     private TokenTypesGen tokenTypes; // {1}

@@ -32,28 +32,28 @@ import com.github.pfmiles.dropincc.impl.util.SeqGen;
 public class RuleMethodsGen extends CodeGen {
     // grule {0}
     // altSwitches {1}
-    private final MessageFormat fmt = this.getTemplate("ruleMethod.dt");
+    private static final MessageFormat fmt = getTemplate("ruleMethod.dt", RuleMethodsGen.class);
     // ruleName {0}
     // matchCode {1}
     // retVar {2} (with action invoke)
-    private final MessageFormat fmtSingleAlt = this.getTemplate("ruleMethodSingleAlt.dt");
+    private static final MessageFormat fmtSingleAlt = getTemplate("ruleMethodSingleAlt.dt", RuleMethodsGen.class);
     // ruleName {0}
     // matchCode {1}
     // retVar {2} (with action invoke)
     // actionName {3}
     // rawRetVar {4} (without actoin invoke)
-    private final MessageFormat fmtSingleAltAction = this.getTemplate("ruleMethodSingleAltAction.dt");
+    private static final MessageFormat fmtSingleAltAction = getTemplate("ruleMethodSingleAltAction.dt", RuleMethodsGen.class);
     // actionName {0}
     // paramName {1}
-    private MessageFormat actIvk = new MessageFormat("{0}.act({1})");
+    private static final MessageFormat actIvk = new MessageFormat("{0}.act({1})");
 
     // actionName {0}
     // paramName {1}
-    private MessageFormat actIvkWithArg = new MessageFormat("{0}.act(arg, {1})");
+    private static final MessageFormat actIvkWithArg = new MessageFormat("{0}.act(arg, {1})");
 
     // gruleName {0}
     // altBackTracks {1}
-    private MessageFormat fmtBackTrack = this.getTemplate("ruleMethodBackTrack.dt");
+    private static final MessageFormat fmtBackTrack = getTemplate("ruleMethodBackTrack.dt", RuleMethodsGen.class);
 
     private List<PredictingGrule> pgs;
 

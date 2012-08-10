@@ -18,7 +18,7 @@ public class ParserClsTemplate extends CodeGen {
 
     @SuppressWarnings("unchecked")
     public String render(CodeGenContext context) {
-        return this.getTemplate("parserCls.dt")
+        return getTemplate("parserCls.dt", ParserClsGen.class)
                 .format(new String[] { "className", "tokenTypes", "alts' actions", "preds", "startRule", "ruleMethods", "alts' predicting methods",
                         "kleene predicting methods" });
     }

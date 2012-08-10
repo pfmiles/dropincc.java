@@ -32,22 +32,22 @@ public class AltSwitches extends CodeGen {
     // case number {0}
     // code {1}
     // retval {2} (with action invoke)
-    private MessageFormat caseFmt = this.getTemplate("altSwitchCase.dt");
+    private static final MessageFormat caseFmt = getTemplate("altSwitchCase.dt", AltSwitches.class);
 
     // case number {0}
     // code {1}
     // retval {2} (with action invoke)
     // actionName {3}
     // rawValName {4}
-    private MessageFormat caseFmtAction = this.getTemplate("altSwitchCaseAction.dt");
+    private static final MessageFormat caseFmtAction = getTemplate("altSwitchCaseAction.dt", AltSwitches.class);
 
     // actionName {0}
     // paramName {1}
-    private MessageFormat actIvk = new MessageFormat("{0}.act({1})");
+    private static final MessageFormat actIvk = new MessageFormat("{0}.act({1})");
 
     // actionName {0}
     // paramName {1}
-    private MessageFormat actIvkWithArg = new MessageFormat("{0}.act(arg, {1})");
+    private static final MessageFormat actIvkWithArg = new MessageFormat("{0}.act(arg, {1})");
 
     public AltSwitches(List<CAlternative> alts) {
         this.calts = alts;

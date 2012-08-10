@@ -3,7 +3,9 @@ try '{'
     lexer.setSavePoint({1});
     {2}
 	{0} = {3};
-	lexer.releaseSavePoint({1}, true);
+	if(lexer.releaseSavePoint({1}, true)) '{'
+	    {0} = new DelayedAction(null, {0}).act(arg);
+	'}'
 '}' catch (DropinccException e) '{'
     lexer.releaseSavePoint({1}, false);
 '}'

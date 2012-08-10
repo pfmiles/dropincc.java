@@ -8,17 +8,19 @@
  * Contributors:
  *     pf_miles - initial API and implementation
  ******************************************************************************/
-package com.github.pfmiles.dropincc.impl.syntactical.codegen;
+package com.github.pfmiles.dropincc;
+
+import junit.framework.TestCase;
 
 /**
+ * Complex kleene nodes situation tests. // TODO NBK-NBK, NBK-BK, BK-NBK, BK-BK
+ * 
  * @author pf-miles
  * 
  */
-public class TestTemplate extends CodeGen {
+public class KleeneTest extends TestCase {
 
-    @SuppressWarnings("unchecked")
-    public String render(CodeGenContext context) {
-        return getTemplate("testTemp.dt", TestTemplate.class).format(new String[] { "hello", "world" });
+    // NBK - NBK
+    public void test1() {
     }
-
 }

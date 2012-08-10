@@ -11,7 +11,6 @@
 package com.github.pfmiles.dropincc.impl.hotcompile;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -60,7 +59,7 @@ public class HotCompileUtil {
         } finally {
             try {
                 fileManager.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new DropinccException(e);
             }
         }

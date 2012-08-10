@@ -34,26 +34,26 @@ public class KleeneEleGen extends CodeGen {
     // elementsCode {2}
     // elementVar {3}
     // ruleName {4}
-    private final MessageFormat ksFmt = this.getTemplate("kleeneStar.dt");
-    private final MessageFormat kcFmt = this.getTemplate("kleeneCross.dt");
-    private final MessageFormat opFmt = this.getTemplate("optional.dt");
+    private static final MessageFormat ksFmt = getTemplate("kleeneStar.dt", KleeneEleGen.class);
+    private static final MessageFormat kcFmt = getTemplate("kleeneCross.dt", KleeneEleGen.class);
+    private static final MessageFormat opFmt = getTemplate("optional.dt", KleeneEleGen.class);
     // varName {0}
     // ksNum {1}
     // elementsCode {2}
     // elementVar {3}
-    private MessageFormat ksBackFmt = this.getTemplate("kleeneStarBacktrack.dt");
+    private static final MessageFormat ksBackFmt = getTemplate("kleeneStarBacktrack.dt", KleeneEleGen.class);
     // varName {0}
     // ksNum {1}
     // elementsCode {2}
     // elementVar {3}
     // elementsCodePlus {4}
     // elementVarPlus {5}
-    private MessageFormat kcBackFmt = this.getTemplate("kleeneCrossBacktrack.dt");
+    private static final MessageFormat kcBackFmt = getTemplate("kleeneCrossBacktrack.dt", KleeneEleGen.class);
     // varName {0}
     // ksNum {1}
     // elementsCode {2}
     // elementVar {3}
-    private MessageFormat opBackFmt = this.getTemplate("optionalBacktrack.dt");
+    private static final MessageFormat opBackFmt = getTemplate("optionalBacktrack.dt", KleeneEleGen.class);
 
     private KleeneType ele;
 
@@ -68,7 +68,7 @@ public class KleeneEleGen extends CodeGen {
         String kName = ele.toCodeGenStr();
         // kleene defNum is based from 1000 when code gen, to distinguish from
         // normal grule's index
-        int knum = ele.getDefIndex() + 1000;
+        int knum = ele.getDefIndex() + 1000;// XXX this may not good...
         Pair<String, String> varAndCode = new ElementsCodeGen(context.kleeneTypeToNode.get(ele)).render(context);
         if (this.ele instanceof KleeneStarType) {
             if (context.backtrackKleenes.contains(this.ele)) {

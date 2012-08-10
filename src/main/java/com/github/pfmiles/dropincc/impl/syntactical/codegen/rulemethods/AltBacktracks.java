@@ -29,7 +29,7 @@ public class AltBacktracks extends CodeGen {
     // match code {1}
     // retVal {2}
     // actoinName {3}
-    private final MessageFormat backtrackFmt = this.getTemplate("altBacktrack.dt");
+    private static final MessageFormat backtrackFmt = getTemplate("altBacktrack.dt", AltBacktracks.class);
 
     private List<CAlternative> alts;
 
