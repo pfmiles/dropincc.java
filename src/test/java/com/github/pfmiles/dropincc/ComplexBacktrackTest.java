@@ -41,10 +41,10 @@ public class ComplexBacktrackTest extends TestCase {
         Grule B = lang.newGrule();
         Grule C = lang.newGrule();
 
-        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1));
-        A.define("c", "b").action(mgr.newCheck(0)).alt("d", B).action(mgr.newCheck(1));
-        B.define(C, "e").action(mgr.newCheck(0)).alt(C, "f").action(mgr.newCheck(1));
-        C.define("g").action(mgr.newCheck(1)).alt("h", C, "i").action(mgr.newCheck(3));
+        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1, 2));
+        A.define("c", "b").action(mgr.newCheck(0, 0)).alt("d", B).action(mgr.newCheck(1, 2));
+        B.define(C, "e").action(mgr.newCheck(0, 0)).alt(C, "f").action(mgr.newCheck(1, 2));
+        C.define("g").action(mgr.newCheck(1, -1)).alt("h", C, "i").action(mgr.newCheck(3, 3));
 
         Exe exe = lang.compile();
         exe.eval("dhhhgiiif");
@@ -69,9 +69,9 @@ public class ComplexBacktrackTest extends TestCase {
         Grule A = lang.newGrule();
         Grule B = lang.newGrule();
 
-        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1));
-        A.define(CC.ks("a"), B, "c").action(mgr.newCheck(0)).alt(CC.kc("a"), B, "d").action(mgr.newCheck(0)).alt(CC.op("a"), B, "e").action(mgr.newCheck(1));
-        B.define("f").action(mgr.newCheck(1)).alt("g", B, "h").action(mgr.newCheck(3));
+        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1, 2));
+        A.define(CC.ks("a"), B, "c").action(mgr.newCheck(0, 0)).alt(CC.kc("a"), B, "d").action(mgr.newCheck(0, 0)).alt(CC.op("a"), B, "e").action(mgr.newCheck(1, 3));
+        B.define("f").action(mgr.newCheck(1, -1)).alt("g", B, "h").action(mgr.newCheck(3, 3));
 
         Exe exe = lang.compile();
         exe.eval("agggfhhhe");
@@ -95,10 +95,10 @@ public class ComplexBacktrackTest extends TestCase {
         Grule A = lang.newGrule();
         Grule B = lang.newGrule();
 
-        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1));
-        A.define(B, CC.ks(B, "i"), B, "j").action(mgr.newCheck(0)).alt(B, CC.kc(B, "i"), B, "k").action(mgr.newCheck(1));
+        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1, 2));
+        A.define(B, CC.ks(B, "i"), B, "j").action(mgr.newCheck(0, 0)).alt(B, CC.kc(B, "i"), B, "k").action(mgr.newCheck(1, 4));
 
-        B.define("e").action(mgr.newCheck(5)).alt("f", B, "g").action(mgr.newCheck(10));
+        B.define("e").action(mgr.newCheck(5, -1)).alt("f", B, "g").action(mgr.newCheck(10, 3));
 
         Exe exe = lang.compile();
         exe.eval("efegiffeggifffegggiffffeggggk");
@@ -125,10 +125,10 @@ public class ComplexBacktrackTest extends TestCase {
         Grule C = lang.newGrule();
         Grule B = lang.newGrule();
 
-        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1));
-        A.define(CC.ks("b", C), "d").action(mgr.newCheck(1));
-        C.define(B, "e").action(mgr.newCheck(2)).alt(B, "f").action(mgr.newCheck(2));
-        B.define("g").action(mgr.newCheck(4)).alt("h", B, "i").action(mgr.newCheck(6));
+        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1, 2));
+        A.define(CC.ks("b", C), "d").action(mgr.newCheck(1, 2));
+        C.define(B, "e").action(mgr.newCheck(2, 2)).alt(B, "f").action(mgr.newCheck(2, 2));
+        B.define("g").action(mgr.newCheck(4, -1)).alt("h", B, "i").action(mgr.newCheck(6, 3));
 
         Exe exe = lang.compile();
         exe.eval("bgebhgifbhhgiiebhhhgiiifd");
@@ -154,10 +154,10 @@ public class ComplexBacktrackTest extends TestCase {
         Grule C = lang.newGrule();
         Grule B = lang.newGrule();
 
-        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1));
-        A.define(CC.ks(C, "b"), C, "d").action(mgr.newCheck(1));
-        C.define(B, "e").action(mgr.newCheck(2)).alt(B, "f").action(mgr.newCheck(3));
-        B.define("g").action(mgr.newCheck(5)).alt("h", B, "i").action(mgr.newCheck(10));
+        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1, 2));
+        A.define(CC.ks(C, "b"), C, "d").action(mgr.newCheck(1, 3));
+        C.define(B, "e").action(mgr.newCheck(2, 2)).alt(B, "f").action(mgr.newCheck(3, 2));
+        B.define("g").action(mgr.newCheck(5, -1)).alt("h", B, "i").action(mgr.newCheck(10, 3));
 
         Exe exe = lang.compile();
         exe.eval("gfbhgiebhhgiifbhhhgiiiebhhhhgiiiifd");
@@ -184,12 +184,12 @@ public class ComplexBacktrackTest extends TestCase {
         Grule B = lang.newGrule();
         Grule C = lang.newGrule();
 
-        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1));
-        A.define(B, C, "d").action(mgr.newCheck(0)).alt(B, C, "e").action(mgr.newCheck(1));
+        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1, 2));
+        A.define(B, C, "d").action(mgr.newCheck(0, 0)).alt(B, C, "e").action(mgr.newCheck(1, 3));
 
-        B.define("b").action(mgr.newCheck(1)).alt("f", B, "g").action(mgr.newCheck(2));
+        B.define("b").action(mgr.newCheck(1, -1)).alt("f", B, "g").action(mgr.newCheck(2, 3));
 
-        C.define("h").action(mgr.newCheck(0)).alt("i").action(mgr.newCheck(1));
+        C.define("h").action(mgr.newCheck(0, 0)).alt("i").action(mgr.newCheck(1, -1));
 
         Exe exe = lang.compile();
 
@@ -213,9 +213,9 @@ public class ComplexBacktrackTest extends TestCase {
         Grule A = lang.newGrule();
         Grule C = lang.newGrule();
 
-        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1));
-        A.define(CC.kc(C, "d", "e"), "f", "g").action(mgr.newCheck(1));
-        C.define("h").action(mgr.newCheck(1)).alt("i").action(mgr.newCheck(1));
+        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1, 2));
+        A.define(CC.kc(C, "d", "e"), "f", "g").action(mgr.newCheck(1, 3));
+        C.define("h").action(mgr.newCheck(1, -1)).alt("i").action(mgr.newCheck(1, -1));
 
         Exe exe = lang.compile();
         exe.eval("hdeidefg");

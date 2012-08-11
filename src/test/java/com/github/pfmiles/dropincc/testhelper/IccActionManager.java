@@ -20,8 +20,8 @@ import java.util.List;
 public class IccActionManager {
     private List<IvkCountCheckAction> actions = new ArrayList<IvkCountCheckAction>();
 
-    public IvkCountCheckAction newCheck(int i) {
-        IvkCountCheckAction check = new IvkCountCheckAction(i);
+    public IvkCountCheckAction newCheck(int ivkTime, int matched) {
+        IvkCountCheckAction check = new IvkCountCheckAction(ivkTime, matched);
         this.actions.add(check);
         return check;
     }
