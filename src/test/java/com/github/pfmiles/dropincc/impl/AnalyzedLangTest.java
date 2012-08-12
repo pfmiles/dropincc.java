@@ -93,12 +93,12 @@ public class AnalyzedLangTest extends TestCase {
         Grule addition = calculator.newGrule();
         Grule addend = calculator.newGrule();
         Grule factor = calculator.newGrule();
-        Element expr = calculator.defineGrule(addition, CC.EOF).action(new Action() {
+        Element expr = calculator.defineGrule(addition, CC.EOF).action(new Action<Object>() {
             public Object act(Object params) {
                 return ((Object[]) params)[0];
             }
         });
-        addition.define(addend, CC.ks((ADD.or(SUB)), addend)).action(new Action() {
+        addition.define(addend, CC.ks((ADD.or(SUB)), addend)).action(new Action<Object>() {
             public Object act(Object matched) {
                 Object[] params = ((Object[]) matched);
                 double leftMost = (Double) params[0];
@@ -116,7 +116,7 @@ public class AnalyzedLangTest extends TestCase {
                 return leftMost;
             }
         });
-        addend.define(factor, CC.ks(MUL.or(DIV), factor)).action(new Action() {
+        addend.define(factor, CC.ks(MUL.or(DIV), factor)).action(new Action<Object>() {
             public Object act(Object matched) {
                 Object[] params = (Object[]) matched;
                 double leftMost = (Double) params[0];
@@ -134,11 +134,11 @@ public class AnalyzedLangTest extends TestCase {
                 return leftMost;
             }
         });
-        factor.define(DIGIT).action(new Action() {
+        factor.define(DIGIT).action(new Action<Object>() {
             public Object act(Object param) {
                 return Double.parseDouble((String) param);
             }
-        }).alt(LEFTPAREN, addition, RIGHTPAREN).action(new Action() {
+        }).alt(LEFTPAREN, addition, RIGHTPAREN).action(new Action<Object>() {
             public Object act(Object matched) {
                 return (Double) ((Object[]) matched)[1];
             }

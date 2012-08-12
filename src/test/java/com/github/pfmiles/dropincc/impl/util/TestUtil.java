@@ -28,7 +28,7 @@ import com.github.pfmiles.dropincc.impl.automataview.DotGenerator;
  */
 public class TestUtil extends TestCase {
     public void testResolveActionName() {
-        Action a = new Action() {
+        Action<Object> a = new Action<Object>() {
 
             public Object act(Object matched) {
                 return null;

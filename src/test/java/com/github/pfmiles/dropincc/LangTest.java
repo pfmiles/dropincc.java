@@ -81,7 +81,7 @@ public class LangTest extends TestCase {
         lang = new Lang("Test");
         A = lang.newGrule();
         lang.defineGrule(A, CC.EOF);
-        A.define(CC.NOTHING).action(new Action() {
+        A.define(CC.NOTHING).action(new Action<Object>() {
             public Object act(Object matched) {
                 assertTrue(matched == null);
                 return matched;
@@ -94,12 +94,12 @@ public class LangTest extends TestCase {
         lang = new Lang("Test");
         A = lang.newGrule();
         lang.defineGrule(A, CC.EOF);
-        A.define("a").action(new Action() {
+        A.define("a").action(new Action<Object>() {
             public Object act(Object matched) {
                 assertTrue("a".equals(matched));
                 return matched;
             }
-        }).alt(CC.NOTHING).action(new ParamedAction<Object>() {
+        }).alt(CC.NOTHING).action(new ParamedAction<Object, Object>() {
             public Object act(Object arg, Object matched) {
                 assertTrue(matched == null);
                 return matched;
@@ -127,47 +127,47 @@ public class LangTest extends TestCase {
     public void testNonLLRegularRule() {
         Lang lang = new Lang("Test");
         Grule A = lang.newGrule();
-        lang.defineGrule(A, CC.EOF).action(new Action() {
+        lang.defineGrule(A, CC.EOF).action(new Action<Object>() {
             public Object act(Object matched) {
                 return ((Object[]) matched)[0];
             }
         });
         Grule B = lang.newGrule();
-        A.define(B, "c").action(new Action() {
+        A.define(B, "c").action(new Action<Object>() {
             public Object act(Object matched) {
                 Object[] ms = (Object[]) matched;
                 return ((String) ms[0]) + ((String) ms[1]);
             }
-        }).alt(B, "d").action(new Action() {
+        }).alt(B, "d").action(new Action<Object>() {
             public Object act(Object matched) {
                 Object[] ms = (Object[]) matched;
                 return ((String) ms[0]) + ((String) ms[1]);
             }
         });
         Grule C = lang.newGrule();
-        B.define(C, B, "e").action(new Action() {
+        B.define(C, B, "e").action(new Action<Object>() {
             public Object act(Object matched) {
                 Object[] ms = (Object[]) matched;
                 return ((String) ms[0]) + ((String) ms[1] + ((String) ms[2]));
             }
 
-        }).alt(C, B, "f").action(new Action() {
+        }).alt(C, B, "f").action(new Action<Object>() {
             public Object act(Object matched) {
                 Object[] ms = (Object[]) matched;
                 return ((String) ms[0]) + ((String) ms[1] + ((String) ms[2]));
             }
-        }).alt("b").action(new Action() {
+        }).alt("b").action(new Action<Object>() {
             public Object act(Object matched) {
                 return (String) matched;
             }
         });
-        C.define("g", C).action(new ParamedAction<Pair<String, Integer>>() {
+        C.define("g", C).action(new ParamedAction<Pair<String, Integer>, Object>() {
             public Object act(Pair<String, Integer> arg, Object matched) {
                 arg.setRight(arg.getRight() + 1);
                 Object[] ms = (Object[]) matched;
                 return ((String) ms[0]) + ((String) ms[1]);
             }
-        }).alt("g").action(new ParamedAction<Pair<String, Integer>>() {
+        }).alt("g").action(new ParamedAction<Pair<String, Integer>, Object>() {
             public Object act(Pair<String, Integer> arg, Object matched) {
                 arg.setRight(arg.getRight() + 1);
                 return matched;
@@ -197,7 +197,7 @@ public class LangTest extends TestCase {
         Map<String, Integer> actionCounter = new HashMap<String, Integer>();
         Lang lang = new Lang("Test");
         Grule A = lang.newGrule();
-        lang.defineGrule(A, CC.EOF).action(new ParamedAction<Map<String, Integer>>() {
+        lang.defineGrule(A, CC.EOF).action(new ParamedAction<Map<String, Integer>, Object>() {
             public Object act(Map<String, Integer> arg, Object matched) {
                 String k = this.getClass().getName();// 12
                 if (arg.containsKey(k)) {
@@ -211,7 +211,7 @@ public class LangTest extends TestCase {
             }
         });
         Grule B = lang.newGrule();
-        A.define(B, "c").action(new ParamedAction<Map<String, Integer>>() {
+        A.define(B, "c").action(new ParamedAction<Map<String, Integer>, Object>() {
             public Object act(Map<String, Integer> arg, Object matched) {
                 assertTrue(false);// would never entered
                 String k = this.getClass().getName();
@@ -223,7 +223,7 @@ public class LangTest extends TestCase {
                 Object[] ms = (Object[]) matched;
                 return (String) ms[0] + (String) ms[1];
             }
-        }).alt(B, "d").action(new ParamedAction<Map<String, Integer>>() {
+        }).alt(B, "d").action(new ParamedAction<Map<String, Integer>, Object>() {
             public Object act(Map<String, Integer> arg, Object matched) {
                 String k = this.getClass().getName();// 14
                 if (arg.containsKey(k)) {
@@ -236,7 +236,7 @@ public class LangTest extends TestCase {
                 return (String) ms[0] + (String) ms[1];
             }
         });
-        B.define("b").action(new ParamedAction<Map<String, Integer>>() {
+        B.define("b").action(new ParamedAction<Map<String, Integer>, Object>() {
             public Object act(Map<String, Integer> arg, Object matched) {
                 String k = this.getClass().getName();// 15
                 if (arg.containsKey(k)) {
@@ -247,7 +247,7 @@ public class LangTest extends TestCase {
                 assertTrue(arg.get(k) == 1);
                 return matched;
             }
-        }).alt("e", B, "f").action(new ParamedAction<Map<String, Integer>>() {
+        }).alt("e", B, "f").action(new ParamedAction<Map<String, Integer>, Object>() {
             public Object act(Map<String, Integer> arg, Object matched) {
                 String k = this.getClass().getName();// 16
                 if (arg.containsKey(k)) {
@@ -280,7 +280,7 @@ public class LangTest extends TestCase {
     public void testEmptyAltBackTrack() {
         Lang lang = new Lang("Test");
         Grule A = lang.newGrule();
-        lang.defineGrule(A, CC.EOF).action(new Action() {
+        lang.defineGrule(A, CC.EOF).action(new Action<Object>() {
             private int count = 0;
 
             public Object act(Object matched) {
@@ -290,12 +290,12 @@ public class LangTest extends TestCase {
             }
         });
         Grule B = lang.newGrule();
-        A.define(B, "c").action(new ParamedAction<Object>() {
+        A.define(B, "c").action(new ParamedAction<Object, Object>() {
             public Object act(Object arg, Object matched) {
                 assertTrue(false);
                 return matched;
             }
-        }).alt(B, "d").action(new Action() {
+        }).alt(B, "d").action(new Action<Object>() {
             private int count;
 
             public Object act(Object matched) {
@@ -304,7 +304,7 @@ public class LangTest extends TestCase {
                 return matched;
             }
         });
-        B.define("e", B, "f").action(new Action() {
+        B.define("e", B, "f").action(new Action<Object>() {
             private int count = 0;
 
             public Object act(Object matched) {
@@ -312,7 +312,7 @@ public class LangTest extends TestCase {
                 assertTrue(count <= 2);
                 return matched;
             }
-        }).alt(CC.NOTHING).action(new ParamedAction<Object>() {
+        }).alt(CC.NOTHING).action(new ParamedAction<Object, Object>() {
             private int count;
 
             public Object act(Object arg, Object matched) {

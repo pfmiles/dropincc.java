@@ -15,10 +15,12 @@ package com.github.pfmiles.dropincc;
  * 
  * @author pf-miles
  * 
- * @param <T>
- *            the type of the parameter
+ * @param <P>
+ *            the expected type of the parameter passed in
+ * @param <M>
+ *            the expected type of the matched sequence
  */
-public interface ParamedAction<T> {
+public interface ParamedAction<P, M> {
     /**
      * The same as the 'act' metod in com.github.pfmiles.dropincc.Action
      * interface, except that there is an additional 'arg' argument which is
@@ -29,5 +31,5 @@ public interface ParamedAction<T> {
      * @see com.github.pfmiles.dropincc.Action#act(Object)
      * @return
      */
-    public Object act(T arg, Object matched);
+    public Object act(P arg, M matched);
 }

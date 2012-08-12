@@ -18,8 +18,10 @@ package com.github.pfmiles.dropincc;
  * 
  * @author pf-miles
  * 
+ * @param <T>
+ *            The expected type of matched sequence
  */
-public interface Action {
+public interface Action<T> {
     /**
      * code you would like to execute when corresponding alternative matches.
      * 
@@ -45,5 +47,5 @@ public interface Action {
      *            a single object returned by 'A' rule.
      * @return
      */
-    public Object act(Object matched);
+    public Object act(T matched);
 }

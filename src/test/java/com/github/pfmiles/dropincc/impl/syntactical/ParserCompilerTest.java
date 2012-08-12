@@ -270,7 +270,7 @@ public class ParserCompilerTest extends TestCase {
         Lang lang = new Lang("Calculator");
         Grule L = lang.newGrule();
         TokenDef a = lang.newToken("\\+");
-        lang.defineGrule(L, CC.EOF).action(new Action() {
+        lang.defineGrule(L, CC.EOF).action(new Action<Object>() {
             public Object act(Object matched) {
                 Object[] ms = (Object[]) matched;
                 System.out.println("Total result, length(2 exp): " + ms.length);
@@ -278,7 +278,7 @@ public class ParserCompilerTest extends TestCase {
             }
         });
         Grule A = lang.newGrule();
-        L.define(A, CC.ks(a.or("\\-"), A)).action(new Action() {
+        L.define(A, CC.ks(a.or("\\-"), A)).action(new Action<Object>() {
             public Object act(Object matched) {
                 Object[] ms = (Object[]) matched;
                 System.out.println("L result, length(2 exp): " + ms.length);
@@ -287,20 +287,20 @@ public class ParserCompilerTest extends TestCase {
         });
         TokenDef m = lang.newToken("\\*");
         Grule F = lang.newGrule();
-        A.define(F, CC.ks(m.or("/"), F)).action(new Action() {
+        A.define(F, CC.ks(m.or("/"), F)).action(new Action<Object>() {
             public Object act(Object matched) {
                 Object[] ms = (Object[]) matched;
                 System.out.println("A result, length(2 exp): " + ms.length);
                 return ms;
             }
         });
-        F.define("\\(", L, "\\)").action(new Action() {
+        F.define("\\(", L, "\\)").action(new Action<Object>() {
             public Object act(Object matched) {
                 Object[] ms = (Object[]) matched;
                 System.out.println("F result, length(3 exp): " + ms.length);
                 return ms;
             }
-        }).alt("[0-9]+").action(new ParamedAction<Object>() {
+        }).alt("[0-9]+").action(new ParamedAction<Object, Object>() {
             public Object act(Object arg, Object matched) {
                 String m = (String) matched;
                 System.out.println("F result, single value: " + m + ", arg: " + arg);

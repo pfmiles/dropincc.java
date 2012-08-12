@@ -34,7 +34,7 @@ public class BacktrackTest extends TestCase {
         lang.defineGrule(A, CC.EOF);
         Grule B = lang.newGrule();
         A.define(CC.ks(B, "c"), B, "d");
-        B.define("b").action(new Action() {
+        B.define("b").action(new Action<Object>() {
             private int count;
 
             public Object act(Object matched) {
@@ -43,7 +43,7 @@ public class BacktrackTest extends TestCase {
                 // System.out.println("b count:" + count);
                 return matched;
             }
-        }).alt("e", B, "f").action(new Action() {
+        }).alt("e", B, "f").action(new Action<Object>() {
             private int count;
 
             public Object act(Object matched) {
@@ -72,7 +72,7 @@ public class BacktrackTest extends TestCase {
         lang.defineGrule(A, CC.EOF);
         Grule B = lang.newGrule();
         A.define(CC.kc(B, "c"), B, "d");
-        B.define("b").action(new Action() {
+        B.define("b").action(new Action<Object>() {
             private int count;
 
             public Object act(Object matched) {
@@ -81,7 +81,7 @@ public class BacktrackTest extends TestCase {
                 // System.out.println("b count:" + count);
                 return matched;
             }
-        }).alt("e", B, "f").action(new Action() {
+        }).alt("e", B, "f").action(new Action<Object>() {
             private int count;
 
             public Object act(Object matched) {
@@ -110,7 +110,7 @@ public class BacktrackTest extends TestCase {
         lang.defineGrule(A, CC.EOF);
         Grule B = lang.newGrule();
         A.define(CC.op(B, "c"), B, "d");
-        B.define("b").action(new Action() {
+        B.define("b").action(new Action<Object>() {
             private int count;
 
             public Object act(Object matched) {
@@ -119,7 +119,7 @@ public class BacktrackTest extends TestCase {
                 // System.out.println("b count:" + count);
                 return matched;
             }
-        }).alt("e", B, "f").action(new Action() {
+        }).alt("e", B, "f").action(new Action<Object>() {
             private int count;
 
             public Object act(Object matched) {

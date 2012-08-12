@@ -18,7 +18,7 @@ import com.github.pfmiles.dropincc.Action;
  * @author pf-miles
  * 
  */
-public class IvkCountCheckAction implements Action {
+public class IvkCountCheckAction implements Action<Object> {
     private int limit;// invoke time limit
     private int count;
     private int matchedLength;// matched sequence length

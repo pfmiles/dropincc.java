@@ -41,14 +41,14 @@ public class Calculator {
          */
         Lang c = new Lang("Calculator");
         Grule expr = c.newGrule();
-        c.defineGrule(expr, CC.EOF).action(new Action() {
+        c.defineGrule(expr, CC.EOF).action(new Action<Object>() {
             public Double act(Object matched) {
                 return (Double) ((Object[]) matched)[0];
             }
         });
         TokenDef a = c.newToken("\\+");
         Grule addend = c.newGrule();
-        expr.define(addend, CC.ks(a.or("\\-"), addend)).action(new Action() {
+        expr.define(addend, CC.ks(a.or("\\-"), addend)).action(new Action<Object>() {
             public Double act(Object matched) {
                 Object[] ms = (Object[]) matched;
                 Double a0 = (Double) ms[0];
@@ -67,7 +67,7 @@ public class Calculator {
         });
         TokenDef m = c.newToken("\\*");
         Grule factor = c.newGrule();
-        addend.define(factor, CC.ks(m.or("/"), factor)).action(new Action() {
+        addend.define(factor, CC.ks(m.or("/"), factor)).action(new Action<Object>() {
             public Double act(Object matched) {
                 Object[] ms = (Object[]) matched;
                 Double f0 = (Double) ms[0];
@@ -84,11 +84,11 @@ public class Calculator {
                 return f0;
             }
         });
-        factor.define("\\(", expr, "\\)").action(new Action() {
+        factor.define("\\(", expr, "\\)").action(new Action<Object>() {
             public Double act(Object matched) {
                 return (Double) ((Object[]) matched)[1];
             }
-        }).alt("\\d+(\\.\\d+)?").action(new Action() {
+        }).alt("\\d+(\\.\\d+)?").action(new Action<Object>() {
             public Double act(Object matched) {
                 return Double.parseDouble((String) matched);
             }
