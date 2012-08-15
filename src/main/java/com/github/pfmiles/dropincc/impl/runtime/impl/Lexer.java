@@ -163,7 +163,8 @@ public abstract class Lexer implements Enumeration<Token> {
     }
 
     /**
-     * Tells if is backtracking at parsing runtime.
+     * Tells if is backtracking at parsing runtime. TODO simplify to a single
+     * boolean to gain performance
      * 
      * @return
      */

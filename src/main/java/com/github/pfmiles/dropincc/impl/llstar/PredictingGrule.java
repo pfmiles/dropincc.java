@@ -33,6 +33,9 @@ public class PredictingGrule {
     // tracking
     private boolean backtrack;
 
+    // if this rule is on the path of backtracking
+    private boolean onBacktrackPath;
+
     /**
      * Create a predicting grule with look-ahead DFA
      * 
@@ -40,11 +43,12 @@ public class PredictingGrule {
      * @param dfa
      * @param alts
      */
-    public PredictingGrule(GruleType gruleType, LookAheadDfa dfa, List<CAlternative> alts) {
+    public PredictingGrule(GruleType gruleType, LookAheadDfa dfa, List<CAlternative> alts, boolean onBacktrackPath) {
         super();
         this.gruleType = gruleType;
         this.dfa = dfa;
         this.alts = alts;
+        this.onBacktrackPath = onBacktrackPath;
     }
 
     /**
@@ -54,10 +58,11 @@ public class PredictingGrule {
      * @param grule
      * @param alts
      */
-    public PredictingGrule(GruleType grule, List<CAlternative> alts) {
+    public PredictingGrule(GruleType grule, List<CAlternative> alts, boolean onBacktrackPath) {
         this.gruleType = grule;
         this.alts = alts;
         this.backtrack = true;
+        this.onBacktrackPath = onBacktrackPath;
     }
 
     public GruleType getGruleType() {
@@ -86,6 +91,10 @@ public class PredictingGrule {
 
     public boolean isBacktrack() {
         return backtrack;
+    }
+
+    public boolean isOnBacktrackPath() {
+        return onBacktrackPath;
     }
 
 }

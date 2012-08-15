@@ -237,23 +237,77 @@ public class ParserCompiler {
         LlstarAnalysis a = new LlstarAnalysis(ruleTypeToAlts, kleeneTypeToNode);
         Set<GruleType> nonLLRegularGrules = a.getNonLLRegularGrules();
         Set<KleeneType> nonLLRegularKleenes = a.getNonLLRegularKleenes();
+        // find all grule and kleene node on backtracking path
+        Pair<Set<GruleType>, Set<KleeneType>> onBacktrackPath = findNodesOnBacktrackingPath(nonLLRegularGrules, nonLLRegularKleenes, ruleTypeToAlts, kleeneTypeToNode);
+        Set<GruleType> gtypeOnBacktrackPath = onBacktrackPath.getLeft();
+        Set<KleeneType> ktypeOnBacktrackPath = onBacktrackPath.getRight();
         for (Map.Entry<GruleType, List<CAlternative>> e : ruleTypeToAlts.entrySet()) {
             GruleType grule = e.getKey();
             if (nonLLRegularGrules.contains(grule)) {
-                pgs.add(new PredictingGrule(grule, e.getValue()));
+                pgs.add(new PredictingGrule(grule, e.getValue(), gtypeOnBacktrackPath.contains(grule)));
             } else {
-                pgs.add(new PredictingGrule(grule, a.getLookAheadDfa(grule), e.getValue()));
+                pgs.add(new PredictingGrule(grule, a.getLookAheadDfa(grule), e.getValue(), gtypeOnBacktrackPath.contains(grule)));
             }
         }
         List<PredictingKleene> pks = new ArrayList<PredictingKleene>();
         for (KleeneType ktype : kleeneTypeToNode.keySet()) {
             if (nonLLRegularKleenes.contains(ktype)) {
-                pks.add(new PredictingKleene(ktype));
+                pks.add(new PredictingKleene(ktype, ktypeOnBacktrackPath.contains(ktype)));
             } else {
-                pks.add(new PredictingKleene(ktype, a.getKleenDfaMapping().get(ktype)));
+                pks.add(new PredictingKleene(ktype, a.getKleenDfaMapping().get(ktype), ktypeOnBacktrackPath.contains(ktype)));
             }
         }
         return new PredictingResult(pgs, pks, a.getDebugMsg(), a.getWarnings());
+    }
+
+    private static Pair<Set<GruleType>, Set<KleeneType>> findNodesOnBacktrackingPath(Set<GruleType> backtrackGrules, Set<KleeneType> backtrackKleenes,
+            Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, List<EleType>> kleeneTypeToNode) {
+        Set<GruleType> onPathGrules = new HashSet<GruleType>();
+        Set<KleeneType> onPathKleenes = new HashSet<KleeneType>();
+        Set<GruleType> examinedGrules = new HashSet<GruleType>();
+        Set<KleeneType> examinedKleenes = new HashSet<KleeneType>();
+        if (backtrackGrules != null)
+            for (GruleType g : backtrackGrules) {
+                if (!g.getClass().equals(GruleType.class))
+                    // only concerns not-generated grules here
+                    continue;
+                examinedGrules.add(g);
+                for (CAlternative alt : ruleTypeToAlts.get(g)) {
+                    markBacktrackPathForElements(alt.getMatchSequence(), onPathGrules, onPathKleenes, ruleTypeToAlts, kleeneTypeToNode, examinedGrules, examinedKleenes);
+                }
+            }
+        if (backtrackKleenes != null)
+            for (KleeneType k : backtrackKleenes) {
+                examinedKleenes.add(k);
+                markBacktrackPathForElements(kleeneTypeToNode.get(k), onPathGrules, onPathKleenes, ruleTypeToAlts, kleeneTypeToNode, examinedGrules, examinedKleenes);
+            }
+        return new Pair<Set<GruleType>, Set<KleeneType>>(onPathGrules, onPathKleenes);
+    }
+
+    private static void markBacktrackPathForElements(List<EleType> matchSequence, Set<GruleType> onPathGrules, Set<KleeneType> onPathKleenes,
+            Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, List<EleType>> kleeneTypeToNode, Set<GruleType> examinedGrules,
+            Set<KleeneType> examinedKleenes) {
+        for (EleType ele : matchSequence) {
+            if (ele instanceof GruleType) {
+                // add to on-path grule set and process children
+                GruleType g = (GruleType) ele;
+                if (examinedGrules.contains(g))
+                    continue;
+                onPathGrules.add(g);
+                examinedGrules.add(g);
+                for (CAlternative alt : ruleTypeToAlts.get(g)) {
+                    markBacktrackPathForElements(alt.getMatchSequence(), onPathGrules, onPathKleenes, ruleTypeToAlts, kleeneTypeToNode, examinedGrules, examinedKleenes);
+                }
+            } else if (ele instanceof KleeneType) {
+                // add to on-path kleene set and process children
+                KleeneType k = (KleeneType) ele;
+                if (examinedKleenes.contains(k))
+                    continue;
+                onPathKleenes.add(k);
+                examinedKleenes.add(k);
+                markBacktrackPathForElements(kleeneTypeToNode.get(k), onPathGrules, onPathKleenes, ruleTypeToAlts, kleeneTypeToNode, examinedGrules, examinedKleenes);
+            }
+        }
     }
 
     /**

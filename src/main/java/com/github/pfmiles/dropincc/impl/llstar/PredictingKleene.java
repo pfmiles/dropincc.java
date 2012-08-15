@@ -23,6 +23,8 @@ public class PredictingKleene {
     private KleeneType kleeneType;
     private LookAheadDfa dfa;
     private boolean backtrack;
+    // if this kleene node is on the path of backtracking
+    private boolean onBacktrackPath;
 
     /**
      * Construct a predicting kleene with look-ahead DFA
@@ -30,9 +32,10 @@ public class PredictingKleene {
      * @param type
      * @param dfa
      */
-    public PredictingKleene(KleeneType type, LookAheadDfa dfa) {
+    public PredictingKleene(KleeneType type, LookAheadDfa dfa, boolean onBacktrackPath) {
         this.kleeneType = type;
         this.dfa = dfa;
+        this.onBacktrackPath = onBacktrackPath;
     }
 
     /**
@@ -40,9 +43,10 @@ public class PredictingKleene {
      * 
      * @param type
      */
-    public PredictingKleene(KleeneType type) {
+    public PredictingKleene(KleeneType type, boolean onBacktrackPath) {
         this.kleeneType = type;
         this.backtrack = true;
+        this.onBacktrackPath = onBacktrackPath;
     }
 
     public KleeneType getKleeneType() {
@@ -55,6 +59,10 @@ public class PredictingKleene {
 
     public boolean isBacktrack() {
         return backtrack;
+    }
+
+    public boolean isOnBacktrackPath() {
+        return onBacktrackPath;
     }
 
 }
