@@ -15,8 +15,8 @@ import java.text.MessageFormat;
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneCrossType;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneStarType;
-import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 import com.github.pfmiles.dropincc.impl.kleene.OptionalType;
+import com.github.pfmiles.dropincc.impl.llstar.PredictingKleene;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.CodeGen;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.CodeGenContext;
 import com.github.pfmiles.dropincc.impl.util.Pair;
@@ -35,13 +35,16 @@ public class KleeneEleGen extends CodeGen {
     // elementVar {3}
     // ruleName {4}
     private static final MessageFormat ksFmt = getTemplate("kleeneStar.dt", KleeneEleGen.class);
+    private static final MessageFormat ksFmtBacktracking = getTemplate("kleeneStarBacktracking.dt", KleeneEleGen.class);
     private static final MessageFormat kcFmt = getTemplate("kleeneCross.dt", KleeneEleGen.class);
+    private static final MessageFormat kcFmtBacktracking = getTemplate("kleeneCrossBacktracking.dt", KleeneEleGen.class);
     private static final MessageFormat opFmt = getTemplate("optional.dt", KleeneEleGen.class);
     // varName {0}
     // ksNum {1}
     // elementsCode {2}
     // elementVar {3}
     private static final MessageFormat ksBackFmt = getTemplate("kleeneStarBacktrack.dt", KleeneEleGen.class);
+    private static final MessageFormat ksBackFmtBacktracking = getTemplate("kleeneStarBacktrackBacktracking.dt", KleeneEleGen.class);
     // varName {0}
     // ksNum {1}
     // elementsCode {2}
@@ -49,53 +52,80 @@ public class KleeneEleGen extends CodeGen {
     // elementsCodePlus {4}
     // elementVarPlus {5}
     private static final MessageFormat kcBackFmt = getTemplate("kleeneCrossBacktrack.dt", KleeneEleGen.class);
+    private static final MessageFormat kcBackFmtBacktracking = getTemplate("kleeneCrossBacktrackBacktracking.dt", KleeneEleGen.class);
     // varName {0}
     // ksNum {1}
     // elementsCode {2}
     // elementVar {3}
     private static final MessageFormat opBackFmt = getTemplate("optionalBacktrack.dt", KleeneEleGen.class);
+    private static final MessageFormat opBackFmtBacktracking = getTemplate("optionalBacktrackBacktracking.dt", KleeneEleGen.class);
 
-    private KleeneType ele;
+    private PredictingKleene pk;
+    private boolean backtracking;
 
-    public KleeneEleGen(KleeneType ele) {
-        this.ele = ele;
+    public KleeneEleGen(PredictingKleene pk, boolean generatingBacktrackCode) {
+        this.pk = pk;
+        this.backtracking = generatingBacktrackCode;
     }
 
     // returns [varName, code]
     @SuppressWarnings("unchecked")
     public Pair<String, String> render(CodeGenContext context) {
         String varName = "p" + context.varSeq.next();
-        String kName = ele.toCodeGenStr();
+        String kName = pk.getKleeneType().toCodeGenStr();
         // kleene defNum is based from 1000 when code gen, to distinguish from
         // normal grule's index
-        int knum = ele.getDefIndex() + 1000;// XXX this may not good...
-        Pair<String, String> varAndCode = new ElementsCodeGen(context.kleeneTypeToNode.get(ele)).render(context);
-        if (this.ele instanceof KleeneStarType) {
-            if (context.backtrackKleenes.contains(this.ele)) {
-                return new Pair<String, String>(varName, ksBackFmt.format(new String[] { varName, String.valueOf(knum), varAndCode.getRight(), varAndCode.getLeft() }));
+        // XXX this may not good...
+        String knum = String.valueOf(pk.getKleeneType().getDefIndex() + 1000);
+        String code = null;
+        Pair<String, String> varAndCode = new ElementsCodeGen(pk.getMatchSequence(), this.backtracking || this.pk.isBacktrack()).render(context);
+        String elementsCode = varAndCode.getRight();
+        String elementsVar = varAndCode.getLeft();
+        if (pk.getKleeneType() instanceof KleeneStarType) {
+            if (pk.isBacktrack()) {
+                if (this.backtracking) {
+                    code = ksBackFmtBacktracking.format(new String[] { varName, knum, elementsCode, elementsVar });
+                } else {
+                    code = ksBackFmt.format(new String[] { varName, knum, elementsCode, elementsVar });
+                }
             } else {
-                return new Pair<String, String>(varName, ksFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
-                        context.curGrule.toCodeGenStr() }));
+                if (this.backtracking) {
+                    code = ksFmtBacktracking.format(new String[] { varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr() });
+                } else {
+                    code = ksFmt.format(new String[] { varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr() });
+                }
             }
-        } else if (this.ele instanceof KleeneCrossType) {
-            if (context.backtrackKleenes.contains(this.ele)) {
-                Pair<String, String> varAndCodePlus = new ElementsCodeGen(context.kleeneTypeToNode.get(ele)).render(context);
-                return new Pair<String, String>(varName, kcBackFmt.format(new String[] { varName, String.valueOf(knum), varAndCode.getRight(), varAndCode.getLeft(),
-                        varAndCodePlus.getRight(), varAndCodePlus.getLeft() }));
+        } else if (pk.getKleeneType() instanceof KleeneCrossType) {
+            if (pk.isBacktrack()) {
+                Pair<String, String> varAndCodePlus = new ElementsCodeGen(pk.getMatchSequence(), this.backtracking).render(context);
+                String elementsCodePlus = varAndCodePlus.getRight();
+                String elementsVarPlus = varAndCodePlus.getLeft();
+                if (this.backtracking) {
+                    code = kcBackFmtBacktracking.format(new String[] { varName, knum, elementsCode, elementsVar, elementsCodePlus, elementsVarPlus });
+                } else {
+                    code = kcBackFmt.format(new String[] { varName, knum, elementsCode, elementsVar, elementsCodePlus, elementsVarPlus });
+                }
             } else {
-                return new Pair<String, String>(varName, kcFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
-                        context.curGrule.toCodeGenStr() }));
+                if (this.backtracking) {
+                    code = kcFmtBacktracking.format(new String[] { varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr() });
+                } else {
+                    code = kcFmt.format(new String[] { varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr() });
+                }
             }
-        } else if (this.ele instanceof OptionalType) {
-            if (context.backtrackKleenes.contains(this.ele)) {
-                return new Pair<String, String>(varName, opBackFmt.format(new String[] { varName, String.valueOf(knum), varAndCode.getRight(), varAndCode.getLeft() }));
+        } else if (pk.getKleeneType() instanceof OptionalType) {
+            if (pk.isBacktrack()) {
+                if (this.backtracking) {
+                    code = opBackFmtBacktracking.format(new String[] { varName, knum, elementsCode, elementsVar });
+                } else {
+                    code = opBackFmt.format(new String[] { varName, knum, elementsCode, elementsVar });
+                }
             } else {
-                return new Pair<String, String>(varName, opFmt.format(new String[] { varName, kName, varAndCode.getRight(), varAndCode.getLeft(),
-                        context.curGrule.toCodeGenStr() }));
+                code = opFmt.format(new String[] { varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr() });
             }
         } else {
-            throw new DropinccException("Unhandled code generation kleene node type: " + this.ele);
+            throw new DropinccException("Unhandled code generation kleene node type: " + pk.getKleeneType());
         }
+        return new Pair<String, String>(varName, code);
     }
 
 }

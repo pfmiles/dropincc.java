@@ -2,8 +2,9 @@ try '{'
     this.lexer.setSavePoint({0});
 
     {1}
-    this.lexer.releaseSavePoint({0}, true);
-    ret = new DelayedAction({3}, {2}).act(arg);
+    startPoint = this.lexer.releaseSavePoint({0}, true);
+    ret = new DelayedAction({3}, {2});
+    putInCache({0}, (DelayedAction)ret, startPoint);
     break; // goto :label
 '}' catch (DropinccException e) '{'
     this.lexer.releaseSavePoint({0}, false);

@@ -106,6 +106,32 @@ public class ComplexBacktrackTest extends TestCase {
         mgr.checkFinalCounts();
     }
 
+    /**
+     * <pre>
+     * S ::= A $
+     * A ::= B (B i)* B j 
+     *     | B (B i)+ B k
+     * B ::= e
+     *     | f B g
+     * </pre>
+     */
+    public void testComplexBacktrack4b1() {
+        IccActionManager mgr = new IccActionManager();
+        Lang lang = new Lang("Test");
+        Grule A = lang.newGrule();
+        Grule B = lang.newGrule();
+
+        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1, 2));
+        A.define(B, CC.ks(B, "i"), B, "j").action(mgr.newCheck(0, 0)).alt(B, CC.kc(B, "i"), B, "k").action(mgr.newCheck(1, 4));
+
+        B.define("e").action(mgr.newCheck(3, -1)).alt("f", B, "g").action(mgr.newCheck(1, 3));
+
+        Exe exe = lang.compile();
+        exe.eval("efegiek");
+
+        mgr.checkFinalCounts();
+    }
+
     // NBK - BR
     /**
      * <pre>

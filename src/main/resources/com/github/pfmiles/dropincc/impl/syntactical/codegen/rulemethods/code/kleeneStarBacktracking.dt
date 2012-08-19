@@ -1,6 +1,6 @@
 Object {0} = new ArrayList<Object>();
 while (kleenePredicting({1}DfaStart, "{4}")) '{'
-	{2}
+    {2}
     ((List<Object>) {0}).add({3});
 '}'
-{0} = ((List<Object>) {0}).toArray();
+{0} = new DelayedAction(null, ((List<Object>) {0}).toArray());

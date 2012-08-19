@@ -6,11 +6,10 @@ while (true) '{'
     try '{'
         {2}
         lexer.releaseSavePoint({1}, true);
-        {3} = new DelayedAction(null, {3}).act(arg);
         ((List<Object>) {0}).add({3});
     '}' catch (DropinccException e) '{'
         lexer.releaseSavePoint({1}, false);
         break;
     '}'
 '}'
-{0} = ((List<Object>) {0}).toArray();
+{0} = new DelayedAction(null, ((List<Object>) {0}).toArray());

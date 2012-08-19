@@ -1,0 +1,7 @@
+int startPoint = -1;
+while (true) '{'
+{1}
+throw new DropinccException("No viable alternative found in rule: {0}, at position: " + lexer.getCurrentPosition() + ", upcoming sequence: "
+        + lexer.getAheadTokensRepr() + "...");
+'}'
+// :label

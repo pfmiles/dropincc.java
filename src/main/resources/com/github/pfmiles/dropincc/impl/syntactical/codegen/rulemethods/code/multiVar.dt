@@ -1,6 +1,2 @@
 Object {0} = null;
-if (lexer.isBacktracking()) '{'
-    {0} = new DelayedAction(null, new Object[] '{' {1} '}');
-'}' else '{'
-    {0} = new Object[] '{' {1} '}';
-'}'
+{0} = new Object[] '{' {1} '}';

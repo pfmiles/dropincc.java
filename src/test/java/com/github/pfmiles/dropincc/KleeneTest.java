@@ -124,6 +124,30 @@ public class KleeneTest extends TestCase {
     /**
      * <pre>
      * S ::= A $
+     * A ::= (B (B c)? B d)+ B c
+     * B ::= e
+     *     | f B g
+     * </pre>
+     */
+    public void test4b1() {
+        IccActionManager mgr = new IccActionManager();
+        Lang lang = new Lang("Test");
+        Grule A = lang.newGrule();
+        Grule B = lang.newGrule();
+
+        lang.defineGrule(A, CC.EOF).action(mgr.newCheck(1, 2));
+        A.define(CC.kc(B, CC.op(B, "c"), B, "d"), B, "c").action(mgr.newCheck(1, 3));
+        B.define("e").action(mgr.newCheck(3, -1)).alt("f", B, "g").action(mgr.newCheck(1, 3));
+
+        Exe exe = lang.compile();
+        exe.eval("eedfegc");
+
+        mgr.checkFinalCounts();
+    }
+
+    /**
+     * <pre>
+     * S ::= A $
      * A ::= (a b)*
      * </pre>
      */

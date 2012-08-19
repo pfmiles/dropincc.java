@@ -1,0 +1,11 @@
+ret = tryResolveFromCache({0});
+if (ret == null) '{'
+    if (!lexer.isBacktracking()) '{'
+        {1}
+    '}' else '{'
+        {2}
+    '}'
+'}' else '{'
+    fastForward();
+    if (!lexer.isBacktracking()) ret = ((DelayedAction)ret).act(arg);
+'}'

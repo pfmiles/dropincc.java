@@ -238,9 +238,7 @@ public class ParserCompiler {
         Set<GruleType> nonLLRegularGrules = a.getNonLLRegularGrules();
         Set<KleeneType> nonLLRegularKleenes = a.getNonLLRegularKleenes();
         // find all grule and kleene node on backtracking path
-        Pair<Set<GruleType>, Set<KleeneType>> onBacktrackPath = findNodesOnBacktrackingPath(nonLLRegularGrules, nonLLRegularKleenes, ruleTypeToAlts, kleeneTypeToNode);
-        Set<GruleType> gtypeOnBacktrackPath = onBacktrackPath.getLeft();
-        Set<KleeneType> ktypeOnBacktrackPath = onBacktrackPath.getRight();
+        Set<GruleType> gtypeOnBacktrackPath = findNodesOnBacktrackingPath(nonLLRegularGrules, nonLLRegularKleenes, ruleTypeToAlts, kleeneTypeToNode);
         for (Map.Entry<GruleType, List<CAlternative>> e : ruleTypeToAlts.entrySet()) {
             GruleType grule = e.getKey();
             if (nonLLRegularGrules.contains(grule)) {
@@ -250,20 +248,20 @@ public class ParserCompiler {
             }
         }
         List<PredictingKleene> pks = new ArrayList<PredictingKleene>();
-        for (KleeneType ktype : kleeneTypeToNode.keySet()) {
+        for (Map.Entry<KleeneType, List<EleType>> e : kleeneTypeToNode.entrySet()) {
+            KleeneType ktype = e.getKey();
             if (nonLLRegularKleenes.contains(ktype)) {
-                pks.add(new PredictingKleene(ktype, ktypeOnBacktrackPath.contains(ktype)));
+                pks.add(new PredictingKleene(ktype, e.getValue()));
             } else {
-                pks.add(new PredictingKleene(ktype, a.getKleenDfaMapping().get(ktype), ktypeOnBacktrackPath.contains(ktype)));
+                pks.add(new PredictingKleene(ktype, a.getKleenDfaMapping().get(ktype), e.getValue()));
             }
         }
         return new PredictingResult(pgs, pks, a.getDebugMsg(), a.getWarnings());
     }
 
-    private static Pair<Set<GruleType>, Set<KleeneType>> findNodesOnBacktrackingPath(Set<GruleType> backtrackGrules, Set<KleeneType> backtrackKleenes,
+    private static Set<GruleType> findNodesOnBacktrackingPath(Set<GruleType> backtrackGrules, Set<KleeneType> backtrackKleenes,
             Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, List<EleType>> kleeneTypeToNode) {
         Set<GruleType> onPathGrules = new HashSet<GruleType>();
-        Set<KleeneType> onPathKleenes = new HashSet<KleeneType>();
         Set<GruleType> examinedGrules = new HashSet<GruleType>();
         Set<KleeneType> examinedKleenes = new HashSet<KleeneType>();
         if (backtrackGrules != null)
@@ -273,39 +271,37 @@ public class ParserCompiler {
                     continue;
                 examinedGrules.add(g);
                 for (CAlternative alt : ruleTypeToAlts.get(g)) {
-                    markBacktrackPathForElements(alt.getMatchSequence(), onPathGrules, onPathKleenes, ruleTypeToAlts, kleeneTypeToNode, examinedGrules, examinedKleenes);
+                    markBacktrackPathForElements(alt.getMatchSequence(), onPathGrules, ruleTypeToAlts, kleeneTypeToNode, examinedGrules, examinedKleenes);
                 }
             }
         if (backtrackKleenes != null)
             for (KleeneType k : backtrackKleenes) {
                 examinedKleenes.add(k);
-                markBacktrackPathForElements(kleeneTypeToNode.get(k), onPathGrules, onPathKleenes, ruleTypeToAlts, kleeneTypeToNode, examinedGrules, examinedKleenes);
+                markBacktrackPathForElements(kleeneTypeToNode.get(k), onPathGrules, ruleTypeToAlts, kleeneTypeToNode, examinedGrules, examinedKleenes);
             }
-        return new Pair<Set<GruleType>, Set<KleeneType>>(onPathGrules, onPathKleenes);
+        return onPathGrules;
     }
 
-    private static void markBacktrackPathForElements(List<EleType> matchSequence, Set<GruleType> onPathGrules, Set<KleeneType> onPathKleenes,
-            Map<GruleType, List<CAlternative>> ruleTypeToAlts, Map<KleeneType, List<EleType>> kleeneTypeToNode, Set<GruleType> examinedGrules,
-            Set<KleeneType> examinedKleenes) {
+    private static void markBacktrackPathForElements(List<EleType> matchSequence, Set<GruleType> onPathGrules, Map<GruleType, List<CAlternative>> ruleTypeToAlts,
+            Map<KleeneType, List<EleType>> kleeneTypeToNode, Set<GruleType> examinedGrules, Set<KleeneType> examinedKleenes) {
         for (EleType ele : matchSequence) {
             if (ele instanceof GruleType) {
                 // add to on-path grule set and process children
                 GruleType g = (GruleType) ele;
+                onPathGrules.add(g);
                 if (examinedGrules.contains(g))
                     continue;
-                onPathGrules.add(g);
                 examinedGrules.add(g);
                 for (CAlternative alt : ruleTypeToAlts.get(g)) {
-                    markBacktrackPathForElements(alt.getMatchSequence(), onPathGrules, onPathKleenes, ruleTypeToAlts, kleeneTypeToNode, examinedGrules, examinedKleenes);
+                    markBacktrackPathForElements(alt.getMatchSequence(), onPathGrules, ruleTypeToAlts, kleeneTypeToNode, examinedGrules, examinedKleenes);
                 }
             } else if (ele instanceof KleeneType) {
                 // add to on-path kleene set and process children
                 KleeneType k = (KleeneType) ele;
                 if (examinedKleenes.contains(k))
                     continue;
-                onPathKleenes.add(k);
                 examinedKleenes.add(k);
-                markBacktrackPathForElements(kleeneTypeToNode.get(k), onPathGrules, onPathKleenes, ruleTypeToAlts, kleeneTypeToNode, examinedGrules, examinedKleenes);
+                markBacktrackPathForElements(kleeneTypeToNode.get(k), onPathGrules, ruleTypeToAlts, kleeneTypeToNode, examinedGrules, examinedKleenes);
             }
         }
     }
@@ -342,15 +338,14 @@ public class ParserCompiler {
         RuleMethodsGen ruleMethodsGen = new RuleMethodsGen(predGrules);
         ParserClsGen parserGen = new ParserClsGen(parserName, tokenTypesGen, actionsGen, predsGen, ruleDfaGen, kleeneDfas, startRule, ruleMethodsGen);
 
-        CodeGenContext ctx = new CodeGenContext(kleeneTypeToNode, resolveBacktrackKleeneSet(pks));
+        CodeGenContext ctx = new CodeGenContext(resolveKleenePredictingMapping(pks));
         return new ParserCodeGenResult(parserGen.render(ctx), ctx);
     }
 
-    private static Set<KleeneType> resolveBacktrackKleeneSet(List<PredictingKleene> pks) {
-        Set<KleeneType> ret = new HashSet<KleeneType>();
+    private static Map<KleeneType, PredictingKleene> resolveKleenePredictingMapping(List<PredictingKleene> pks) {
+        Map<KleeneType, PredictingKleene> ret = new HashMap<KleeneType, PredictingKleene>();
         for (PredictingKleene pk : pks) {
-            if (pk.isBacktrack())
-                ret.add(pk.getKleeneType());
+            ret.put(pk.getKleeneType(), pk);
         }
         return ret;
     }

@@ -10,6 +10,9 @@
  ******************************************************************************/
 package com.github.pfmiles.dropincc.impl.llstar;
 
+import java.util.List;
+
+import com.github.pfmiles.dropincc.impl.EleType;
 import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 
 /**
@@ -23,8 +26,8 @@ public class PredictingKleene {
     private KleeneType kleeneType;
     private LookAheadDfa dfa;
     private boolean backtrack;
-    // if this kleene node is on the path of backtracking
-    private boolean onBacktrackPath;
+
+    private List<EleType> matchSequence;
 
     /**
      * Construct a predicting kleene with look-ahead DFA
@@ -32,10 +35,10 @@ public class PredictingKleene {
      * @param type
      * @param dfa
      */
-    public PredictingKleene(KleeneType type, LookAheadDfa dfa, boolean onBacktrackPath) {
+    public PredictingKleene(KleeneType type, LookAheadDfa dfa, List<EleType> matchSequence) {
         this.kleeneType = type;
         this.dfa = dfa;
-        this.onBacktrackPath = onBacktrackPath;
+        this.matchSequence = matchSequence;
     }
 
     /**
@@ -43,10 +46,10 @@ public class PredictingKleene {
      * 
      * @param type
      */
-    public PredictingKleene(KleeneType type, boolean onBacktrackPath) {
+    public PredictingKleene(KleeneType type, List<EleType> matchSequence) {
         this.kleeneType = type;
         this.backtrack = true;
-        this.onBacktrackPath = onBacktrackPath;
+        this.matchSequence = matchSequence;
     }
 
     public KleeneType getKleeneType() {
@@ -61,8 +64,8 @@ public class PredictingKleene {
         return backtrack;
     }
 
-    public boolean isOnBacktrackPath() {
-        return onBacktrackPath;
+    public List<EleType> getMatchSequence() {
+        return matchSequence;
     }
 
 }

@@ -22,15 +22,21 @@ public class Token {
     /**
      * The EOF token predefined
      */
-    public static final Token EOF = new Token(TokenType.EOF, "<<EOF>>");
+    public static final Token EOF = new Token(TokenType.EOF, "<<EOF>>", 0);
     private TokenType type;
     private Object lexeme;
+    private int length;
 
     // TODO filename, row, col numbers record?
 
-    public Token(TokenType type, Object lexeme) {
+    public Token(TokenType type, Object lexeme, int lexemeLength) {
         this.type = type;
         this.lexeme = lexeme;
+        this.length = lexemeLength;
+    }
+
+    public int getLength() {
+        return length;
     }
 
     public TokenType getType() {

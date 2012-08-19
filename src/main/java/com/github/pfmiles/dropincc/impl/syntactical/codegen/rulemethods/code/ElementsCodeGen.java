@@ -22,6 +22,7 @@ import com.github.pfmiles.dropincc.impl.kleene.KleeneType;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.CodeGen;
 import com.github.pfmiles.dropincc.impl.syntactical.codegen.CodeGenContext;
 import com.github.pfmiles.dropincc.impl.util.Pair;
+import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
  * List of elements code generation.
@@ -34,6 +35,7 @@ public class ElementsCodeGen extends CodeGen {
     // varName {0}
     // varContent {1}
     private static final MessageFormat multiVarFmt = getTemplate("multiVar.dt", ElementsCodeGen.class);
+    private static final MessageFormat multiVarBacktrackFmt = getTemplate("multiVarBacktrack.dt", ElementsCodeGen.class);
 
     // varName {0}
     // tokenTypeName {1}
@@ -44,9 +46,11 @@ public class ElementsCodeGen extends CodeGen {
     private static final MessageFormat ruleIvkFmt = new MessageFormat("Object {0} = {1}(arg);");
 
     private List<EleType> matchSeq;
+    private boolean generatingBacktrackCode;
 
-    public ElementsCodeGen(List<EleType> matchSequence) {
+    public ElementsCodeGen(List<EleType> matchSequence, boolean generatingBacktrackCode) {
         this.matchSeq = matchSequence;
+        this.generatingBacktrackCode = generatingBacktrackCode;
     }
 
     // returns pair[varName, codeBlock]
@@ -64,9 +68,9 @@ public class ElementsCodeGen extends CodeGen {
                 sb.append(ruleIvkFmt.format(new String[] { varName, ((GruleType) ele).toCodeGenStr() })).append('\n');
                 vars.add(varName);
             } else if (ele instanceof KleeneType) {
-                Pair<String, String> varAndCode = new KleeneEleGen((KleeneType) ele).render(context);
+                Pair<String, String> varAndCode = new KleeneEleGen(context.kleeneTypeToPredicting.get((KleeneType) ele), this.generatingBacktrackCode).render(context);
                 vars.add(varAndCode.getLeft());
-                sb.append(varAndCode.getRight()).append('\n');
+                sb.append(varAndCode.getRight());
             } else {
                 throw new DropinccException("Unsupported code generation element type: " + ele);
             }
@@ -75,14 +79,13 @@ public class ElementsCodeGen extends CodeGen {
         if (vars.size() == 1) {
             retVar = vars.get(0);
         } else if (vars.size() > 1) {
-            StringBuilder ctt = new StringBuilder();
-            for (String v : vars) {
-                if (ctt.length() != 0)
-                    ctt.append(", ");
-                ctt.append(v);
-            }
+            String ctt = Util.join(", ", vars);
             retVar = "p" + context.varSeq.next();
-            sb.append(multiVarFmt.format(new String[] { retVar, ctt.toString() })).append('\n');
+            if (this.generatingBacktrackCode) {
+                sb.append(multiVarBacktrackFmt.format(new String[] { retVar, ctt })).append('\n');
+            } else {
+                sb.append(multiVarFmt.format(new String[] { retVar, ctt })).append('\n');
+            }
         }
         return new Pair<String, String>(retVar, sb.toString());
     }
