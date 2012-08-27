@@ -122,7 +122,7 @@ Then, translate the EBNF **line-by-line** using dropincc.java API:
 It's a very straightforward step. Just need a little explaination:  
 
 * Basic grammar elements are 'TokenDef'(terminal) and 'Grule'(non-terminal), and you are not restricted to define TokenDefs in prior to all other elements, you can just define TokenDefs instantly, as regular expression strings, while you defining structure of your grammar. Like `expr.define(addend, CC.ks(a.or("\\-"), addend));`, the `"\\-"` is a regex string, it defines a TokenDef on-the-fly.
-* Currently use built-in java regular expression to define token schemes.
+* Currently use built-in java regular expression to define token schemes, beware of java regExp special characters: `<([{\^-=$!|]})?*+.>`.
 * Elements concatenations are expressed in comma separated sequences, `expr, CC.EOF` means `expr $` for example.
 * Alternative productions are expressed as a `alt` method call, for example, the `factor` rule has two alternative productions, the second one is defined as `.alt("\\d+(\\.\\d+)?");`.
 * Inline alternatives are expressed as a `or` method call on elements. See `a.or("\\-")` or `m.or("/")` in above definitions.  
@@ -174,12 +174,10 @@ More examples and documentation coming soon... You could explore the [wiki page]
 ### NOTES
 
 * dropincc.java is now in its very initial stage, so it has a lot of improvements to do: The token definition is implemented in java built-in regEx implementation, so it could not support 'longest match' which it is expected to be. It now behaviors like a 'earliest match' or something... So the token definition order matters a lot currently. This must be improved later.
-* Due to some LL(*) issues, 'Non-LL regular' exceptions may be thrown when you defined some special case of rules coincidentally. This would be fixed soon.
 
 ### TODO
 
 * TokenTypes in runtime lexing & parsing should be simplified to a 'hashCode & equals-efficient' type(int).
 * Bootstrap "longest match" lexer regex engine.
-* Backtrack when "non-LL Regular"
 * Allow user to name each element for pretty printing.
 * More examples and detailed documentation.
