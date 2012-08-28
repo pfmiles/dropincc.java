@@ -8,7 +8,7 @@
  * Contributors:
  *     pf_miles - initial API and implementation
  ******************************************************************************/
-package com.github.pfmiles.dropincc.calctest;
+package com.github.pfmiles.dropincc.example.calculator;
 
 import com.github.pfmiles.dropincc.Action;
 import com.github.pfmiles.dropincc.CC;

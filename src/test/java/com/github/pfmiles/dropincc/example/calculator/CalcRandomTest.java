@@ -8,7 +8,7 @@
  * Contributors:
  *     pf_miles - initial API and implementation
  ******************************************************************************/
-package com.github.pfmiles.dropincc.calctest;
+package com.github.pfmiles.dropincc.example.calculator;
 
 import java.util.concurrent.CountDownLatch;
 

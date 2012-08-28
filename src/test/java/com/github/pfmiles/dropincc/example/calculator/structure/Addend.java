@@ -8,7 +8,7 @@
  * Contributors:
  *     pf_miles - initial API and implementation
  ******************************************************************************/
-package com.github.pfmiles.dropincc.calctest.structure;
+package com.github.pfmiles.dropincc.example.calculator.structure;
 
 import java.util.ArrayList;
 import java.util.List;

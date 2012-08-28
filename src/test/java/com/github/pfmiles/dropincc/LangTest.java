@@ -15,7 +15,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import com.github.pfmiles.dropincc.calctest.Calculator;
+import com.github.pfmiles.dropincc.example.calculator.Calculator;
 import com.github.pfmiles.dropincc.impl.util.Pair;
 
 /**
