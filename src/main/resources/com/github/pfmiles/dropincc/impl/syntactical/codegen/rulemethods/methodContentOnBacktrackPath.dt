@@ -1,9 +1,9 @@
 ret = tryResolveFromCache({0});
 if (ret == null) '{'
-    if (!lexer.isBacktracking()) '{'
-        {1}
-    '}' else '{'
+    if (lexer.isBacktracking()) '{'
         {2}
+    '}' else '{'
+        {1}
     '}'
 '}' else '{'
     fastForward();

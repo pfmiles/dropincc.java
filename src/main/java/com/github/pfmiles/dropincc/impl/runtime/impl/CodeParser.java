@@ -11,6 +11,7 @@
 package com.github.pfmiles.dropincc.impl.runtime.impl;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import com.github.pfmiles.dropincc.DropinccException;
@@ -28,15 +29,19 @@ public abstract class CodeParser extends Parser {
 
     protected CodeLexer lexer;
 
+    // key[ruleNum, startPosition] -> Pair[cachedParsingResult, forwardPosition]
     private Map<ParseCacheKey, Pair<DelayedAction, Integer>> parseCache = new HashMap<ParseCacheKey, Pair<DelayedAction, Integer>>();
 
     private int lastForwardPosition = -1;
 
+    // put the current parsing result at the specific position into cache, to
+    // ensure a linear parsing time when backtracking occured
     protected void putInCache(int ruleNum, DelayedAction node, int startPoint) {
         int forwardPosition = lexer.getCurrentPosition();
         this.parseCache.put(new ParseCacheKey(ruleNum, startPoint), new Pair<DelayedAction, Integer>(node, forwardPosition));
     }
 
+    // try to get the cached result from the parsing cache
     protected DelayedAction tryResolveFromCache(int ruleNum) {
         ParseCacheKey k = new ParseCacheKey(ruleNum, lexer.getCurrentPosition());
         if (parseCache.containsKey(k)) {
@@ -48,6 +53,7 @@ public abstract class CodeParser extends Parser {
         }
     }
 
+    // to match a specific token type, returned the matched lexeme
     protected Object match(TokenType type) {
         Token ret = lexer.nextElement();
         if (!ret.getType().equals(type))
@@ -55,6 +61,7 @@ public abstract class CodeParser extends Parser {
         return ret.getLexeme();
     }
 
+    // fast forward to go by pass the cached parsing element which is hit
     protected void fastForward() {
         lexer.fastForward(this.lastForwardPosition);
     }
@@ -63,4 +70,30 @@ public abstract class CodeParser extends Parser {
         this.lexer = (CodeLexer) lexer;
     }
 
+    // clean all cached parsing element which start point is before the current
+    // position (which would never hit)
+    protected void cleanCache(int currentPosition) {
+        if (this.parseCache.isEmpty())
+            return;
+        Iterator<Map.Entry<ParseCacheKey, Pair<DelayedAction, Integer>>> iter = this.parseCache.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry<ParseCacheKey, Pair<DelayedAction, Integer>> e = iter.next();
+            if (e.getKey().position < currentPosition)
+                iter.remove();
+        }
+    }
+
+    // creates delayedAction, avoid creating needless DelayedAcion objects
+    protected DelayedAction newDelayedAction(Object action, Object matched) {
+        if (matched instanceof DelayedAction) {
+            DelayedAction da = (DelayedAction) matched;
+            if (action == null) {
+                return da;
+            } else if (da.action == null) {
+                da.action = action;
+                return da;
+            }
+        }
+        return new DelayedAction(action, matched);
+    }
 }

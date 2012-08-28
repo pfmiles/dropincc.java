@@ -33,4 +33,7 @@ public class ParseCacheKey {
         return o.ruleNum == this.ruleNum && o.position == this.position;
     }
 
+    public String toString() {
+        return "[" + this.ruleNum + ", " + this.position + "]";
+    }
 }

@@ -21,8 +21,8 @@ import com.github.pfmiles.dropincc.ParamedAction;
  */
 public class DelayedAction {
 
-    private Object action;
-    private Object matched;
+    public Object action;
+    public Object matched;
 
     public DelayedAction(Object action, Object matched) {
         this.action = action;

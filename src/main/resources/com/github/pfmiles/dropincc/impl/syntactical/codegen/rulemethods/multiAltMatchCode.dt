@@ -1,4 +1,4 @@
-int startPoint = -1;
+int startPoint = -1;// TODO only needed when backtracking
 switch (rulePredict({0}DfaStart, arg, "{0}")) '{'
 {1}
 default:

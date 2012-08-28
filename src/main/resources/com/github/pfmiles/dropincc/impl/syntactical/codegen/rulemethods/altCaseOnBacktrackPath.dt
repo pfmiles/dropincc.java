@@ -1,6 +1,6 @@
 case {0}:
     startPoint = lexer.getCurrentPosition();
     {1}
-    ret = new DelayedAction({3}, {2});
+    ret = newDelayedAction({3}, {2});
     putInCache({4}, (DelayedAction)ret, startPoint);
     break;

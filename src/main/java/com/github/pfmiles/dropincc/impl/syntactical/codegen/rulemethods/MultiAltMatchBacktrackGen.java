@@ -28,6 +28,7 @@ public class MultiAltMatchBacktrackGen extends CodeGen {
     // multi alt match code(backtracking rule) -> var and code
     // 0: ruleName
     // 1: backtracksCode
+    // 2: cleanCacheCode
     private static final MessageFormat fmt = getTemplate("multiAltBacktrackMatchCode.dt", MultiAltMatchBacktrackGen.class);
     // altBacktrack -> only string code
     // 0: ruleNum
@@ -64,7 +65,10 @@ public class MultiAltMatchBacktrackGen extends CodeGen {
                 backtrackCode.append(altBacktrackFmt.format(new String[] { ruleNum, varAndCode.getRight(), varAndCode.getLeft(), actionName })).append('\n');
             }
         }
-        return fmt.format(new String[] { ruleName, backtrackCode.toString() });
+        String cleanCacheCode = "";
+        if (!this.generatingBacktrackCode)
+            cleanCacheCode = "cleanCache(lexer.getCurrentPosition());";
+        return fmt.format(new String[] { ruleName, backtrackCode.toString(), cleanCacheCode });
     }
 
 }

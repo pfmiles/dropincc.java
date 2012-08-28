@@ -3,4 +3,4 @@ do '{'
     {2}
     ((List<Object>) {0}).add({3});
 '}' while (kleenePredicting({1}DfaStart, "{4}"));
-{0} = new DelayedAction(null, ((List<Object>) {0}).toArray());
+{0} = newDelayedAction(null, ((List<Object>) {0}).toArray());
