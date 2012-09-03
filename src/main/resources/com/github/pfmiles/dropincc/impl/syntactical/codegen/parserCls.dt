@@ -13,6 +13,7 @@ import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.runtime.impl.CodeParser;
 import com.github.pfmiles.dropincc.impl.runtime.impl.RunningDfaState;
 import com.github.pfmiles.dropincc.impl.runtime.impl.DelayedAction;
+import com.github.pfmiles.dropincc.impl.runtime.impl.LookAheadImpl;
 
 /**
  * Auto generated parser class by dropincc.java
@@ -58,7 +59,7 @@ public class {0} extends CodeParser '{'
             '}' else if (s.isPredTransitionState) '{'
                 for (Map.Entry<Predicate, RunningDfaState> pt : s.predTrans.entrySet()) '{'
                     Predicate pred = pt.getKey();
-                    if (pred.pred(arg, lexer)) '{'
+                    if (pred.pred(arg, new LookAheadImpl(lexer))) '{'
                         return pt.getValue().alt;
                     '}'
                 '}'

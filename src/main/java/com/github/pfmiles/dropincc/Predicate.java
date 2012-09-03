@@ -10,19 +10,21 @@
  ******************************************************************************/
 package com.github.pfmiles.dropincc;
 
-import com.github.pfmiles.dropincc.impl.runtime.impl.Lexer;
-
 /**
+ * Semantic predicate
+ * 
  * @author pf-miles
  * 
+ * @param <T>
+ *            The type of the passed-in argument
  */
-public interface Predicate {
+public interface Predicate<T> {
     /**
      * Predicate logic
      * 
      * @return true or false
      */
-    <T> boolean pred(T arg, Lexer lexer);// TODO lexer could do too much
+    boolean pred(T arg, LookAhead la);
 
     /**
      * In order to produce better human-readable DFA transition images, we'd

@@ -107,11 +107,21 @@ public class Lang implements Serializable {
      * could be used for interpreting the newly defined language.
      */
     public Exe compile() {
+        checkIfAnyEmptyGrule(this.grules);
         AnalyzedLang cl = new AnalyzedLang(this.name, this.tokens, this.grules, this.whiteSpaceSensitive);
         cl.compile();
         this.debugMsgs = cl.getDebugMsgs();
         this.warnings = cl.getWarnings();
         return new Exe(cl);
+    }
+
+    // check if there are empty grules
+    private void checkIfAnyEmptyGrule(List<Grule> gs) {
+        for (Grule g : gs) {
+            List<Alternative> alts = g.getAlts();
+            if (alts == null || alts.isEmpty())
+                throw new DropinccException("Grule: " + g + " has no alternative production. Do you forget to define them?");
+        }
     }
 
     /**

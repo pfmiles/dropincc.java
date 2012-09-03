@@ -20,6 +20,7 @@ import com.github.pfmiles.dropincc.Element;
 import com.github.pfmiles.dropincc.Exe;
 import com.github.pfmiles.dropincc.Grule;
 import com.github.pfmiles.dropincc.Lang;
+import com.github.pfmiles.dropincc.TokenDef;
 import com.github.pfmiles.dropincc.impl.AnalyzedLang;
 import com.github.pfmiles.dropincc.impl.runtime.impl.Lexer;
 import com.github.pfmiles.dropincc.testhelper.TestHelper;
@@ -119,5 +120,16 @@ public class LexerTest extends TestCase {
             ts.add(l.nextElement());
         // System.out.println(ts);
         assertTrue(ts.size() == 8);
+    }
+
+    public void testLexerRuleContainsVerticalBar() {
+        Lang lang = new Lang("Test");
+        TokenDef a = lang.newToken("ab|bc");
+        TokenDef b = lang.newToken("uv|wx");
+        lang.defineGrule(CC.ks(a, b), CC.EOF);
+        Exe exe = lang.compile();
+        List<Token> ts = exe.lexing("bcabababbcbcabwxwxuvwx");
+        // System.out.println(ts);
+        assertTrue(ts.size() == 12);
     }
 }

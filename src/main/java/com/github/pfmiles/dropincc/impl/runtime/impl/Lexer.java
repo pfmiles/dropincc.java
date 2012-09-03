@@ -81,7 +81,15 @@ public abstract class Lexer implements Enumeration<Token> {
         return t != null ? t.getType() : null;
     }
 
-    protected final Token LT(int i) {
+    /**
+     * look ahead token
+     * 
+     * @param i
+     *            lookahead count
+     * 
+     * @return
+     */
+    public final Token LT(int i) {
         if (i < this.lookAheadBuf.size())
             return this.lookAheadBuf.get(i - 1);
         int lng = i - this.lookAheadBuf.size();
