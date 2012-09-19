@@ -23,7 +23,7 @@ import com.github.pfmiles.dropincc.impl.GruleType;
 public class PredsGen extends CodeGen {
 
     // [ruleName, altIndex]
-    private static final MessageFormat fmt = new MessageFormat("public Predicate {0}Pred{1};// {0} rule pred {1}");
+    private static final MessageFormat fmt = new MessageFormat("public Predicate<?> {0}Pred{1};// {0} rule pred {1}");
 
     // list([grule, altInfex, predObj])
     private List<Object[]> predInfos;
@@ -38,7 +38,7 @@ public class PredsGen extends CodeGen {
         for (Object[] predInfo : predInfos) {
             String ruleName = ((GruleType) predInfo[0]).toCodeGenStr();
             String altIndex = String.valueOf(predInfo[1]);
-            context.fieldPredsMapping.put(ruleName + "Pred" + altIndex, (Predicate) predInfo[2]);
+            context.fieldPredsMapping.put(ruleName + "Pred" + altIndex, (Predicate<?>) predInfo[2]);
             sb.append(fmt.format(new String[] { ruleName, altIndex })).append("\n");
         }
         return sb.toString();

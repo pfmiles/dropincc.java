@@ -22,12 +22,12 @@ public class AtnConfig {
     private AtnState state;
     private int alt;
     private CallStack stack;
-    private Predicate pred;
+    private Predicate<?> pred;
 
     // if this atnConfig is resolved by semantic predicate
     private boolean resolved;
 
-    public AtnConfig(AtnState state, int alt, CallStack stack, Predicate pred) {
+    public AtnConfig(AtnState state, int alt, CallStack stack, Predicate<?> pred) {
         this.state = state;
         this.alt = alt;
         this.stack = stack;
@@ -112,11 +112,11 @@ public class AtnConfig {
         this.stack = stack;
     }
 
-    public Predicate getPred() {
+    public Predicate<?> getPred() {
         return pred;
     }
 
-    public void setPred(Predicate pred) {
+    public void setPred(Predicate<?> pred) {
         this.pred = pred;
     }
 

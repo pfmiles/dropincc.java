@@ -28,7 +28,7 @@ public class Alternative {
     private List<Element> elements = new ArrayList<Element>();
     private Object action = null;
     // semantic predicate
-    private Predicate pred;
+    private Predicate<?> pred;
 
     public Alternative(Element[] eles) {
         switch (checkNull(eles)) {
@@ -87,11 +87,11 @@ public class Alternative {
         return super.equals(obj);
     }
 
-    public Predicate getPred() {
+    public Predicate<?> getPred() {
         return pred;
     }
 
-    public void setPred(Predicate pred) {
+    public void setPred(Predicate<?> pred) {
         this.pred = pred;
     }
 }

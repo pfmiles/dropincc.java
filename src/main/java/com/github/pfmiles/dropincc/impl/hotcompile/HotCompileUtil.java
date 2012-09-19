@@ -35,8 +35,16 @@ import com.github.pfmiles.dropincc.DropinccException;
  */
 public class HotCompileUtil {
 
-    public static CompilationResult compile(String qualifiedName, String parserCode) {
-        JavaStringSource source = new JavaStringSource(qualifiedName, parserCode);
+    /**
+     * Compile java source code dynamically, with a full-qualified class name.
+     * 
+     * @param qualifiedName
+     * @param sourceCode
+     * @return The resulting java class object and its corresponding class
+     *         loader.
+     */
+    public static CompilationResult compile(String qualifiedName, String sourceCode) {
+        JavaStringSource source = new JavaStringSource(qualifiedName, sourceCode);
         List<JavaStringSource> ss = Arrays.asList(source);
         File dir = new File(HotCompileConstants.TARGETDIR);
         if (!dir.exists())

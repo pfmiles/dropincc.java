@@ -27,7 +27,7 @@ public class RunningDfaState {
     public boolean isFinal;
     public boolean isPredTransitionState;
     public Map<TokenType, RunningDfaState> transitions;
-    public Map<Predicate, RunningDfaState> predTrans;
+    public Map<Predicate<?>, RunningDfaState> predTrans;
     public int alt = -1;
 
     public int hashCode() {

@@ -31,7 +31,7 @@ public class StatelessParserPrototype implements ParserPrototype {
 
     private Map<String, TokenType> fieldTokenTypeMapping = new HashMap<String, TokenType>();
     private Map<String, Object> fieldAltsActionMapping = new HashMap<String, Object>();
-    private Map<String, Predicate> fieldPredsMapping = new HashMap<String, Predicate>();
+    private Map<String, Predicate<?>> fieldPredsMapping = new HashMap<String, Predicate<?>>();
     private Map<String, RunningDfaState> fieldRuleDfaMapping = new HashMap<String, RunningDfaState>();
     private Map<String, RunningDfaState> fieldKleeneDfaMapping = new HashMap<String, RunningDfaState>();
 

@@ -27,9 +27,9 @@ public class CAlternative {
 
     private List<EleType> matchSequence = new ArrayList<EleType>();
     private Object action = null;
-    private Predicate predicate = null;
+    private Predicate<?> predicate = null;
 
-    public CAlternative(List<EleType> ms, Object action, Predicate pred) {
+    public CAlternative(List<EleType> ms, Object action, Predicate<?> pred) {
         this.matchSequence = ms;
         this.action = action;
         this.predicate = pred;
@@ -70,11 +70,11 @@ public class CAlternative {
         return sb.toString();
     }
 
-    public Predicate getPredicate() {
+    public Predicate<?> getPredicate() {
         return predicate;
     }
 
-    public void setPredicate(Predicate predicate) {
+    public void setPredicate(Predicate<?> predicate) {
         this.predicate = predicate;
     }
 }

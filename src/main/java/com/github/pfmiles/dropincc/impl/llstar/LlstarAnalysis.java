@@ -78,8 +78,8 @@ public class LlstarAnalysis {
         Map<GruleType, List<CAlternative>> ruleTypeToAlts = new HashMap<GruleType, List<CAlternative>>(ruleTypeToAltsOriginal);
         // generate grules for every kleene node, add them to the
         // 'ruleTypeToAlts' mapping
-        Pair<Map<GruleType, List<CAlternative>>, Map<KleeneType, GenedKleeneGruleType>> genedGruleAndMapping = ParserCompiler.genAnalyzingGrulesForKleenes(
-                kleeneTypeToNode, ruleTypeToAltsOriginal.size());
+        Pair<Map<GruleType, List<CAlternative>>, Map<KleeneType, GenedKleeneGruleType>> genedGruleAndMapping = ParserCompiler
+                .genAnalyzingGrulesForKleenes(kleeneTypeToNode, ruleTypeToAltsOriginal.size());
         // all gruleType -> alts mapping including gened kleene gruleTypes
         ruleTypeToAlts.putAll(genedGruleAndMapping.getLeft());
         // kleeneType -> genedGruleType
@@ -100,7 +100,7 @@ public class LlstarAnalysis {
                 pa.addTransition(Constants.epsilon, pai);
                 if (alt != null && !alt.isEmpty()) {
                     AtnState p0 = this.atn.newAtnState(grule);
-                    Predicate pred = calt.getPredicate();
+                    Predicate<?> pred = calt.getPredicate();
                     if (pred != null) {
                         pai.addTransition(pred, p0);
                     } else {
@@ -113,7 +113,8 @@ public class LlstarAnalysis {
                             curState.addTransition(edge, nextState);
                             curState = nextState;
                         } else if (edge instanceof KleeneStarType) {
-                            this.atn.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) edge), curState, grule, kleeneTypeToNode, contactPoints);
+                            this.atn.genTransitions(curState, kleeneTypeToNode.get((KleeneStarType) edge), curState, grule, kleeneTypeToNode,
+                                    contactPoints);
                             AtnState nextState = this.atn.newAtnState(grule);
                             curState.addTransition(Constants.epsilon, nextState);
                             curState = nextState;
@@ -198,8 +199,8 @@ public class LlstarAnalysis {
             }
             allAlts.removeAll(finaledAlts);
             if (!allAlts.isEmpty()) {
-                this.warnings.append("WARNING: Alternative productions: ").append(allAlts).append(" would never be matched, ").append("grule: ").append(grule)
-                        .append('\n');
+                this.warnings.append("WARNING: Alternative productions: ").append(allAlts).append(" would never be matched, ").append("grule: ")
+                        .append(grule).append('\n');
             }
             if (dfa.getStart() == null)
                 throw new DropinccException("No start state found for look ahead dfa of grule: " + grule + ", error!");
@@ -277,8 +278,8 @@ public class LlstarAnalysis {
                 iter.remove();
         }
         this.debugMsg.append("State: ").append(stateStr)
-                .append(" overflowed, resolved by removing all competing alternatives except the one defined first, remaining alt: ").append(minAlt).append(". Grule: ")
-                .append(grule).append('\n');
+                .append(" overflowed, resolved by removing all competing alternatives except the one defined first, remaining alt: ").append(minAlt)
+                .append(". Grule: ").append(grule).append('\n');
     }
 
     /**
@@ -358,7 +359,7 @@ public class LlstarAnalysis {
         AtnState p = conf.getState();
         int i = conf.getAlt();
         CallStack y = conf.getStack();
-        Predicate pi = conf.getPred();
+        Predicate<?> pi = conf.getPred();
 
         if (p.isFinal()) {
             if (y.isEmpty()) {
@@ -382,7 +383,8 @@ public class LlstarAnalysis {
                 if (depth == 1) {
                     state.addRecursiveAlt(i);
                     if (state.getRecursiveAlts().size() > 1) {
-                        this.warnings.append("Likely non-LL regular grammar, recursive alts: " + state.getRecursiveAlts() + ", rule: " + grule).append('\n');
+                        this.warnings.append("Likely non-LL regular grammar, recursive alts: " + state.getRecursiveAlts() + ", rule: " + grule)
+                                .append('\n');
                         throw new NonLlRegularException();
                     }
                 }
@@ -424,11 +426,11 @@ public class LlstarAnalysis {
         List<Pair<Object, AtnState>> transitions = atnStartState.getTransitionsAsPairs();
         for (int i = 0; i < transitions.size(); i++) {
             AtnState pa_i = transitions.get(i).getRight();
-            Predicate pi = null;
+            Predicate<?> pi = null;
             // pa_i could have only one transition
             Object first_t = pa_i.getTransitions().entrySet().iterator().next().getKey();
             if (first_t instanceof Predicate)
-                pi = (Predicate) first_t;
+                pi = (Predicate<?>) first_t;
             D0.addAllConfs(closure(D0, new AtnConfig(pa_i, extractAltFromAltState(pa_i), new CallStack(), pi), gruleType));
             D0.releaseBusy();
         }
@@ -491,11 +493,11 @@ public class LlstarAnalysis {
             }
             // add predicate transitions, use hashset here to de-duplicate
             // transitions
-            Set<Pair<Predicate, DfaState>> predTrans = new HashSet<Pair<Predicate, DfaState>>();
+            Set<Pair<Predicate<?>, DfaState>> predTrans = new HashSet<Pair<Predicate<?>, DfaState>>();
             for (AtnConfig conf : state.getResolvedConfs()) {
-                predTrans.add(new Pair<Predicate, DfaState>(conf.getPred(), ret.getFinalStateOfAlt(conf.getAlt())));
+                predTrans.add(new Pair<Predicate<?>, DfaState>(conf.getPred(), ret.getFinalStateOfAlt(conf.getAlt())));
             }
-            for (Pair<Predicate, DfaState> p : predTrans) {
+            for (Pair<Predicate<?>, DfaState> p : predTrans) {
                 state.addTransition(p.getLeft(), p.getRight());
             }
         }

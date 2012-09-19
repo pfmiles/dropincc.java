@@ -57,7 +57,7 @@ public class {0} extends CodeParser '{'
             if (s.isFinal) '{'
                 return s.alt;
             '}' else if (s.isPredTransitionState) '{'
-                for (Map.Entry<Predicate, RunningDfaState> pt : s.predTrans.entrySet()) '{'
+                for (Map.Entry<Predicate<?>, RunningDfaState> pt : s.predTrans.entrySet()) '{'
                     Predicate pred = pt.getKey();
                     if (pred.pred(arg, new LookAheadImpl(lexer))) '{'
                         return pt.getValue().alt;

@@ -48,7 +48,8 @@ public class ConstructingGrule implements Element {
      */
     public ConstructingGrule alt(Object... eles) {
         if (eles == null || eles.length == 0)
-            throw new DropinccException("Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
+            throw new DropinccException(
+                    "Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
         Element[] elements = Util.filterProductionEles(eles);
         this.grule.getAlts().add(new Alternative(elements));
         return this;
@@ -82,7 +83,7 @@ public class ConstructingGrule implements Element {
      * @param pred
      * @return
      */
-    public ConstructingGrule pred(Predicate pred) {
+    public ConstructingGrule pred(Predicate<?> pred) {
         List<Alternative> alts = this.grule.getAlts();
         Alternative alt = alts.get(alts.size() - 1);
         if (alt.getPred() != null) {

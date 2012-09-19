@@ -39,7 +39,7 @@ public abstract class CodeGen {
         try {
             count = stm.read(buf);
             while (count != -1) {
-                ba.write(buf, 0, count);
+                ba.append(buf, 0, count);
                 count = stm.read(buf);
             }
             return new String(ba.toByteArray(), "UTF-8");

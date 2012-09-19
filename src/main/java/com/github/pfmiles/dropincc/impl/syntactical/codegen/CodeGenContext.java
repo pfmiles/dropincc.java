@@ -47,7 +47,7 @@ public class CodeGenContext {
     /**
      * generated parser class field's name to semantic predicate mapping
      */
-    public Map<String, Predicate> fieldPredsMapping = new HashMap<String, Predicate>();
+    public Map<String, Predicate<?>> fieldPredsMapping = new HashMap<String, Predicate<?>>();
 
     /**
      * generated parser class field's name to rule dfa mapping

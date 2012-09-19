@@ -25,7 +25,7 @@ public class ByteAppender {
     // num of valid bytes in buffer
     private int count = 0;
 
-    public void write(byte[] b, int off, int len) {
+    public void append(byte[] b, int off, int len) {
         if ((off < 0) || (off >= b.length) || (len < 0) || ((off + len) > b.length) || ((off + len) < 0)) {
             throw new IndexOutOfBoundsException();
         } else if (len == 0) {
@@ -39,8 +39,8 @@ public class ByteAppender {
         count = newcount;
     }
 
-    public void write(byte[] b) {
-        this.write(b, 0, b.length);
+    public void append(byte[] b) {
+        this.append(b, 0, b.length);
     }
 
     public byte[] toByteArray() {

@@ -41,7 +41,7 @@ public class ParserCodeGenResult {
     /*
      * generated parser class field's name to semantic predicate mapping
      */
-    private Map<String, Predicate> fieldPredsMapping = new HashMap<String, Predicate>();
+    private Map<String, Predicate<?>> fieldPredsMapping = new HashMap<String, Predicate<?>>();
 
     /*
      * generated parser class field's name to rule dfa mapping
@@ -75,7 +75,7 @@ public class ParserCodeGenResult {
         return fieldAltsActionMapping;
     }
 
-    public Map<String, Predicate> getFieldPredsMapping() {
+    public Map<String, Predicate<?>> getFieldPredsMapping() {
         return fieldPredsMapping;
     }
 

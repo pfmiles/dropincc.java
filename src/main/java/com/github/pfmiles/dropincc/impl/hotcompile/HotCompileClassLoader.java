@@ -43,7 +43,7 @@ public class HotCompileClassLoader extends ClassLoader {
             byte[] buf = new byte[1024];
             int count = fis.read(buf);
             while (count != -1) {
-                ba.write(buf, 0, count);
+                ba.append(buf, 0, count);
                 count = fis.read(buf);
             }
             return ba.toByteArray();

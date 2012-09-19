@@ -30,7 +30,8 @@ import com.github.pfmiles.dropincc.impl.util.SeqGen;
 public class RuleDfasGen extends CodeGen {
 
     // ruleName {0}
-    private static final MessageFormat fmt = new MessageFormat("public RunningDfaState {0}DfaStart;// {0} rule look ahead dfa start state");
+    private static final MessageFormat fmt = new MessageFormat(
+            "public RunningDfaState {0}DfaStart;// {0} rule look ahead dfa start state");
 
     private List<PredictingGrule> pgs;
 
@@ -79,11 +80,11 @@ public class RuleDfasGen extends CodeGen {
             }
             rs.isPredTransitionState = isPredicateTransState(s.getTransitions());
             if (rs.isPredTransitionState) {
-                Map<Predicate, RunningDfaState> trans = new HashMap<Predicate, RunningDfaState>();
+                Map<Predicate<?>, RunningDfaState> trans = new HashMap<Predicate<?>, RunningDfaState>();
                 for (Map.Entry<Object, DfaState> t : s.getTransitions().entrySet()) {
                     int destNum = stateNumMapping.get(t.getValue());
                     RunningDfaState destRstate = resolveRunningState(destNum, ds);
-                    trans.put((Predicate) t.getKey(), destRstate);
+                    trans.put((Predicate<?>) t.getKey(), destRstate);
                 }
                 rs.predTrans = trans;
             } else {
