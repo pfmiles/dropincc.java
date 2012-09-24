@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 public class DropinTemplateLexer {
 
     private static final String LINE_SEP = System.getProperty("line.separator");
+    private static final char NL = '\n';
 
     /**
      * lexer rules
@@ -182,13 +183,13 @@ public class DropinTemplateLexer {
                     if (gnum != -1) {
                         String txt = this.matcher.group(gnum);
                         if (txt != null) {
-                            int nIndex = txt.lastIndexOf('\n');
+                            int nIndex = txt.lastIndexOf(NL);
                             int lexemeLength = this.matcher.end() - this.matcher.start();
                             DtToken ret = new DtToken(t, txt, this.currentRow, this.currentCol);
                             this.currentPos += lexemeLength;
                             if (nIndex != -1) {
                                 this.currentRow += countN(txt, nIndex);
-                                this.currentCol = lexemeLength - (nIndex + LINE_SEP.length()) + 1;
+                                this.currentCol = lexemeLength - (nIndex + getNewLineSepLengthAt(nIndex, txt)) + 1;
                             } else {
                                 this.currentCol += lexemeLength;
                             }
@@ -206,6 +207,19 @@ public class DropinTemplateLexer {
             return DtToken.EOF;
         } else {
             return null;
+        }
+    }
+
+    private int getNewLineSepLengthAt(int nIndex, String txt) {
+        if (LINE_SEP.length() == 1)
+            return 1;
+        int sepLen = LINE_SEP.length();
+        int nlIndexInSep = LINE_SEP.indexOf(NL);
+        int leftLen = sepLen - (nlIndexInSep + 1);
+        if (nIndex + leftLen - 1 < txt.length() && LINE_SEP.substring(nlIndexInSep).equals(txt.substring(nIndex, leftLen))) {
+            return sepLen;
+        } else {
+            return 1;
         }
     }
 
