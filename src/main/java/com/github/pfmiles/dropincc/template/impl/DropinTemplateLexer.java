@@ -216,8 +216,8 @@ public class DropinTemplateLexer {
         int sepLen = LINE_SEP.length();
         int nlIndexInSep = LINE_SEP.indexOf(NL);
         int leftLen = sepLen - (nlIndexInSep + 1);
-        if (nIndex + leftLen - 1 < txt.length() && LINE_SEP.substring(nlIndexInSep).equals(txt.substring(nIndex, leftLen))) {
-            return sepLen;
+        if (leftLen != 0 && nIndex + leftLen - 1 < txt.length() && LINE_SEP.substring(nlIndexInSep).equals(txt.substring(nIndex, nIndex + leftLen))) {
+            return leftLen + 1;
         } else {
             return 1;
         }
@@ -226,9 +226,8 @@ public class DropinTemplateLexer {
     // count number of line separators
     private static int countN(String txt, int nIndex) {
         int ret = 0;
-        int lineSepLength = LINE_SEP.length();
         for (int i = 0; i <= nIndex; i++) {
-            if (LINE_SEP.equals(txt.substring(i, i + lineSepLength)))
+            if (NL == txt.charAt(i))
                 ret++;
         }
         return ret;
