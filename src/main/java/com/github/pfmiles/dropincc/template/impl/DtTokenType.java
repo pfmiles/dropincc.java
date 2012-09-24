@@ -10,26 +10,22 @@
  ******************************************************************************/
 package com.github.pfmiles.dropincc.template.impl;
 
-import com.github.pfmiles.dropincc.template.impl.ast.TemplateNode;
-import com.github.pfmiles.dropincc.template.impl.visitor.DropinTemplateToJavaVisitor;
-
 /**
- * Compile template string to java source string.
- * 
  * @author pf-miles
  * 
  */
-public class DropinTemplateCompiler {
+public enum DtTokenType {
+    ESCAPED(1), BACK_SLASH(2), IF(3), LEFT_PAREN(4), RIGHT_PAREN(5), ELSE_IF(6), ELSE(7), END(8), FOREACH(9), REF(10), IN(13), RANGE(14), OR(15), AND(
+            16), NOT(17), EQ(18), NUM(19), STR(21), WHITE_SPACE(22), PLAIN_TXT(23), EOF(-1);
 
-    /**
-     * Compile template string to java source string.
-     * 
-     * @param tempStr
-     * @return
-     */
-    public static String compile(String tempStr) {
-        TemplateNode temp = new DropinTemplateParser(new DropinTemplateLexer(tempStr)).parse();
-        return temp.accept(new DropinTemplateToJavaVisitor(), null);
+    private int groupNum;
+
+    private DtTokenType(int groupNum) {
+        this.groupNum = groupNum;
+    }
+
+    public int getGroupNum() {
+        return groupNum;
     }
 
 }

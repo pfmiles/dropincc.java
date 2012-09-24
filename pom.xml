@@ -9,6 +9,7 @@
 
 	<name>dropincc.java</name>
 	<url>https://github.com/pfmiles/dropincc.java</url>
+	<description>A simple yet powerful parser generator. Specify your grammar in pure java and compile dynamically. Especially suitable for DSL creation in java.</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
