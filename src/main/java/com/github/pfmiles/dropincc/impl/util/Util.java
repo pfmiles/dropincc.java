@@ -11,6 +11,7 @@
 package com.github.pfmiles.dropincc.impl.util;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -246,6 +247,24 @@ public class Util {
                 if (sb.length() != 0)
                     sb.append(File.pathSeparator);
                 sb.append(e.getValue());
+            }
+        }
+        URL url = Util.class.getResource("Util.class");
+        if (url != null) {
+            String dropinccPath = null;
+            if ("jar".equalsIgnoreCase(url.getProtocol())) {
+                String path = url.getPath();
+                // could not handle nested jars
+                dropinccPath = path.substring(path.indexOf(":") + 1, path.indexOf("!"));
+            } else if ("file".equalsIgnoreCase(url.getProtocol())) {
+                String path = url.getPath();
+                dropinccPath = path
+                        .substring(0, path.lastIndexOf(File.separator + Util.class.getName().replaceAll("\\.", File.separator) + ".class"));
+            }
+            if (dropinccPath != null && !"".equals(dropinccPath) && sb.indexOf(dropinccPath) == -1) {
+                if (sb.length() != 0)
+                    sb.append(File.pathSeparator);
+                sb.append(dropinccPath);
             }
         }
         return sb.toString();
