@@ -32,7 +32,6 @@ import com.github.pfmiles.dropincc.impl.OrSubRule;
 import com.github.pfmiles.dropincc.impl.TokenType;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
 import com.github.pfmiles.dropincc.impl.util.Pair;
-import com.github.pfmiles.dropincc.impl.util.SeqGen;
 import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
@@ -46,13 +45,13 @@ public class LexerCompiler {
     public static Map<TokenDef, TokenType> buildTokenTypeMapping(List<TokenDef> tokens, boolean whitespaceSensitive) {
         Map<TokenDef, TokenType> tokenTypeMapping = new HashMap<TokenDef, TokenType>();
         if (tokens != null) {
-            SeqGen seq = new SeqGen();
+            int i = 0;
             for (Iterator<TokenDef> iter = tokens.iterator(); iter.hasNext();) {
                 TokenDef t = iter.next();
                 if (tokenTypeMapping.containsKey(t))
                     continue;
-                int i = seq.next();
-                tokenTypeMapping.put(tokens.get(i), new TokenType(i, tokens.get(i).getRegexp()));
+                tokenTypeMapping.put(t, new TokenType(i, t.getRegexp()));
+                i++;
             }
             // EOF is of token type -1
             tokenTypeMapping.put(CC.EOF, TokenType.EOF);

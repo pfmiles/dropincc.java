@@ -44,6 +44,8 @@ public class ConstructingGrule implements Element {
      * Add an alternative to current grule.
      * 
      * @param eles
+     *            grammar elements, could be of type 'Grule', 'TokenDef' or
+     *            'String'(instant token)
      * @return
      */
     public ConstructingGrule alt(Object... eles) {
@@ -61,6 +63,8 @@ public class ConstructingGrule implements Element {
      * been added one and only one action.
      * 
      * @param action
+     *            An action object of type 'com.github.pfmiles.dropincc.Action'
+     *            or 'ParamedAction'
      * @return
      */
     public ConstructingGrule action(Object action) {
