@@ -36,7 +36,7 @@ import com.github.pfmiles.dropincc.impl.lexical.InstantTokenDef;
  * 
  */
 public abstract class Util {
-    private static final String PATH_SEP = "/";
+    public static final String PATH_SEP = "/";
 
     private Util() {
     }
