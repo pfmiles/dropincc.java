@@ -35,7 +35,9 @@ import com.github.pfmiles.dropincc.impl.lexical.InstantTokenDef;
  * @author pf-miles
  * 
  */
-public class Util {
+public abstract class Util {
+    private static final String PATH_SEP = "/";
+
     private Util() {
     }
 
@@ -227,9 +229,9 @@ public class Util {
      */
     public static String getTempDirWithFileSeparatorSuffix() {
         String p = System.getProperty("java.io.tmpdir");
-        if (p.endsWith(File.separator))
+        if (p.endsWith(PATH_SEP))
             return p;
-        return p + File.separator;
+        return p + PATH_SEP;
     }
 
     /**
@@ -258,8 +260,7 @@ public class Util {
                 dropinccPath = path.substring(path.indexOf(":") + 1, path.indexOf("!"));
             } else if ("file".equalsIgnoreCase(url.getProtocol())) {
                 String path = url.getPath();
-                dropinccPath = path
-                        .substring(0, path.lastIndexOf(File.separator + Util.class.getName().replaceAll("\\.", File.separator) + ".class"));
+                dropinccPath = path.substring(0, path.lastIndexOf(PATH_SEP + Util.class.getName().replace(".", PATH_SEP) + ".class"));
             }
             if (dropinccPath != null && !"".equals(dropinccPath) && sb.indexOf(dropinccPath) == -1) {
                 if (sb.length() != 0)
