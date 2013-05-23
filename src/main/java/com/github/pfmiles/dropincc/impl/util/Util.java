@@ -229,7 +229,7 @@ public abstract class Util {
      */
     public static String getTempDirWithFileSeparatorSuffix() {
         String p = System.getProperty("java.io.tmpdir");
-        if (p.endsWith(PATH_SEP))
+        if (p.endsWith(File.separator))
             return p;
         return p + PATH_SEP;
     }
@@ -237,7 +237,8 @@ public abstract class Util {
     /**
      * build the classpath using all properties with suffix 'class.path'; to
      * make some software setting its own class path variables happy(like
-     * maven-surfire plugin).
+     * maven-surfire plugin). XXX dirty classpath hacking to make java compiler
+     * API happy...
      * 
      * @return
      */

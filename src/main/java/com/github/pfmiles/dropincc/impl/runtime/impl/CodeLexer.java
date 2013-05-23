@@ -110,7 +110,8 @@ public class CodeLexer extends Lexer {
                         }
                     }
                 }
-                throw new DropinccException("No token matched at position: " + this.currentRealPos + ", subsequent char: '" + this.code.charAt(currentRealPos) + "'");
+                throw new DropinccException("No token matched at position: " + this.currentRealPos + ", subsequent char: '"
+                        + this.code.charAt(currentRealPos) + "'");
             } else {
                 throw new DropinccException("Unexpected char: '" + this.code.charAt(currentRealPos) + "' at position: " + this.currentRealPos);
             }
@@ -158,6 +159,9 @@ public class CodeLexer extends Lexer {
             for (Token t : sub)
                 this.allBufferedLexemeLength += t.getLength();
             sub.clear();
+        } else if (this.savePoints.isEmpty() && !this.backUp.isEmpty()) {
+            // it's the last save point with successful match, clean the backUp
+            this.backUp.clear();
         }
         return top[2];
     }
@@ -177,10 +181,12 @@ public class CodeLexer extends Lexer {
      * @param position
      */
     public void fastForward(int position) {
-        int steps = position - this.getCurrentPosition();
-        if (steps < 0)
+        int chars = position - this.getCurrentPosition();
+        if (chars < 0)
             throw new RuntimeException("Illegal fast forward operation, the target position is before the current position!");
-        for (int i = 0; i < steps; i++)
-            this.nextElement();
+        while (chars > 0)
+            chars -= this.nextElement().getLength();
+        if (chars < 0)
+            throw new RuntimeException("Illegal fast forward operation, failed to forward to the proper position!");
     }
 }

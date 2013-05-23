@@ -264,5 +264,19 @@ public class BoolExprTest extends TestCase {
         assertTrue(BoolExpr.exe("(2>1 && 4> 5) || true"));
         assertFalse(BoolExpr.exe("true && !(2>1 || 4< 5)"));
         assertTrue(BoolExpr.exe("true || (2>3 || 6< 5)"));
+
+    }
+
+    // 2013.05 guanjing.pangj@alibaba-inc.com case:
+    public void testGuanJingCase() throws Throwable {
+        Map<String, Object> context = new HashMap<String, Object>();
+        context.put("$bu", "T");
+        context.put("$source", "model");
+        context.put("$identifier", "fake");
+        context.put("$modelScore", 100);
+        context.put("$punishScore", 30);
+        assertTrue(BoolExpr
+                .exe(context,
+                        "$bu='T' && ($source='model' && $identifier='fake' && $modelScore> 90 ||$source='punish' && $identifier='fake' && $punishScore > 24)"));
     }
 }
