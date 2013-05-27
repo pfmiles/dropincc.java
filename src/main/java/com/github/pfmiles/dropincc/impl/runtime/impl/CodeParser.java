@@ -11,7 +11,6 @@
 package com.github.pfmiles.dropincc.impl.runtime.impl;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.github.pfmiles.dropincc.DropinccException;
@@ -57,7 +56,8 @@ public abstract class CodeParser extends Parser {
     protected Object match(TokenType type) {
         Token ret = lexer.nextElement();
         if (!ret.getType().equals(type))
-            throw new DropinccException("Unexpected token encountered: " + ret + ", expected type: " + type + ", at position: " + lexer.getCurrentPosition());
+            throw new DropinccException("Unexpected token encountered: " + ret + ", expected type: " + type + ", at position: "
+                    + lexer.getCurrentPosition());
         return ret.getLexeme();
     }
 
@@ -70,17 +70,10 @@ public abstract class CodeParser extends Parser {
         this.lexer = (CodeLexer) lexer;
     }
 
-    // clean all cached parsing element which start point is before the current
-    // position (which would never hit)
-    protected void cleanCache(int currentPosition) {
-        if (this.parseCache.isEmpty())
-            return;
-        Iterator<Map.Entry<ParseCacheKey, Pair<DelayedAction, Integer>>> iter = this.parseCache.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry<ParseCacheKey, Pair<DelayedAction, Integer>> e = iter.next();
-            if (e.getKey().position < currentPosition)
-                iter.remove();
-        }
+    // clean all cached parsing element
+    protected void cleanCache() {
+        if (!this.parseCache.isEmpty())
+            this.parseCache.clear();
     }
 
     // creates delayedAction, avoid creating needless DelayedAcion objects

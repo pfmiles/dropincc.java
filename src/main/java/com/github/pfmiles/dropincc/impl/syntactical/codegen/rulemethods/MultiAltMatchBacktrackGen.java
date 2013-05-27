@@ -67,7 +67,7 @@ public class MultiAltMatchBacktrackGen extends CodeGen {
         }
         String cleanCacheCode = "";
         if (!this.generatingBacktrackCode)
-            cleanCacheCode = "cleanCache(lexer.getCurrentPosition());";
+            cleanCacheCode = "cleanCache();";
         return fmt.format(new String[] { ruleName, backtrackCode.toString(), cleanCacheCode });
     }
 
