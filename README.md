@@ -83,7 +83,7 @@ Here is this resulting _Hello World_ example in dropincc.java:
     }
 
 As you can see, these dozens of lines of pure java code defined a non-trivial calculator which supports parentheses operation.  
-You can run the code above to get the output: `3389.0`. You can check this answer in the calculator app shipped along with your operating system.  
+You can run the code above to get the output: `3389.0`. You can check this answer in any calculator app shipped along with your operating system.  
 
 ### How to build such a Calculator? Step by step:
 First, write down the grammar rules as [EBNF](http://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form):   
@@ -121,12 +121,12 @@ Then, translate the EBNF **line-by-line** using dropincc.java API:
     
 It's a very straightforward step. Just need a little explaination:  
 
-* Basic grammar elements are 'TokenDef'(terminal) and 'Grule'(non-terminal), and you are not restricted to define TokenDefs in prior to all other elements, you can just define TokenDefs instantly, as regular expression strings, while you defining structure of your grammar. Like `expr.define(addend, CC.ks(a.or("\\-"), addend));`, the `"\\-"` is a regex string, it defines a TokenDef on-the-fly.
-* Currently use built-in java regular expression to define token schemes, beware of java regExp special characters: `<([{\^-=$!|]})?*+.>`.
+* Basic grammar elements are 'TokenDef'(terminal) and 'Grule'(non-terminal), and you are not restricted to define TokenDefs in prior to all other elements, you can just define TokenDefs instantly, as regular expressions, while you defining the structure of your grammar. Like `expr.define(addend, CC.ks(a.or("\\-"), addend));`, the `"\\-"` is a regex, it defines a TokenDef on-the-fly.
+* Currently use built-in java regular expression to define token schemes, beware of java regExp special characters: `<([{\^-=$!|]})?*+.>`, they should be escaped when you need the character itself.
 * Elements concatenations are expressed in comma separated sequences, `expr, CC.EOF` means `expr $` for example.
 * Alternative productions are expressed as a `alt` method call, for example, the `factor` rule has two alternative productions, the second one is defined as `.alt("\\d+(\\.\\d+)?");`.
 * Inline alternatives are expressed as a `or` method call on elements. See `a.or("\\-")` or `m.or("/")` in above definitions.  
-* Kleene star/cross notations is expressed as `CC.ks` and `CC.kc` function call.
+* Kleene star/cross notations is expressed as `CC.ks` and `CC.kc` function call, and `CC.op` for optional grammar element.
 
 Ok, as you have successfully translated EBNF to the form of dropincc.java required, it's time to add **actions** to your grammar rules.  
 
@@ -158,26 +158,18 @@ Then, enjoy it:
 
 	System.out.println(exe.eval("1 +2+3+(4 +5*6*7*(64/8/2/(2/1 )/1)*8  +9  )+   10"));
 	
-There lies many staff of complexity in the implementation of dropincc.java, but to the end user, I believe it could turns out to be a form of simplicity.
+The resulting `exe` object is thread-safe and is suggested to be cached for future use.  
+
+There lies many stuff of complexity in the implementation of dropincc.java, but to the end user, I believe it could turns out to be a form of simplicity.
 
 That's it, dropincc.java, a new parser generator which you have never seen. It is not just 'yet another compiler compiler', because there is already a whole bunch of tools to do such kind of general purposed parser generation. It is aimed to help you create DSLs in java. Which is a neglected topic in java community. 
 
-Oops.. I almost forgot, in order to make the example code above run, all you need to do is put the dropincc.java's [jar file](https://github.com/downloads/pfmiles/dropincc.java/dropincc.java-0.1.0.jar) in your classpath, no other dependencies. 
+In order to make the example code above run, make sure that you are using jdk 1.6 or above and all you need to do is put the dropincc.java's compiled [jar file](https://github.com/pfmiles/dropincc.java/releases) in your classpath, no other dependencies. 
 
 More examples and documentation coming soon... You could explore the [wiki page](https://github.com/pfmiles/dropincc.java/wiki) or my [blog](http://pfmiles.github.com/blog/category/dropincc/) to find more information.
 
-### Mailing list and discussion forum
-
-* [Dropincc Forum](http://dropincc-java.1068093.n5.nabble.com/). Click "Options > Post by email..." when you entered the forum to get the email address of our mailing list.
-* Feel free to discuss about dropincc.java and I'll reply ASAP.
-
 ### NOTES
 
-* dropincc.java is now in its very initial stage, so it has a lot of improvements to do: The token definition is implemented in java built-in regEx implementation, so it could not support 'longest match' which it is expected to be. It now behaviors like a 'earliest match' or something... So the token definition order matters a lot currently. This must be improved later.
-
-### TODO
-
-* TokenTypes in runtime lexing & parsing should be simplified to a 'hashCode & equals-efficient' type(int).
-* Bootstrap "longest match" lexer regex engine.
-* Allow user to name each element for pretty printing.
-* More examples and detailed documentation.
+* The current stable release is v0.2.1.
+* The developing v0.3.0 and master branch may not be compatible with v0.2.x, but v0.2.x would be continuously maintained at branch `0.2.x`.
+* v0.3.0 will be a BIG release, and it surely will provide you a new powerful DSL tool. But... currently, we could just hold on v0.2.x because it's released and runs dozens of millions of times every day in more than one important production systems. The correctness is proven.
