@@ -222,19 +222,6 @@ public abstract class Util {
     }
 
     /**
-     * Get the platform dependent temporary directory path, with 'file
-     * separator' suffix('/' on linux platform, '\' on windows).
-     * 
-     * @return
-     */
-    public static String getTempDirWithFileSeparatorSuffix() {
-        String p = System.getProperty("java.io.tmpdir");
-        if (p.endsWith(File.separator))
-            return p;
-        return p + PATH_SEP;
-    }
-
-    /**
      * build the classpath using all properties with suffix 'class.path'; to
      * make some software setting its own class path variables happy(like
      * maven-surfire plugin). XXX dirty classpath hacking to make java compiler
@@ -270,5 +257,22 @@ public abstract class Util {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Get the proper parent class loader for hot compilation class loaders.
+     * 
+     * @return
+     */
+    public static ClassLoader getParentClsLoader() {
+        ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
+        if (ctxLoader != null) {
+            try {
+                ctxLoader.loadClass(Util.class.getName());
+                return ctxLoader;
+            } catch (ClassNotFoundException e) {
+            }
+        }
+        return Util.class.getClassLoader();
     }
 }

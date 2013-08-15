@@ -54,6 +54,9 @@ public class Lang implements Serializable {
     // warn messages generated while analyzing
     private String warnings;
 
+    // compilation encoding
+    private String encoding = "UTF-8";
+
     /**
      * Create language object with a name
      * 
@@ -94,7 +97,8 @@ public class Lang implements Serializable {
      */
     public ConstructingGrule defineGrule(Object... eles) {
         if (eles == null || eles.length == 0)
-            throw new DropinccException("Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
+            throw new DropinccException(
+                    "Could not add empty grammar rule, if you want to add a rule alternative that matches nothing, use CC.NOTHING.");
         Grule g = new Grule(this.grules.size());
         Element[] elements = Util.filterProductionEles(eles);
         g.getAlts().add(new Alternative(elements));
@@ -108,7 +112,7 @@ public class Lang implements Serializable {
      */
     public Exe compile() {
         checkIfAnyEmptyGrule(this.grules);
-        AnalyzedLang cl = new AnalyzedLang(this.name, this.tokens, this.grules, this.whiteSpaceSensitive);
+        AnalyzedLang cl = new AnalyzedLang(this.name, this.tokens, this.grules, this.whiteSpaceSensitive, this.encoding);
         cl.compile();
         this.debugMsgs = cl.getDebugMsgs();
         this.warnings = cl.getWarnings();
@@ -194,6 +198,16 @@ public class Lang implements Serializable {
      */
     public String getWarnings() {
         return warnings;
+    }
+
+    /**
+     * Set the encoding used during the compilation progress. Defaults to
+     * 'UTF-8' if not set.
+     * 
+     * @param encoding
+     */
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
     }
 
 }

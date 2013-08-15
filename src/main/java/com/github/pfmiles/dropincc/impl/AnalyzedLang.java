@@ -99,8 +99,12 @@ public class AnalyzedLang {
     private String debugMsgs;
     private String warnings;
 
-    public AnalyzedLang(String name, List<TokenDef> tokens, List<Grule> grules, boolean whitespaceSensitive) {
+    // compilation encoding
+    private String encoding;
+
+    public AnalyzedLang(String name, List<TokenDef> tokens, List<Grule> grules, boolean whitespaceSensitive, String encoding) {
         this.langName = name;
+        this.encoding = encoding;
         // build token -> tokenType mapping
         this.tokens = tokens;
         // Gathering instant tokenDefs...
@@ -128,7 +132,8 @@ public class AnalyzedLang {
         this.tokenPatterns = compiledTokenUnit.getRight();
 
         // 2.resolving the parser ast
-        TypeMappingParam typeMappingParam = new TypeMappingParam(this.tokenTypeMapping, this.gruleTypeMapping, specialTypeMapping, this.kleeneTypeMapping);
+        TypeMappingParam typeMappingParam = new TypeMappingParam(this.tokenTypeMapping, this.gruleTypeMapping, specialTypeMapping,
+                this.kleeneTypeMapping);
         // at this point, 'gruleTypeMapping' contains all grule -> type
         // mappings, including generated grules
         this.ruleTypeToAlts = ParserCompiler.buildRuleTypeToAlts(typeMappingParam);
@@ -161,7 +166,8 @@ public class AnalyzedLang {
         this.parserCode = parserCodeGenResult.getCode();
 
         // 7.compile and maintain the code in a separate classloader
-        CompilationResult result = HotCompileUtil.compile("com.github.pfmiles.dropincc.impl.runtime.gen." + this.langName, this.parserCode);
+        CompilationResult result = HotCompileUtil.compile("com.github.pfmiles.dropincc.impl.runtime.gen." + this.langName, this.parserCode,
+                this.encoding);
         if (!result.isSucceed()) {
             throw new DropinccException("Parser code compilation failed. Reason: " + result.getErrMsg());
         }

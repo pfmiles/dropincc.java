@@ -10,22 +10,23 @@
  ******************************************************************************/
 package com.github.pfmiles.dropincc.impl.hotcompile;
 
-import java.io.File;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
+import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
 import com.github.pfmiles.dropincc.DropinccException;
+import com.github.pfmiles.dropincc.impl.util.Util;
 
 /**
  * Compiles code at runtime, using JDK1.6 compiler API.
@@ -43,17 +44,16 @@ public class HotCompileUtil {
      * @return The resulting java class object and its corresponding class
      *         loader.
      */
-    public static CompilationResult compile(String qualifiedName, String sourceCode) {
+    public static CompilationResult compile(String qualifiedName, String sourceCode, String encoding) {
         JavaStringSource source = new JavaStringSource(qualifiedName, sourceCode);
         List<JavaStringSource> ss = Arrays.asList(source);
-        File dir = new File(HotCompileConstants.TARGETDIR);
-        if (!dir.exists())
-            dir.mkdirs();
-        List<String> options = Arrays.asList("-d", HotCompileConstants.TARGETDIR, "-classpath", HotCompileConstants.CLASSPATH);
+        List<String> options = Arrays.asList("-classpath", HotCompileConstants.CLASSPATH);
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        StandardJavaFileManager fileManager = null;
+
+        JavaFileManager fileManager = null;
+        Map<String, JavaMemCls> clses = new HashMap<String, JavaMemCls>();
         try {
-            fileManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.forName("UTF-8"));
+            fileManager = new MemClsFileManager(compiler.getStandardFileManager(null, null, Charset.forName(encoding)), clses);
             DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
             StringWriter out = new StringWriter();
             CompilationTask task = compiler.getTask(out, fileManager, diagnostics, options, null, ss);
@@ -72,7 +72,7 @@ public class HotCompileUtil {
             }
         }
         // every parser class should be loaded by a new specific class loader
-        HotCompileClassLoader loader = new HotCompileClassLoader(HotCompileUtil.class.getClassLoader());
+        HotCompileClassLoader loader = new HotCompileClassLoader(Util.getParentClsLoader(), clses);
         Class<?> cls = null;
         try {
             cls = loader.loadClass(qualifiedName);

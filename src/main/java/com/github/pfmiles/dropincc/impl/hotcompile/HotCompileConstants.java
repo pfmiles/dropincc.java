@@ -23,8 +23,4 @@ public interface HotCompileConstants {
      */
     String CLASSPATH = Util.getClassPath();
 
-    /**
-     * hot compilation target directory
-     */
-    String TARGETDIR = Util.getTempDirWithFileSeparatorSuffix() + "dcHotCompile";
 }
