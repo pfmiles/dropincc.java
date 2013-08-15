@@ -99,12 +99,8 @@ public class AnalyzedLang {
     private String debugMsgs;
     private String warnings;
 
-    // compilation encoding
-    private String encoding;
-
-    public AnalyzedLang(String name, List<TokenDef> tokens, List<Grule> grules, boolean whitespaceSensitive, String encoding) {
+    public AnalyzedLang(String name, List<TokenDef> tokens, List<Grule> grules, boolean whitespaceSensitive) {
         this.langName = name;
-        this.encoding = encoding;
         // build token -> tokenType mapping
         this.tokens = tokens;
         // Gathering instant tokenDefs...
@@ -166,8 +162,7 @@ public class AnalyzedLang {
         this.parserCode = parserCodeGenResult.getCode();
 
         // 7.compile and maintain the code in a separate classloader
-        CompilationResult result = HotCompileUtil.compile("com.github.pfmiles.dropincc.impl.runtime.gen." + this.langName, this.parserCode,
-                this.encoding);
+        CompilationResult result = HotCompileUtil.compile("com.github.pfmiles.dropincc.impl.runtime.gen." + this.langName, this.parserCode);
         if (!result.isSucceed()) {
             throw new DropinccException("Parser code compilation failed. Reason: " + result.getErrMsg());
         }

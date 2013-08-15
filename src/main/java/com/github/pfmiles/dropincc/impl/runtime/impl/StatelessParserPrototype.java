@@ -60,7 +60,9 @@ public class StatelessParserPrototype implements ParserPrototype {
         allFields.addAll(this.fieldTokenTypeMapping.keySet());
         for (String fname : allFields) {
             try {
-                this.parserFieldsCache.put(fname, cls.getField(fname));
+                Field f = cls.getField(fname);
+                f.setAccessible(true);// this boosts reflection
+                this.parserFieldsCache.put(fname, f);
             } catch (Exception e) {
                 throw new DropinccException(e);
             }

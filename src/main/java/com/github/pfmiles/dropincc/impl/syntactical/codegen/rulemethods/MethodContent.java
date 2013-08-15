@@ -27,7 +27,7 @@ public class MethodContent extends CodeGen {
     // 0: ruleNum
     // 1: matchCode
     // 2: matchCode is backtracking
-    private static final MessageFormat onBacktrackPathFmt = getTemplate("methodContentOnBacktrackPath.dt", MethodContent.class);
+    private static final String onBacktrackPathFmt = getTemplate("methodContentOnBacktrackPath.dt", MethodContent.class);
 
     private PredictingGrule pg;
 
@@ -65,7 +65,7 @@ public class MethodContent extends CodeGen {
                     matchCodeOnPath = new MultiAltMatchCodeGen(this.pg, true).render(context);
                 }
             }
-            return onBacktrackPathFmt.format(new String[] { String.valueOf(pg.getGruleType().getDefIndex()), matchCode, matchCodeOnPath });
+            return MessageFormat.format(onBacktrackPathFmt, String.valueOf(pg.getGruleType().getDefIndex()), matchCode, matchCodeOnPath);
         } else {
             return matchCode;
         }

@@ -10,6 +10,8 @@
  ******************************************************************************/
 package com.github.pfmiles.dropincc.impl.syntactical.codegen;
 
+import java.text.MessageFormat;
+
 /**
  * @author pf-miles
  * 
@@ -18,7 +20,7 @@ public class TestTemplate extends CodeGen {
 
     @SuppressWarnings("unchecked")
     public String render(CodeGenContext context) {
-        return getTemplate("testTemp.dt", TestTemplate.class).format(new String[] { "hello", "world" });
+        return MessageFormat.format(getTemplate("testTemp.dt", TestTemplate.class), "hello", "world");
     }
 
 }

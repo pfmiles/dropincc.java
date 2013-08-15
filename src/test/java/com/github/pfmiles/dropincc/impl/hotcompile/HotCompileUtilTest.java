@@ -20,7 +20,7 @@ public class HotCompileUtilTest extends TestCase {
     public void testCompile() throws Exception {
         String code = "package test;\n" + "public class Test {\n" + "public static void main(String... args) throws Throwable {\n"
                 + "System.out.println(\"Hello World.\");\n" + "}\n" + "};\n";
-        CompilationResult rst = HotCompileUtil.compile("test.Test", code, "UTF-8");
+        CompilationResult rst = HotCompileUtil.compile("test.Test", code);
         if (!rst.isSucceed()) {
             assertTrue(false);
         } else {

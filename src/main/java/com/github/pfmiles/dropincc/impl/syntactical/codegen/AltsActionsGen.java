@@ -25,7 +25,7 @@ import com.github.pfmiles.dropincc.impl.GruleType;
 public class AltsActionsGen extends CodeGen {
 
     // [actionCls, ruleName, altIndex]
-    private static final MessageFormat fmt = new MessageFormat("public {0} {1}Action{2};// {1} rule alt {2} action");
+    private static final String fmt = "public {0} {1}Action{2};// {1} rule alt {2} action";
 
     // list([grule, altIndex, actionObj])
     private List<Object[]> actionInfos;
@@ -53,7 +53,7 @@ public class AltsActionsGen extends CodeGen {
             String fname = ruleName + "Action" + altIndex;
             context.fieldAltsActionMapping.put(fname, action);
             context.actionFieldMapping.put(action, fname);
-            sb.append(fmt.format(new String[] { actionCls, ruleName, altIndex })).append("\n");
+            sb.append(MessageFormat.format(fmt, actionCls, ruleName, altIndex)).append("\n");
         }
         return sb.toString();
     }

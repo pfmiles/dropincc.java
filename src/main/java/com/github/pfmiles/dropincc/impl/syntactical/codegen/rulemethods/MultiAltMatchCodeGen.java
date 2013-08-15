@@ -31,26 +31,26 @@ public class MultiAltMatchCodeGen extends CodeGen {
     // multi alt match code(not backtracking rule) -> only string code
     // 0: ruleName
     // 1: altsSwitchCode
-    private static final MessageFormat fmt = getTemplate("multiAltMatchCode.dt", MultiAltMatchCodeGen.class);
+    private static final String fmt = getTemplate("multiAltMatchCode.dt", MultiAltMatchCodeGen.class);
     // altCase -> only string code
     // 0: altNum
     // 1: elements code
     // 2: actionIvk
-    private static final MessageFormat altCase = getTemplate("altCase.dt", MultiAltMatchCodeGen.class);
+    private static final String altCase = getTemplate("altCase.dt", MultiAltMatchCodeGen.class);
     // altCase on backtrack path -> only string code
     // 0: altNum
     // 1: elements code
     // 2: elements var
     // 3: actionName
     // 4: ruleNum
-    private static final MessageFormat altCaseOnBacktrackPath = getTemplate("altCaseOnBacktrackPath.dt", MultiAltMatchCodeGen.class);
+    private static final String altCaseOnBacktrackPath = getTemplate("altCaseOnBacktrackPath.dt", MultiAltMatchCodeGen.class);
 
     // 0: actionName
     // 1: matchedVar
-    private static final MessageFormat actionIvkFormat = new MessageFormat("{0}.act({1})");
+    private static final String actionIvkFormat = "{0}.act({1})";
     // 0: actionName
     // 1: matchedVar
-    private static final MessageFormat paramedActionIvkFormat = new MessageFormat("{0}.act(arg, {1})");
+    private static final String paramedActionIvkFormat = "{0}.act(arg, {1})";
 
     private PredictingGrule pg;
     private boolean generatingBacktrackCode;
@@ -74,22 +74,22 @@ public class MultiAltMatchCodeGen extends CodeGen {
             if (alt.getAction() != null) {
                 actionName = context.actionFieldMapping.get(alt.getAction());
                 if (alt.getAction() instanceof ParamedAction) {
-                    actionIvk = paramedActionIvkFormat.format(new String[] { actionName, elementsVar });
+                    actionIvk = MessageFormat.format(paramedActionIvkFormat, actionName, elementsVar);
                 } else if (alt.getAction() instanceof Action) {
-                    actionIvk = actionIvkFormat.format(new String[] { actionName, elementsVar });
+                    actionIvk = MessageFormat.format(actionIvkFormat, actionName, elementsVar);
                 } else {
                     throw new DropinccException("Illegal action type: " + alt.getAction().getClass());
                 }
             }
             if (generatingBacktrackCode) {
                 altsSwitchCode.append(
-                        altCaseOnBacktrackPath.format(new String[] { altNum, elementsCode, elementsVar, actionName, String.valueOf(pg.getGruleType().getDefIndex()) }))
-                        .append('\n');
+                        MessageFormat.format(altCaseOnBacktrackPath, altNum, elementsCode, elementsVar, actionName,
+                                String.valueOf(pg.getGruleType().getDefIndex()))).append('\n');
             } else {
-                altsSwitchCode.append(altCase.format(new String[] { altNum, elementsCode, actionIvk })).append('\n');
+                altsSwitchCode.append(MessageFormat.format(altCase, altNum, elementsCode, actionIvk)).append('\n');
             }
         }
-        return fmt.format(new String[] { pg.getGruleType().toCodeGenStr(), altsSwitchCode.toString() });
+        return MessageFormat.format(fmt, pg.getGruleType().toCodeGenStr(), altsSwitchCode.toString());
     }
 
 }

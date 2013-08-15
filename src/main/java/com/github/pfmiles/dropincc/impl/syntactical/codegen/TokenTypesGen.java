@@ -23,7 +23,7 @@ import com.github.pfmiles.dropincc.impl.TokenType;
  */
 public class TokenTypesGen extends CodeGen {
     // [typeName, comment]
-    private static final MessageFormat fmt = new MessageFormat("public TokenType {0};// {1}");
+    private static final String fmt = "public TokenType {0};// {1}";
     private Collection<TokenType> types;
 
     public TokenTypesGen(Collection<TokenType> types) {
@@ -38,7 +38,7 @@ public class TokenTypesGen extends CodeGen {
         for (TokenType t : types) {
             String name = t.toCodeGenStr();
             context.fieldTokenTypeMapping.put(name, t);
-            sb.append(fmt.format(new String[] { t.toCodeGenStr(), t.toString() })).append("\n");
+            sb.append(MessageFormat.format(fmt, t.toCodeGenStr(), t.toString())).append("\n");
         }
         return sb.toString();
     }

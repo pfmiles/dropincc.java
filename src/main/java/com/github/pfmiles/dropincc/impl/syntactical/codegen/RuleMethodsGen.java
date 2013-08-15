@@ -27,7 +27,7 @@ public class RuleMethodsGen extends CodeGen {
     // method skeleton -> only string code
     // 0: gruleName
     // 1: methodContent
-    private static final MessageFormat ruleMethodSkeleton = getTemplate("ruleMethodSkeleton.dt", RuleMethodsGen.class);
+    private static final String ruleMethodSkeleton = getTemplate("ruleMethodSkeleton.dt", RuleMethodsGen.class);
 
     private List<PredictingGrule> pgs;
 
@@ -43,7 +43,7 @@ public class RuleMethodsGen extends CodeGen {
             context.varSeq = new SeqGen();
             context.curGrule = p.getGruleType();
             String ruleName = p.getGruleType().toCodeGenStr();
-            sb.append(ruleMethodSkeleton.format(new String[] { ruleName, new MethodContent(p).render(context) })).append('\n');
+            sb.append(MessageFormat.format(ruleMethodSkeleton, ruleName, new MethodContent(p).render(context))).append('\n');
         }
         return sb.toString();
     }

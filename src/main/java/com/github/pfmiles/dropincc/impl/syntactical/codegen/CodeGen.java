@@ -12,7 +12,6 @@ package com.github.pfmiles.dropincc.impl.syntactical.codegen;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 
 import com.github.pfmiles.dropincc.DropinccException;
 import com.github.pfmiles.dropincc.impl.util.ByteAppender;
@@ -26,8 +25,8 @@ import com.github.pfmiles.dropincc.impl.util.ByteAppender;
 public abstract class CodeGen {
 
     // use java built-in messageFormats as templates
-    protected static MessageFormat getTemplate(String name, Class<? extends CodeGen> cls) {
-        return new MessageFormat(readStrStream(cls.getResourceAsStream(name)));
+    protected static String getTemplate(String name, Class<? extends CodeGen> cls) {
+        return readStrStream(cls.getResourceAsStream(name));
     }
 
     private static String readStrStream(InputStream stm) {

@@ -34,31 +34,31 @@ public class KleeneEleGen extends CodeGen {
     // elementsCode {2}
     // elementVar {3}
     // ruleName {4}
-    private static final MessageFormat ksFmt = getTemplate("kleeneStar.dt", KleeneEleGen.class);
-    private static final MessageFormat ksFmtBacktracking = getTemplate("kleeneStarBacktracking.dt", KleeneEleGen.class);
-    private static final MessageFormat kcFmt = getTemplate("kleeneCross.dt", KleeneEleGen.class);
-    private static final MessageFormat kcFmtBacktracking = getTemplate("kleeneCrossBacktracking.dt", KleeneEleGen.class);
-    private static final MessageFormat opFmt = getTemplate("optional.dt", KleeneEleGen.class);
+    private static final String ksFmt = getTemplate("kleeneStar.dt", KleeneEleGen.class);
+    private static final String ksFmtBacktracking = getTemplate("kleeneStarBacktracking.dt", KleeneEleGen.class);
+    private static final String kcFmt = getTemplate("kleeneCross.dt", KleeneEleGen.class);
+    private static final String kcFmtBacktracking = getTemplate("kleeneCrossBacktracking.dt", KleeneEleGen.class);
+    private static final String opFmt = getTemplate("optional.dt", KleeneEleGen.class);
     // varName {0}
     // ksNum {1}
     // elementsCode {2}
     // elementVar {3}
-    private static final MessageFormat ksBackFmt = getTemplate("kleeneStarBacktrack.dt", KleeneEleGen.class);
-    private static final MessageFormat ksBackFmtBacktracking = getTemplate("kleeneStarBacktrackBacktracking.dt", KleeneEleGen.class);
+    private static final String ksBackFmt = getTemplate("kleeneStarBacktrack.dt", KleeneEleGen.class);
+    private static final String ksBackFmtBacktracking = getTemplate("kleeneStarBacktrackBacktracking.dt", KleeneEleGen.class);
     // varName {0}
     // ksNum {1}
     // elementsCode {2}
     // elementVar {3}
     // elementsCodePlus {4}
     // elementVarPlus {5}
-    private static final MessageFormat kcBackFmt = getTemplate("kleeneCrossBacktrack.dt", KleeneEleGen.class);
-    private static final MessageFormat kcBackFmtBacktracking = getTemplate("kleeneCrossBacktrackBacktracking.dt", KleeneEleGen.class);
+    private static final String kcBackFmt = getTemplate("kleeneCrossBacktrack.dt", KleeneEleGen.class);
+    private static final String kcBackFmtBacktracking = getTemplate("kleeneCrossBacktrackBacktracking.dt", KleeneEleGen.class);
     // varName {0}
     // ksNum {1}
     // elementsCode {2}
     // elementVar {3}
-    private static final MessageFormat opBackFmt = getTemplate("optionalBacktrack.dt", KleeneEleGen.class);
-    private static final MessageFormat opBackFmtBacktracking = getTemplate("optionalBacktrackBacktracking.dt", KleeneEleGen.class);
+    private static final String opBackFmt = getTemplate("optionalBacktrack.dt", KleeneEleGen.class);
+    private static final String opBackFmtBacktracking = getTemplate("optionalBacktrackBacktracking.dt", KleeneEleGen.class);
 
     private PredictingKleene pk;
     private boolean genBacktrackCode;
@@ -84,15 +84,15 @@ public class KleeneEleGen extends CodeGen {
         if (pk.getKleeneType() instanceof KleeneStarType) {
             if (pk.isBacktrack()) {
                 if (this.genBacktrackCode) {
-                    code = ksBackFmtBacktracking.format(new String[] { varName, knum, elementsCode, elementsVar });
+                    code = MessageFormat.format(ksBackFmtBacktracking, varName, knum, elementsCode, elementsVar);
                 } else {
-                    code = ksBackFmt.format(new String[] { varName, knum, elementsCode, elementsVar });
+                    code = MessageFormat.format(ksBackFmt, varName, knum, elementsCode, elementsVar);
                 }
             } else {
                 if (this.genBacktrackCode) {
-                    code = ksFmtBacktracking.format(new String[] { varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr() });
+                    code = MessageFormat.format(ksFmtBacktracking, varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr());
                 } else {
-                    code = ksFmt.format(new String[] { varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr() });
+                    code = MessageFormat.format(ksFmt, varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr());
                 }
             }
         } else if (pk.getKleeneType() instanceof KleeneCrossType) {
@@ -101,26 +101,26 @@ public class KleeneEleGen extends CodeGen {
                 String elementsCodePlus = varAndCodePlus.getRight();
                 String elementsVarPlus = varAndCodePlus.getLeft();
                 if (this.genBacktrackCode) {
-                    code = kcBackFmtBacktracking.format(new String[] { varName, knum, elementsCode, elementsVar, elementsCodePlus, elementsVarPlus });
+                    code = MessageFormat.format(kcBackFmtBacktracking, varName, knum, elementsCode, elementsVar, elementsCodePlus, elementsVarPlus);
                 } else {
-                    code = kcBackFmt.format(new String[] { varName, knum, elementsCode, elementsVar, elementsCodePlus, elementsVarPlus });
+                    code = MessageFormat.format(kcBackFmt, varName, knum, elementsCode, elementsVar, elementsCodePlus, elementsVarPlus);
                 }
             } else {
                 if (this.genBacktrackCode) {
-                    code = kcFmtBacktracking.format(new String[] { varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr() });
+                    code = MessageFormat.format(kcFmtBacktracking, varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr());
                 } else {
-                    code = kcFmt.format(new String[] { varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr() });
+                    code = MessageFormat.format(kcFmt, varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr());
                 }
             }
         } else if (pk.getKleeneType() instanceof OptionalType) {
             if (pk.isBacktrack()) {
                 if (this.genBacktrackCode) {
-                    code = opBackFmtBacktracking.format(new String[] { varName, knum, elementsCode, elementsVar });
+                    code = MessageFormat.format(opBackFmtBacktracking, varName, knum, elementsCode, elementsVar);
                 } else {
-                    code = opBackFmt.format(new String[] { varName, knum, elementsCode, elementsVar });
+                    code = MessageFormat.format(opBackFmt, varName, knum, elementsCode, elementsVar);
                 }
             } else {
-                code = opFmt.format(new String[] { varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr() });
+                code = MessageFormat.format(opFmt, varName, kName, elementsCode, elementsVar, context.curGrule.toCodeGenStr());
             }
         } else {
             throw new DropinccException("Unhandled code generation kleene node type: " + pk.getKleeneType());

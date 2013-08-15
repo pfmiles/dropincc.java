@@ -29,7 +29,7 @@ import com.github.pfmiles.dropincc.impl.util.SeqGen;
 public class KleeneDfasGen extends CodeGen {
 
     // kleene name {0}
-    private static final MessageFormat fmt = new MessageFormat("public RunningDfaState {0}DfaStart;");
+    private static final String fmt = "public RunningDfaState {0}DfaStart;";
 
     private List<PredictingKleene> pks;
 
@@ -44,7 +44,7 @@ public class KleeneDfasGen extends CodeGen {
             // backtrack kleene have no DFA
             if (pk.isBacktrack())
                 continue;
-            sb.append(fmt.format(new String[] { pk.getKleeneType().toCodeGenStr() })).append('\n');
+            sb.append(MessageFormat.format(fmt, pk.getKleeneType().toCodeGenStr())).append('\n');
             String fieldName = pk.getKleeneType().toCodeGenStr() + "DfaStart";
             context.fieldKleeneDfaMapping.put(fieldName, toPredictingDfa(pk.getDfa()));
         }

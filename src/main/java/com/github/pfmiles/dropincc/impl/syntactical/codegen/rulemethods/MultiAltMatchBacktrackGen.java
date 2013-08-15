@@ -29,14 +29,14 @@ public class MultiAltMatchBacktrackGen extends CodeGen {
     // 0: ruleName
     // 1: backtracksCode
     // 2: cleanCacheCode
-    private static final MessageFormat fmt = getTemplate("multiAltBacktrackMatchCode.dt", MultiAltMatchBacktrackGen.class);
+    private static final String fmt = getTemplate("multiAltBacktrackMatchCode.dt", MultiAltMatchBacktrackGen.class);
     // altBacktrack -> only string code
     // 0: ruleNum
     // 1: elements code
     // 2: elements var
     // 3: actionName
-    private static final MessageFormat altBacktrackFmt = getTemplate("altBacktrack.dt", MultiAltMatchBacktrackGen.class);
-    private static final MessageFormat altBacktrackOnPathFmt = getTemplate("altBacktrackOnPath.dt", MultiAltMatchBacktrackGen.class);
+    private static final String altBacktrackFmt = getTemplate("altBacktrack.dt", MultiAltMatchBacktrackGen.class);
+    private static final String altBacktrackOnPathFmt = getTemplate("altBacktrackOnPath.dt", MultiAltMatchBacktrackGen.class);
 
     private PredictingGrule pg;
     private boolean generatingBacktrackCode;
@@ -60,15 +60,17 @@ public class MultiAltMatchBacktrackGen extends CodeGen {
                 actionName = context.actionFieldMapping.get(alt.getAction());
             }
             if (this.generatingBacktrackCode) {
-                backtrackCode.append(altBacktrackOnPathFmt.format(new String[] { ruleNum, varAndCode.getRight(), varAndCode.getLeft(), actionName })).append('\n');
+                backtrackCode.append(MessageFormat.format(altBacktrackOnPathFmt, ruleNum, varAndCode.getRight(), varAndCode.getLeft(), actionName))
+                        .append('\n');
             } else {
-                backtrackCode.append(altBacktrackFmt.format(new String[] { ruleNum, varAndCode.getRight(), varAndCode.getLeft(), actionName })).append('\n');
+                backtrackCode.append(MessageFormat.format(altBacktrackFmt, ruleNum, varAndCode.getRight(), varAndCode.getLeft(), actionName)).append(
+                        '\n');
             }
         }
         String cleanCacheCode = "";
         if (!this.generatingBacktrackCode)
             cleanCacheCode = "cleanCache();";
-        return fmt.format(new String[] { ruleName, backtrackCode.toString(), cleanCacheCode });
+        return MessageFormat.format(fmt, ruleName, backtrackCode.toString(), cleanCacheCode);
     }
 
 }

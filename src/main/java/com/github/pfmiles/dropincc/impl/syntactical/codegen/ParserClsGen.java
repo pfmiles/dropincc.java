@@ -22,7 +22,7 @@ import com.github.pfmiles.dropincc.impl.GruleType;
  */
 public class ParserClsGen extends CodeGen {
 
-    private static final MessageFormat fmt = getTemplate("parserCls.dt", ParserClsGen.class);
+    private static final String fmt = getTemplate("parserCls.dt", ParserClsGen.class);
 
     private String parserClsName;// {0}
     private TokenTypesGen tokenTypes; // {1}
@@ -60,7 +60,8 @@ public class ParserClsGen extends CodeGen {
 
     @SuppressWarnings("unchecked")
     public String render(CodeGenContext context) {
-        return fmt.format(new String[] { this.parserClsName, this.tokenTypes.render(context), this.actions.render(context), this.preds.render(context),
-                this.ruleAltsPredictingDfa.render(context), this.kleenePreds.render(context), this.startRule.toCodeGenStr(), this.ruleMethods.render(context) });
+        return MessageFormat.format(fmt, this.parserClsName, this.tokenTypes.render(context), this.actions.render(context),
+                this.preds.render(context), this.ruleAltsPredictingDfa.render(context), this.kleenePreds.render(context),
+                this.startRule.toCodeGenStr(), this.ruleMethods.render(context));
     }
 }

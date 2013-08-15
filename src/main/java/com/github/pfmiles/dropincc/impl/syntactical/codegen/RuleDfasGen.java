@@ -30,8 +30,7 @@ import com.github.pfmiles.dropincc.impl.util.SeqGen;
 public class RuleDfasGen extends CodeGen {
 
     // ruleName {0}
-    private static final MessageFormat fmt = new MessageFormat(
-            "public RunningDfaState {0}DfaStart;// {0} rule look ahead dfa start state");
+    private static final String fmt = "public RunningDfaState {0}DfaStart;// {0} rule look ahead dfa start state";
 
     private List<PredictingGrule> pgs;
 
@@ -46,7 +45,7 @@ public class RuleDfasGen extends CodeGen {
             if (p.getDfa() == null)
                 continue;
             String ruleName = p.getGruleType().toCodeGenStr();
-            sb.append(fmt.format(new String[] { ruleName })).append('\n');
+            sb.append(MessageFormat.format(fmt, ruleName)).append('\n');
             String dfaName = ruleName + "DfaStart";
             RunningDfaState start = toPredictingDfa(p.getDfa());
             context.fieldRuleDfaMapping.put(dfaName, start);

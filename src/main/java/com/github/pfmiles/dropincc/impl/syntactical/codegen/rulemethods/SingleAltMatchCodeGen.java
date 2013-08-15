@@ -31,22 +31,22 @@ public class SingleAltMatchCodeGen extends CodeGen {
     // not on backtrack path
     // 0: elements code
     // 1: actionIvk
-    private static final MessageFormat fmt = new MessageFormat("{0}\nret = {1};");
+    private static final String fmt = "{0}\nret = {1};";
     // on backtrack path:
     // 0: ruleNum
     // 1: elementsCode
     // 2: elementsVar
     // 3: actionName
-    private static final MessageFormat fmtOnBacktrackPath = getTemplate("singleAltMatchOnBacktrackPath.dt", SingleAltMatchCodeGen.class);
+    private static final String fmtOnBacktrackPath = getTemplate("singleAltMatchOnBacktrackPath.dt", SingleAltMatchCodeGen.class);
 
     // action invoke
     // 0: actionName
     // 1: matchedVar
-    private static final MessageFormat actionIvkFmt = new MessageFormat("{0}.act({1})");
+    private static final String actionIvkFmt = "{0}.act({1})";
     // paramed action invoke
     // 0: actionName
     // 1: matchedVar
-    private static final MessageFormat paramedActionFmt = new MessageFormat("{0}.act(arg, {1})");
+    private static final String paramedActionFmt = "{0}.act(arg, {1})";
 
     private PredictingGrule pg;
     // is generating 'on backtrack path' code
@@ -68,17 +68,17 @@ public class SingleAltMatchCodeGen extends CodeGen {
         if (alt.getAction() != null) {
             actionName = context.actionFieldMapping.get(alt.getAction());
             if (alt.getAction() instanceof Action) {
-                actionIvk = actionIvkFmt.format(new String[] { actionName, elementsVar });
+                actionIvk = MessageFormat.format(actionIvkFmt, actionName, elementsVar);
             } else if (alt.getAction() instanceof ParamedAction) {
-                actionIvk = paramedActionFmt.format(new String[] { actionName, elementsVar });
+                actionIvk = MessageFormat.format(paramedActionFmt, actionName, elementsVar);
             } else {
                 throw new DropinccException("Illegal action type: " + alt.getAction().getClass());
             }
         }
         if (onBacktrackPath) {
-            return fmtOnBacktrackPath.format(new String[] { String.valueOf(pg.getGruleType().getDefIndex()), elementsCode, elementsVar, actionName });
+            return MessageFormat.format(fmtOnBacktrackPath, String.valueOf(pg.getGruleType().getDefIndex()), elementsCode, elementsVar, actionName);
         } else {
-            return fmt.format(new String[] { elementsCode, actionIvk });
+            return MessageFormat.format(fmt, elementsCode, actionIvk);
         }
     }
 

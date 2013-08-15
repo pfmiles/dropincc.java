@@ -34,16 +34,16 @@ public class ElementsCodeGen extends CodeGen {
 
     // varName {0}
     // varContent {1}
-    private static final MessageFormat multiVarFmt = getTemplate("multiVar.dt", ElementsCodeGen.class);
-    private static final MessageFormat multiVarBacktrackFmt = getTemplate("multiVarBacktrack.dt", ElementsCodeGen.class);
+    private static final String multiVarFmt = getTemplate("multiVar.dt", ElementsCodeGen.class);
+    private static final String multiVarBacktrackFmt = getTemplate("multiVarBacktrack.dt", ElementsCodeGen.class);
 
     // varName {0}
     // tokenTypeName {1}
-    private static final MessageFormat tokenMatchFmt = new MessageFormat("Object {0} = this.match({1});");
+    private static final String tokenMatchFmt = "Object {0} = this.match({1});";
 
     // varName {0}
     // ruleName {1}
-    private static final MessageFormat ruleIvkFmt = new MessageFormat("Object {0} = {1}(arg);");
+    private static final String ruleIvkFmt = "Object {0} = {1}(arg);";
 
     private List<EleType> matchSeq;
     private boolean generatingBacktrackCode;
@@ -61,14 +61,15 @@ public class ElementsCodeGen extends CodeGen {
         for (EleType ele : this.matchSeq) {
             if (ele instanceof TokenType) {
                 String varName = "p" + context.varSeq.next();
-                sb.append(tokenMatchFmt.format(new String[] { varName, ((TokenType) ele).toCodeGenStr() })).append('\n');
+                sb.append(MessageFormat.format(tokenMatchFmt, varName, ((TokenType) ele).toCodeGenStr())).append('\n');
                 vars.add(varName);
             } else if (ele instanceof GruleType) {
                 String varName = "p" + context.varSeq.next();
-                sb.append(ruleIvkFmt.format(new String[] { varName, ((GruleType) ele).toCodeGenStr() })).append('\n');
+                sb.append(MessageFormat.format(ruleIvkFmt, varName, ((GruleType) ele).toCodeGenStr())).append('\n');
                 vars.add(varName);
             } else if (ele instanceof KleeneType) {
-                Pair<String, String> varAndCode = new KleeneEleGen(context.kleeneTypeToPredicting.get((KleeneType) ele), this.generatingBacktrackCode).render(context);
+                Pair<String, String> varAndCode = new KleeneEleGen(context.kleeneTypeToPredicting.get((KleeneType) ele), this.generatingBacktrackCode)
+                        .render(context);
                 vars.add(varAndCode.getLeft());
                 sb.append(varAndCode.getRight());
             } else {
@@ -82,9 +83,9 @@ public class ElementsCodeGen extends CodeGen {
             String ctt = Util.join(", ", vars);
             retVar = "p" + context.varSeq.next();
             if (this.generatingBacktrackCode) {
-                sb.append(multiVarBacktrackFmt.format(new String[] { retVar, ctt })).append('\n');
+                sb.append(MessageFormat.format(multiVarBacktrackFmt, retVar, ctt)).append('\n');
             } else {
-                sb.append(multiVarFmt.format(new String[] { retVar, ctt })).append('\n');
+                sb.append(MessageFormat.format(multiVarFmt, retVar, ctt)).append('\n');
             }
         }
         return new Pair<String, String>(retVar, sb.toString());

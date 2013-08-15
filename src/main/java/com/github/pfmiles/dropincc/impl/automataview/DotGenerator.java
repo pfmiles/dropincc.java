@@ -29,11 +29,11 @@ public class DotGenerator {
 
     private Collection<GeneratingState> states = null;
     // [name, length, width, finals, transitions]
-    private static MessageFormat graphTemp = new MessageFormat("digraph {0} '{'\n" + "rankdir=LR;\n" + "size=\"{1},{2}\"\n" + "node [shape = doublecircle]; {3};\n"
-            + "node [shape = circle];\n" + "{4}\n" + "'}'\n");
+    private static String graphTemp = "digraph {0} '{'\n" + "rankdir=LR;\n" + "size=\"{1},{2}\"\n" + "node [shape = doublecircle]; {3};\n"
+            + "node [shape = circle];\n" + "{4}\n" + "'}'\n";
 
     // [start, end, edge]
-    private static MessageFormat transitionTemp = new MessageFormat("{0} -> {1} [ label = \"{2}\" ];");
+    private static String transitionTemp = "{0} -> {1} [ label = \"{2}\" ];";
 
     /**
      * Construct a dot generator, passed in all states contained in the graph.
@@ -61,14 +61,14 @@ public class DotGenerator {
         }
         String finalsStr = Util.join(" ", finals);
         String transitionsStr = Util.join("\n", renderTransitionStrs(transitions));
-        return graphTemp.format(new String[] { name, String.valueOf(length), String.valueOf(width), finalsStr, transitionsStr });
+        return MessageFormat.format(graphTemp, name, String.valueOf(length), String.valueOf(width), finalsStr, transitionsStr);
     }
 
     private List<String> renderTransitionStrs(List<String[]> transitions) {
         List<String> ret = new ArrayList<String>();
         for (String[] trans : transitions) {
             trans[2] = trans[2].replaceAll("\\\"", "\\");
-            ret.add(transitionTemp.format(trans));
+            ret.add(MessageFormat.format(transitionTemp, (Object[]) trans));
         }
         return ret;
     }

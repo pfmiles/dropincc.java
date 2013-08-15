@@ -10,6 +10,8 @@
  ******************************************************************************/
 package com.github.pfmiles.dropincc.impl.syntactical.codegen;
 
+import java.text.MessageFormat;
+
 /**
  * @author pf-miles
  * 
@@ -18,9 +20,8 @@ public class ParserClsTemplate extends CodeGen {
 
     @SuppressWarnings("unchecked")
     public String render(CodeGenContext context) {
-        return getTemplate("parserCls.dt", ParserClsGen.class)
-                .format(new String[] { "className", "tokenTypes", "alts' actions", "preds", "startRule", "ruleMethods", "alts' predicting methods",
-                        "kleene predicting methods" });
+        return MessageFormat.format(getTemplate("parserCls.dt", ParserClsGen.class), "className", "tokenTypes", "alts' actions", "preds",
+                "startRule", "ruleMethods", "alts' predicting methods", "kleene predicting methods");
     }
 
 }

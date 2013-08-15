@@ -11,7 +11,6 @@
 package com.github.pfmiles.dropincc.impl.hotcompile;
 
 import java.io.StringWriter;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +43,7 @@ public class HotCompileUtil {
      * @return The resulting java class object and its corresponding class
      *         loader.
      */
-    public static CompilationResult compile(String qualifiedName, String sourceCode, String encoding) {
+    public static CompilationResult compile(String qualifiedName, String sourceCode) {
         JavaStringSource source = new JavaStringSource(qualifiedName, sourceCode);
         List<JavaStringSource> ss = Arrays.asList(source);
         List<String> options = Arrays.asList("-classpath", HotCompileConstants.CLASSPATH);
@@ -53,7 +52,7 @@ public class HotCompileUtil {
         JavaFileManager fileManager = null;
         Map<String, JavaMemCls> clses = new HashMap<String, JavaMemCls>();
         try {
-            fileManager = new MemClsFileManager(compiler.getStandardFileManager(null, null, Charset.forName(encoding)), clses);
+            fileManager = new MemClsFileManager(compiler.getStandardFileManager(null, null, null), clses);
             DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
             StringWriter out = new StringWriter();
             CompilationTask task = compiler.getTask(out, fileManager, diagnostics, options, null, ss);

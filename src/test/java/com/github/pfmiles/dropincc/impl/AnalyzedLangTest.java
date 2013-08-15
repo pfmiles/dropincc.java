@@ -61,7 +61,7 @@ public class AnalyzedLangTest extends TestCase {
         addend.define(factor, CC.ks(MUL.or(DIV), factor));
         factor.define(DIGIT).alt(LEFTPAREN, addition, RIGHTPAREN);
         AnalyzedLang cl = new AnalyzedLang("test", (List<TokenDef>) TestHelper.priField(calculator, "tokens"), (List<Grule>) TestHelper.priField(
-                calculator, "grules"), false, "UTF-8");
+                calculator, "grules"), false);
         KleeneStarNode k1 = (KleeneStarNode) addition.getAlts().get(0).getElements().get(1);
         Object shouldBeRewritten = k1.getElements().get(0);
         assertTrue(shouldBeRewritten instanceof Grule);
