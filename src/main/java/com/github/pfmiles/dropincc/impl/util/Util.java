@@ -12,6 +12,7 @@ package com.github.pfmiles.dropincc.impl.util;
 
 import java.io.File;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -222,15 +223,14 @@ public abstract class Util {
     }
 
     /**
-     * build the classpath using all properties with suffix 'class.path'; to
-     * make some software setting its own class path variables happy(like
-     * maven-surfire plugin). XXX dirty classpath hacking to make java compiler
-     * API happy...
+     * Analyze class path for hot compilation
      * 
      * @return
      */
     public static String getClassPath() {
         StringBuilder sb = new StringBuilder();
+
+        // include classpath system properties
         for (Map.Entry<Object, Object> e : System.getProperties().entrySet()) {
             String k = (String) e.getKey();
             if (k.endsWith("class.path")) {
@@ -239,6 +239,21 @@ public abstract class Util {
                 sb.append(e.getValue());
             }
         }
+
+        // if url class loader, include all classpath urls
+        ClassLoader loader = getParentClsLoader();
+        if (loader instanceof URLClassLoader) {
+            for (URL url : ((URLClassLoader) loader).getURLs()) {
+                String dropinccPath = url.getPath();
+                if (dropinccPath != null && !"".equals(dropinccPath) && sb.indexOf(dropinccPath) == -1) {
+                    if (sb.length() != 0)
+                        sb.append(File.pathSeparator);
+                    sb.append(dropinccPath);
+                }
+            }
+        }
+
+        // include paths analyzed from file system
         URL url = Util.class.getResource("Util.class");
         if (url != null) {
             String dropinccPath = null;
