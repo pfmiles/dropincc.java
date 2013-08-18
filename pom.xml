@@ -20,7 +20,7 @@
 	
 	<scm>
 		<url>https://github.com/pfmiles/dropincc.java</url>
-		<connection>scm:git:https://github.com/pfmiles/dropincc.java.git</connection>
+		<connection>scm:git:git@github.com:pfmiles/dropincc.java.git</connection>
 	</scm>
 	<developers>
 		<developer>
