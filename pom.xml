@@ -22,7 +22,7 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
-	
+
 	<scm>
 		<url>https://github.com/pfmiles/dropincc.java</url>
 		<connection>scm:git:git@github.com:pfmiles/dropincc.java.git</connection>
@@ -34,7 +34,7 @@
 			<email>miles.wy.1@gmail.com</email>
 		</developer>
 	</developers>
-	
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>

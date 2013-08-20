@@ -21,7 +21,8 @@ import com.github.pfmiles.dropincc.impl.runtime.impl.Parser;
 
 /**
  * The compiled representation of the constructing language. It's the main
- * interface for later code execution or evaluation.
+ * interface for later code execution or evaluation. It is thread-safe, so we'd
+ * better cache it, and reuse it again and again in the future.
  * 
  * @author pf-miles
  * 
