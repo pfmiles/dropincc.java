@@ -24,7 +24,7 @@ import com.github.pfmiles.dropincc.impl.util.Pair;
  * @author pf-miles
  * 
  */
-public abstract class CodeParser extends Parser {
+public abstract class CodeParser extends Parser implements Cloneable {
 
     protected CodeLexer lexer;
 
@@ -88,5 +88,17 @@ public abstract class CodeParser extends Parser {
             }
         }
         return new DelayedAction(action, matched);
+    }
+
+    protected CodeParser clone() {
+        CodeParser ret = null;
+        try {
+            ret = (CodeParser) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new DropinccException(e);
+        }
+        // reset all states
+        ret.parseCache = new HashMap<ParseCacheKey, Pair<DelayedAction, Integer>>();
+        return ret;
     }
 }
