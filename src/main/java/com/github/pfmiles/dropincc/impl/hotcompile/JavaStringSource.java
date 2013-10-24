@@ -21,13 +21,13 @@ import javax.tools.SimpleJavaFileObject;
  */
 public class JavaStringSource extends SimpleJavaFileObject {
 
-    private String name;
+    private String clsName;
     // source code
     private String source;
 
     protected JavaStringSource(String name, String source) {
         super(URI.create("string:///" + name.replaceAll("\\.", "/") + Kind.SOURCE.extension), Kind.SOURCE);
-        this.name = name;
+        this.clsName = name;
         this.source = source;
     }
 
@@ -35,8 +35,8 @@ public class JavaStringSource extends SimpleJavaFileObject {
         return this.source;
     }
 
-    public String getName() {
-        return name;
+    public String getClsName() {
+        return clsName;
     }
 
     public String getSource() {
