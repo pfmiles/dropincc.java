@@ -283,7 +283,7 @@ public abstract class Util {
         try {
             File f = new File(url.toURI().getSchemeSpecificPart());
             if (f.exists()) {
-                return f.getAbsolutePath();
+                return f.toURI().getSchemeSpecificPart();
             } else {
                 return null;
             }
