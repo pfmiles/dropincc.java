@@ -15,6 +15,7 @@ import javax.tools.SimpleJavaFileObject;
  */
 public class JavaMemCls extends SimpleJavaFileObject {
 
+    private String clsName;
     private ByteArrayOutputStream bos;
 
     protected JavaMemCls(String name) {
@@ -28,5 +29,9 @@ public class JavaMemCls extends SimpleJavaFileObject {
 
     public OutputStream openOutputStream() throws IOException {
         return bos;
+    }
+
+    public String getClsName() {
+        return clsName;
     }
 }

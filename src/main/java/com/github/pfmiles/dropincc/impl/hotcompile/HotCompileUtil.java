@@ -51,8 +51,10 @@ public class HotCompileUtil {
 
         JavaFileManager fileManager = null;
         Map<String, JavaMemCls> clses = new HashMap<String, JavaMemCls>();
+        Map<String, JavaStringSource> srcs = new HashMap<String, JavaStringSource>();
+        srcs.put(source.getClsName(), source);
         try {
-            fileManager = new MemClsFileManager(compiler.getStandardFileManager(null, null, null), clses);
+            fileManager = new MemClsFileManager(compiler.getStandardFileManager(null, null, null), clses, srcs);
             DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
             StringWriter out = new StringWriter();
             CompilationTask task = compiler.getTask(out, fileManager, diagnostics, options, null, ss);
