@@ -11,6 +11,7 @@
 package com.github.pfmiles.dropincc.impl.util;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
@@ -244,7 +245,7 @@ public abstract class Util {
         ClassLoader loader = getParentClsLoader();
         if (loader instanceof URLClassLoader) {
             for (URL url : ((URLClassLoader) loader).getURLs()) {
-                String dropinccPath = url.getPath();
+                String dropinccPath = toFilePath(url);
                 if (dropinccPath != null && !"".equals(dropinccPath) && sb.indexOf(dropinccPath) == -1) {
                     if (sb.length() != 0)
                         sb.append(File.pathSeparator);
@@ -258,12 +259,13 @@ public abstract class Util {
         if (url != null) {
             String dropinccPath = null;
             if ("jar".equalsIgnoreCase(url.getProtocol())) {
-                String path = url.getPath();
+                String path = toFilePath(url);
                 // could not handle nested jars
-                dropinccPath = path.substring(path.indexOf(":") + 1, path.indexOf("!"));
+                dropinccPath = path != null ? path.substring(path.indexOf(":") + 1, path.indexOf("!")) : null;
             } else if ("file".equalsIgnoreCase(url.getProtocol())) {
-                String path = url.getPath();
-                dropinccPath = path.substring(0, path.lastIndexOf(PATH_SEP + Util.class.getName().replace(".", PATH_SEP) + ".class"));
+                String path = toFilePath(url);
+                dropinccPath = path != null ? path.substring(0, path.lastIndexOf(PATH_SEP + Util.class.getName().replace(".", PATH_SEP) + ".class"))
+                        : null;
             }
             if (dropinccPath != null && !"".equals(dropinccPath) && sb.indexOf(dropinccPath) == -1) {
                 if (sb.length() != 0)
@@ -272,6 +274,22 @@ public abstract class Util {
             }
         }
         return sb.toString();
+    }
+
+    private static String toFilePath(URL url) {
+        String protocal = url.getProtocol();
+        if (!("jar".equalsIgnoreCase(protocal) || "file".equalsIgnoreCase(protocal)))
+            return null;
+        try {
+            File f = new File(url.toURI().getSchemeSpecificPart());
+            if (f.exists()) {
+                return f.getAbsolutePath();
+            } else {
+                return null;
+            }
+        } catch (URISyntaxException e) {
+            throw new DropinccException(e);
+        }
     }
 
     /**
