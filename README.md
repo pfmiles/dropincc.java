@@ -13,8 +13,9 @@ dropincc.java Quick Start.
 As to parser generators, a full-featured calculator is more or less like a _Hello World_ example.  
 Here is this resulting _Hello World_ example in dropincc.java:  
 
-	/**
-	 * EBNF of Calculator:
+    /**
+     * EBNF of Calculator:
+     * 
      * <pre>
      * calc ::= expr $
      * expr ::= addend (('+'|'-') addend)*
@@ -26,14 +27,14 @@ Here is this resulting _Hello World_ example in dropincc.java:
     public static void main(String... args) throws Throwable {
         Lang c = new Lang("Calculator");
         Grule expr = c.newGrule();
-        c.defineGrule(expr, CC.EOF).action(new Action() {
+        c.defineGrule(expr, CC.EOF).action(new Action<Object>() {
             public Double act(Object matched) {
                 return (Double) ((Object[]) matched)[0];
             }
         });
         TokenDef a = c.newToken("\\+");
         Grule addend = c.newGrule();
-        expr.define(addend, CC.ks(a.or("\\-"), addend)).action(new Action() {
+        expr.define(addend, CC.ks(a.or("\\-"), addend)).action(new Action<Object>() {
             public Double act(Object matched) {
                 Object[] ms = (Object[]) matched;
                 Double a0 = (Double) ms[0];
@@ -52,7 +53,7 @@ Here is this resulting _Hello World_ example in dropincc.java:
         });
         TokenDef m = c.newToken("\\*");
         Grule factor = c.newGrule();
-        addend.define(factor, CC.ks(m.or("/"), factor)).action(new Action() {
+        addend.define(factor, CC.ks(m.or("/"), factor)).action(new Action<Object>() {
             public Double act(Object matched) {
                 Object[] ms = (Object[]) matched;
                 Double f0 = (Double) ms[0];
@@ -69,17 +70,17 @@ Here is this resulting _Hello World_ example in dropincc.java:
                 return f0;
             }
         });
-        factor.define("\\(", expr, "\\)").action(new Action() {
+        factor.define("\\(", expr, "\\)").action(new Action<Object>() {
             public Double act(Object matched) {
                 return (Double) ((Object[]) matched)[1];
             }
-        }).alt("\\d+(\\.\\d+)?").action(new Action() {
+        }).alt("\\d+(\\.\\d+)?").action(new Action<Object>() {
             public Double act(Object matched) {
                 return Double.parseDouble((String) matched);
             }
         });
         Exe exe = c.compile();
-        System.out.println(exe.eval("1 +2+3+(4 +5*6*7*(64/8/2/(2/1 )/1)*8  +9  )+   10"));
+        System.out.println(exe.<Double>eval("1 +2+3+(4 +5*6*7*(64/8/2/(2/1 )/1)*8  +9  )+   10"));
     }
 
 As you can see, these dozens of lines of pure java code defined a non-trivial calculator which supports parentheses operation.  
