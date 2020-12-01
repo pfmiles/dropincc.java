@@ -3,3 +3,5 @@
 .settings
 target
 src/test/java/com/github/pfmiles/dropincc/impl/runtime/gen
+.idea
+*.iml
