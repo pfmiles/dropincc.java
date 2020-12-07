@@ -170,6 +170,6 @@ More examples and documentation coming soon... You could explore the [wiki page]
 
 ### NOTES
 
-* The current stable release is v0.2.1.
+* The current stable release is v0.2.3.
 * The developing v0.3.0 and master branch may not be compatible with v0.2.x, but v0.2.x would be continuously maintained at branch `0.2.x`.
 * v0.3.0 will be a BIG release, and it surely will provide you a new powerful DSL tool. But... currently, we could just hold on v0.2.x because it's released and runs dozens of millions of times every day in more than one important production systems. The correctness is proven.
