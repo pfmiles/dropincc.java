@@ -4,41 +4,26 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     pf_miles - initial API and implementation
  ******************************************************************************/
 package com.github.pfmiles.dropincc.impl.lexical;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import com.github.pfmiles.dropincc.CC;
-import com.github.pfmiles.dropincc.DropinccException;
-import com.github.pfmiles.dropincc.Element;
-import com.github.pfmiles.dropincc.Grule;
-import com.github.pfmiles.dropincc.TokenDef;
-import com.github.pfmiles.dropincc.impl.Alternative;
-import com.github.pfmiles.dropincc.impl.AndSubRule;
-import com.github.pfmiles.dropincc.impl.ConstructingGrule;
-import com.github.pfmiles.dropincc.impl.OrSubRule;
-import com.github.pfmiles.dropincc.impl.TokenType;
+import com.github.pfmiles.dropincc.*;
+import com.github.pfmiles.dropincc.impl.*;
 import com.github.pfmiles.dropincc.impl.kleene.AbstractKleeneNode;
 import com.github.pfmiles.dropincc.impl.util.Pair;
 import com.github.pfmiles.dropincc.impl.util.Util;
 
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 /**
  * Util, to check and compile lexer rules.
- * 
+ *
  * @author pf-miles
- * 
  */
 public class LexerCompiler {
 
@@ -46,7 +31,7 @@ public class LexerCompiler {
         Map<TokenDef, TokenType> tokenTypeMapping = new HashMap<TokenDef, TokenType>();
         if (tokens != null) {
             int i = 0;
-            for (Iterator<TokenDef> iter = tokens.iterator(); iter.hasNext();) {
+            for (Iterator<TokenDef> iter = tokens.iterator(); iter.hasNext(); ) {
                 TokenDef t = iter.next();
                 if (tokenTypeMapping.containsKey(t))
                     continue;
@@ -71,7 +56,6 @@ public class LexerCompiler {
     /**
      * @param tokens
      * @return Pair&lt;GroupNumToType, Patterns&gt;
-     * 
      */
     public static Pair<Map<Integer, TokenType>, Pattern> checkAndCompileTokenRules(List<TokenDef> tokens, Map<TokenDef, TokenType> tokenTypeMapping) {
         // check regex valid
@@ -120,7 +104,8 @@ public class LexerCompiler {
     private static int countInnerGroups(String regExp) {
         int ret = 0;
         for (int i = 0; i < regExp.length(); i++) {
-            if ('(' == regExp.charAt(i) && (i - 1 < 0 || '\\' != regExp.charAt(i - 1)))
+            // count when '(' encountered while the preceding char is not '\' and the following is not '?'
+            if ('(' == regExp.charAt(i) && (i - 1 < 0 || '\\' != regExp.charAt(i - 1)) && (i + 1 >= regExp.length() || '?' != regExp.charAt(i + 1)))
                 ret++;
         }
         return ret;
@@ -128,7 +113,7 @@ public class LexerCompiler {
 
     /**
      * Traverse the grammar rule tree, and gather all instantly added token defs
-     * 
+     *
      * @param grules
      * @return
      */
